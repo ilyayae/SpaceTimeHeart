@@ -5,9 +5,11 @@
 #include <QFileDialog>
 #include <QDebug>
 #include <QTimer>
+#include <QSettings>
 
 #include "documenthandler.h"
 #include "filebrowser.h"
+#include "configmenu.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -32,14 +34,20 @@ private slots:
 
     void on_actionSave_File_triggered();
 
+    void on_textEdit_textChanged();
+
+    void on_actionPreferences_triggered();
+
     void openFromBrowser(const QString &path);
 
-    void on_textEdit_textChanged();
+    void initEverything();
 
 private:
     Ui::MainWindow *ui;
     DocumentHandler *dochandl;
     filebrowser *browser;
     QTimer *timer;
+    QSettings *settings;
+    ConfigMenu *c;
 };
 #endif // MAINWINDOW_H

@@ -3,10 +3,13 @@
 #include <QTextStream>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QSettings>
 
-DocumentHandler::DocumentHandler(QWidget *parent)
+DocumentHandler::DocumentHandler(QWidget *parent, QSettings *settings)
     : QWidget{parent}
-{}
+{
+    setts = settings;
+}
 
 void DocumentHandler::loadFile(QTextEdit *editor, QString fileName) {
     if (fileName.isEmpty()) return;
@@ -28,7 +31,7 @@ void DocumentHandler::loadFile(QTextEdit *editor, QString fileName) {
 
 void DocumentHandler::saveFile(QTextEdit *editor) {
     if (filePath.isEmpty()) {
-        filePath = QFileDialog::getSaveFileName(nullptr, tr("Save New File"), "/home", tr("Text Files (*.txt);;All Files (*)"));
+        filePath = QFileDialog::getSaveFileName(nullptr, tr("Save New File"), setts->value("general/WorkDirectory", "/home").toString(), tr("Text Files (*.txt);;All Files (*)"));
         if (filePath.isEmpty()) return;
     }
 
