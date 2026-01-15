@@ -5,33 +5,58 @@
 #include <QMessageBox>
 #include <QSettings>
 
-DocumentHandler::DocumentHandler(QWidget *parent, QSettings *settings)
+
+DocumentHandler::DocumentHandler(QWidget *parent, QSettings *settings, QGridLayout *editorPlace)
     : QWidget{parent}
 {
-    setts = settings;
+    Settings = settings;
+    EditorPlace = editorPlace;
+    currentEditor = NUL;
+    switchEditor(EMPTY);
 }
 
-void DocumentHandler::loadFile(QTextEdit *editor, QString fileName) {
+
+void DocumentHandler::loadFile(QString fileName) {
     if (fileName.isEmpty()) return;
+    QFileInfo info(fileName);
+    QString suffix = info.completeSuffix();
 
-    saveable = false;
-
-    QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QMessageBox::warning(nullptr, tr("Error"), tr("Cannot open file: %1").arg(file.errorString()));
-        return;
+    if (suffix == "txt")
+    {
+        switchEditor(TEXT);
+    } else if (suffix == "md")
+    {
+        switchEditor(MARKDOWN);
+    } else if (suffix == "html")
+    {
+        switchEditor(HTML);
+    } else
+    {
+        switchEditor(EMPTY);
     }
 
-    QTextStream in(&file);
-    editor->setPlainText(in.readAll());
-    filePath = fileName;
+    if (textEdit != nullptr)
+    {
+        saveable = false;
 
-    saveable = true;
+        QFile file(fileName);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QMessageBox::warning(nullptr, tr("Error"), tr("Cannot open file: %1").arg(file.errorString()));
+            return;
+        }
+
+        QTextStream in(&file);
+        textEdit->setPlainText(in.readAll());
+        filePath = fileName;
+
+        saveable = true;
+    }
+
 }
 
-void DocumentHandler::saveFile(QTextEdit *editor) {
+void DocumentHandler::saveFile() {
     if (filePath.isEmpty()) {
-        filePath = QFileDialog::getSaveFileName(nullptr, tr("Save New File"), setts->value("general/WorkDirectory", "/home").toString(), tr("Text Files (*.txt);;All Files (*)"));
+        filePath = QFileDialog::getSaveFileName(nullptr, tr("Save New File"), Settings->value("general/WorkDirectory", "/home").toString(), tr("Text Files (*.txt);;All Files (*)"));
         if (filePath.isEmpty()) return;
     }
 
@@ -42,5 +67,55 @@ void DocumentHandler::saveFile(QTextEdit *editor) {
     }
 
     QTextStream out(&file);
-    out << editor->toPlainText();
+    out << textEdit->toPlainText();
+}
+
+void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
+{
+    if(textEdit != nullptr)
+    {
+        saveFile();
+    }
+    switch (currentEditor) {
+    case EMPTY:
+        EditorPlace->removeWidget(emptyEditor);
+        emptyEditor->deleteLater();;
+        break;
+    case TEXT:
+        EditorPlace->removeWidget(textEditor);
+        textEditor->deleteLater();;
+        break;
+    case MARKDOWN:
+        EditorPlace->removeWidget(markdownEditor);
+        markdownEditor->deleteLater();;
+        break;
+    case HTML:
+        EditorPlace->removeWidget(htmlEditor);
+        htmlEditor->deleteLater();;
+        break;
+    default:
+        break;
+    }
+
+    switch (SwitchTo) {
+    case EMPTY:
+        emptyEditor = new EmptyEditor();
+        EditorPlace->addWidget(emptyEditor);
+        textEdit = nullptr;
+        break;
+    case TEXT:
+        textEditor = new TextEditor();
+        EditorPlace->addWidget(textEditor);
+        textEdit = textEditor->getQTextEdit();
+        break;
+    case MARKDOWN:
+
+        break;
+    case HTML:
+
+        break;
+    default:
+        break;
+    }
+    currentEditor = SwitchTo;
 }

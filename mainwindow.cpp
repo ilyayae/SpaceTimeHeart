@@ -30,58 +30,58 @@ void MainWindow::on_actionNew_triggered()
 }
 
 //SLOTS
-// NEW FILE FUNCTIONALITY - UNIMPLEMENTED
+// New file functionality
 void MainWindow::on_actionNew_File_triggered()
 {
 
 }
-// OPEN FILE FUNCTIONALITY - IMPLEMENTED
+// Open file functionality
 void MainWindow::on_actionOpen_File_triggered()
 {
-    dochandl->loadFile(ui->textEdit, QFileDialog::getOpenFileName(nullptr, tr("Open File"), "/home", tr("Text Files (*.txt);;All Files (*)")));
+    dochandl->loadFile(QFileDialog::getOpenFileName(nullptr, tr("Open File"), "/home", tr("Text Files (*.txt);;All Files (*)")));
 }
-// SAVE FILE FUNCTIONALITY - IMPLEMENTED
+// Save file functionality
 void MainWindow::on_actionSave_File_triggered()
 {
-    dochandl->saveFile(ui->textEdit);
+    dochandl->saveFile();
 }
-// AUTOSAVE FUNCTIONALITY - IMPLEMENTED
-void MainWindow::on_textEdit_textChanged()
+
+// Autosave functionality
+void MainWindow::StartSaveProcess()
 {
     timer->start(2000);
 }
+
 // Opens config menu
 void MainWindow::on_actionPreferences_triggered()
 {
-    //qDebug() << "I work" ;
-    c = new ConfigMenu(nullptr, settings);
-    connect(c, &ConfigMenu::savedSettings, this, &MainWindow::initEverything);
-    c->setWindowTitle("Config Menu");
-    c->show();
+    configMenu = new ConfigMenu(nullptr, settings);
+    connect(configMenu, &ConfigMenu::savedSettings, this, &MainWindow::initEverything);
+    configMenu->setWindowTitle("Config Menu");
+    configMenu->show();
 }
 
-// Function to start the application and init all of the shit needed
+// Function to start the application and init all of the needed objects
 void MainWindow::initEverything()
 {
     //Instantiate objects
-    dochandl = new DocumentHandler(this, settings);
+    dochandl = new DocumentHandler(this, settings, ui->EditorPlace);
     browser = new filebrowser(settings->value("general/WorkDirectory", "/home").toString(), ui->fileBrowser, this);
 
-
-    //Connect signals & sockets
+    //Connect signals & slots
     connect(browser, &filebrowser::fileSelected, this, &MainWindow::openFromBrowser);
+    connect(dochandl, &DocumentHandler::fileUpdated, this, &MainWindow::StartSaveProcess);
 
     //Autosave Functionality - Timer settings
     timer = new QTimer();
     timer->setSingleShot(true);
     connect(timer, &QTimer::timeout, this, [this]() {
-        dochandl->saveFile(ui->textEdit);
+        dochandl->saveFile();
     });
-    qDebug() << "I twerk" ;
 }
 // Function to open file from filebrowser
 void MainWindow::openFromBrowser(const QString &path)
 {
-    dochandl->loadFile(ui->textEdit, path);
+    dochandl->loadFile(path);
 }
 

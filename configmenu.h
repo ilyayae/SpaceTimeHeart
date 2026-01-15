@@ -21,6 +21,8 @@ private slots:
 
     void on_pButton_Cancel_clicked();
 
+    void on_PTWD_BrowseFilesButton_clicked();
+
 private:
     Ui::ConfigMenu *ui;
     QSettings *setts;

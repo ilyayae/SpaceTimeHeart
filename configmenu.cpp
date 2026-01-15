@@ -1,5 +1,6 @@
 #include "configmenu.h"
 #include "ui_configmenu.h"
+#include <QFileDialog>
 
 ConfigMenu::ConfigMenu(QWidget *parent, QSettings *settings)
     : QWidget(parent)
@@ -29,5 +30,15 @@ void ConfigMenu::on_pButton_Save_clicked()
 void ConfigMenu::on_pButton_Cancel_clicked()
 {
     this->close();
+}
+
+
+void ConfigMenu::on_PTWD_BrowseFilesButton_clicked()
+{
+    ui->PTWD_LineEdit->setText(QFileDialog::getExistingDirectory(this, tr("Open Directory"),
+                                                                 "/home",
+                                                                 QFileDialog::ShowDirsOnly
+                                                                     | QFileDialog::DontResolveSymlinks));
+
 }
 

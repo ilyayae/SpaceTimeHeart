@@ -6,7 +6,6 @@
 #include <QDebug>
 #include <QTimer>
 #include <QSettings>
-
 #include "documenthandler.h"
 #include "filebrowser.h"
 #include "configmenu.h"
@@ -24,6 +23,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    Ui::MainWindow *ui;
 
 private slots:
     void on_actionNew_triggered();
@@ -34,20 +34,19 @@ private slots:
 
     void on_actionSave_File_triggered();
 
-    void on_textEdit_textChanged();
-
     void on_actionPreferences_triggered();
 
     void openFromBrowser(const QString &path);
 
     void initEverything();
 
+    void StartSaveProcess();
+
 private:
-    Ui::MainWindow *ui;
     DocumentHandler *dochandl;
     filebrowser *browser;
     QTimer *timer;
     QSettings *settings;
-    ConfigMenu *c;
+    ConfigMenu *configMenu;
 };
 #endif // MAINWINDOW_H

@@ -17,13 +17,13 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <property name="styleSheet">
-    <string notr="true">QWidget {
-        border: 1px solid #444;
-        border-radius: 4px;
-    }</string>
+   <property name="layoutDirection">
+    <enum>Qt::LayoutDirection::LeftToRight</enum>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,3">
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1">
     <property name="spacing">
      <number>3</number>
     </property>
@@ -53,39 +53,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QWidget" name="textEditor" native="true">
-      <layout class="QVBoxLayout" name="verticalLayout" stretch="1,10">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QColumnView" name="columnView">
-         <property name="lineWidth">
-          <number>10</number>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QTextEdit" name="textEdit">
-         <property name="lineWidth">
-          <number>1</number>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
+     <layout class="QGridLayout" name="EditorPlace"/>
     </item>
    </layout>
   </widget>

@@ -11,19 +11,31 @@ CONFIG += c++17
 SOURCES += \
     configmenu.cpp \
     documenthandler.cpp \
+    emptyeditor.cpp \
     filebrowser.cpp \
+    htmleditor.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    markdowneditor.cpp \
+    texteditor.cpp
 
 HEADERS += \
     configmenu.h \
     documenthandler.h \
+    emptyeditor.h \
     filebrowser.h \
-    mainwindow.h
+    htmleditor.h \
+    mainwindow.h \
+    markdowneditor.h \
+    texteditor.h
 
 FORMS += \
     configmenu.ui \
-    mainwindow.ui
+    emptyeditor.ui \
+    htmleditor.ui \
+    mainwindow.ui \
+    markdowneditor.ui \
+    texteditor.ui
 
 TRANSLATIONS += \
     SpaceTimeHeart_en_US.ts
