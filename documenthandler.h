@@ -26,6 +26,7 @@ public:
     explicit DocumentHandler(QWidget *parent = nullptr,  QSettings *settings = nullptr, QGridLayout *editorPlace = nullptr);
     void loadFile(QString fileName);
     void saveFile();
+    void saveAsFile();
     void switchEditor(CurrentEditor SwitchTo);
 
 private:

@@ -12,7 +12,7 @@ DocumentHandler::DocumentHandler(QWidget *parent, QSettings *settings, QGridLayo
     Settings = settings;
     EditorPlace = editorPlace;
     currentEditor = NUL;
-    switchEditor(EMPTY);
+    switchEditor(HTML);
 }
 
 
@@ -70,6 +70,20 @@ void DocumentHandler::saveFile() {
     out << textEdit->toPlainText();
 }
 
+void DocumentHandler::saveAsFile() {
+
+    filePath = QFileDialog::getSaveFileName(nullptr, tr("Save File As"), Settings->value("general/WorkDirectory", "/home").toString(), tr("Text Files (*.txt);;All Files (*)"));
+    if (filePath.isEmpty()) return;
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::warning(nullptr, tr("Error"), tr("Cannot save file: %1").arg(file.errorString()));
+        return;
+    }
+
+    QTextStream out(&file);
+    out << textEdit->toPlainText();
+}
+
 void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
 {
     if(textEdit != nullptr)
@@ -107,11 +121,16 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
         textEditor = new TextEditor();
         EditorPlace->addWidget(textEditor);
         textEdit = textEditor->getQTextEdit();
+        connect(textEditor, &TextEditor::saveButton, this, &DocumentHandler::saveFile);
+        connect(textEditor, &TextEditor::saveAsButton, this, &DocumentHandler::saveAsFile);
         break;
     case MARKDOWN:
 
         break;
     case HTML:
+        htmlEditor = new HtmlEditor();
+        EditorPlace->addWidget(htmlEditor);
+        textEdit = nullptr;
 
         break;
     default:

@@ -1,13 +1,13 @@
 #ifndef MARKDOWNEDITOR_H
 #define MARKDOWNEDITOR_H
 
-#include <QWidget>
+#include <QMainWindow>
 
 namespace Ui {
 class MarkdownEditor;
 }
 
-class MarkdownEditor : public QWidget
+class MarkdownEditor : public QMainWindow
 {
     Q_OBJECT
 
