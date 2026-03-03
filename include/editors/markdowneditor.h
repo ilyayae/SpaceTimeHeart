@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QTextBrowser>
 #include <QSlider>
+#include <QScrollBar>
 
 #include "include/subclasses/hyperlinktextbrowser.h"
 #include "include/subclasses/findreplacewidget.h"
@@ -28,14 +29,20 @@ public:
 
 private slots:
     void updateZoom(int zoom);
-
+    void myTextEdit_scrolled(int value);
+    void myTextView_scrolled(int value);
     void on_actionFind_toggled(bool arg1);
+    void hyperlinkTextEdit_textChanged();
 
 private:
     Ui::MarkdownEditor *ui;
     HyperlinkTextBrowser *myTextEdit = nullptr;
+    QTextBrowser *myTextView = nullptr;
+    QScrollBar *textEditScroll = nullptr;
+    QScrollBar *textViewScroll = nullptr;
     FindReplaceWidget *myFRWidget = nullptr;
     int currZoom;
+    bool syncingScroll = false;
 };
 
 #endif // MARKDOWNEDITOR_H
