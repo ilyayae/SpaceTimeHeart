@@ -6,10 +6,15 @@
 #include <QTextEdit>
 #include <QSettings>
 #include <QGridLayout>
-#include <emptyeditor.h>
-#include <texteditor.h>
-#include <markdowneditor.h>
-#include <htmleditor.h>
+
+#include <include/noteTypes/note.h>
+#include <include/noteTypes/uuidregistry.h>
+
+#include <include/editors/emptyeditor.h>
+#include <include/editors/texteditor.h>
+#include <include/editors/markdowneditor.h>
+#include <include/editors/htmleditor.h>
+
 
 enum CurrentEditor {
     EMPTY,
@@ -28,6 +33,7 @@ public:
     void saveFile();
     void saveAsFile();
     void switchEditor(CurrentEditor SwitchTo);
+    void parseUuid(QUuid uuid);
 
 private:
     QString filePath;
@@ -35,15 +41,19 @@ private:
     QSettings *Settings;
     QGridLayout *EditorPlace;
 
+    Note *currentNote;
+    UuidRegistry *registry;
+
     //Editors
     CurrentEditor currentEditor;
-    QTextEdit *textEdit;
+    QTextBrowser *textEdit = nullptr;
     EmptyEditor *emptyEditor;
     TextEditor *textEditor;
     MarkdownEditor *markdownEditor;
     HtmlEditor *htmlEditor;
 signals:
     void fileUpdated();
+    void linkFollowed(const QString &path);
 };
 
 #endif // DOCUMENTHANDLER_H

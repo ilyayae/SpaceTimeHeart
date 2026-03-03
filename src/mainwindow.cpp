@@ -1,8 +1,9 @@
-#include "mainwindow.h"
+#include "include/mainwindow.h"
 #include "ui_mainwindow.h"
-#include "documenthandler.h"
-#include "configmenu.h"
+#include "include/documenthandler.h"
+#include "include/configmenu.h"
 
+#include <QAbstractItemModel>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -26,6 +27,10 @@ void MainWindow::on_actionNew_triggered()
     if (settings->value("general/FirstLaunch", true).toBool())
     {
         MainWindow::on_actionPreferences_triggered();
+    }
+    else
+    {
+        initEverything();
     }
 }
 
@@ -71,6 +76,7 @@ void MainWindow::initEverything()
     //Connect signals & slots
     connect(browser, &filebrowser::fileSelected, this, &MainWindow::openFromBrowser);
     connect(dochandl, &DocumentHandler::fileUpdated, this, &MainWindow::StartSaveProcess);
+    connect(dochandl, &DocumentHandler::linkFollowed, this, &MainWindow::updateBrowser);
 
     //Autosave Functionality - Timer settings
     timer = new QTimer();
@@ -83,5 +89,18 @@ void MainWindow::initEverything()
 void MainWindow::openFromBrowser(const QString &path)
 {
     dochandl->loadFile(path);
+}
+
+void MainWindow::updateBrowser(const QString &path)
+{
+    QAbstractItemModel* aim = ui->fileBrowser->model();
+    QFileSystemModel* fsm = (QFileSystemModel*)aim;
+    QModelIndex index = fsm->index(path);
+    if(index.isValid())
+    {
+        ui->fileBrowser->setCurrentIndex(index);
+        ui->fileBrowser->scrollTo(index, QAbstractItemView::PositionAtCenter);
+        ui->fileBrowser->expand(index.parent());
+    }
 }
 

@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+#include "include/mainwindow.h"
 
 #include <QApplication>
 #include <QLocale>
@@ -12,6 +12,9 @@ int main(int argc, char *argv[])
 
     QLoggingCategory::setFilterRules("kf.solid.backends.udisks2.debug=false\nkf.solid.backends.udisks2.warning=false");
     QApplication a(argc, argv);
+
+    a.setOrganizationName("zhopets");
+    a.setApplicationName("SpaceTimeHeart");
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();

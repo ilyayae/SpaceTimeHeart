@@ -1,4 +1,4 @@
-#include "emptyeditor.h"
+#include "include/editors/emptyeditor.h"
 #include "ui_emptyeditor.h"
 
 EmptyEditor::EmptyEditor(QWidget *parent)

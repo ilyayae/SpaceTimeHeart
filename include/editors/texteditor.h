@@ -2,8 +2,13 @@
 #define TEXTEDITOR_H
 
 #include <QMainWindow>
-#include <QTextEdit>
+#include <QTextBrowser>
 #include <QClipboard>
+#include <QSlider>
+#include <QLabel>
+
+#include "include/subclasses/hyperlinktextbrowser.h"
+#include "include/subclasses/findreplacewidget.h"
 
 namespace Ui {
 class TextEditor;
@@ -16,7 +21,8 @@ class TextEditor : public QMainWindow
 public:
     explicit TextEditor(QWidget *parent = nullptr);
     ~TextEditor();
-    QTextEdit* getQTextEdit();
+    QTextBrowser* getQTextEdit();
+    void highlightText(bool b);
 
 private slots:
     void on_actionUndo_triggered();
@@ -33,12 +39,21 @@ private slots:
 
     void on_actionPaste_triggered();
 
-    void on_actionFind_triggered();
-
     void on_actionFind_toggled(bool arg1);
+
+    void updateZoom(int zoom);
+
+    void hyperlinkTextEdit_textChanged();
 
 private:
     Ui::TextEditor *ui;
+    HyperlinkTextBrowser *myTextEdit = nullptr;
+    FindReplaceWidget *myFRWidget = nullptr;
+    QList<int> textFoundPositions;
+    int currentFoundPosition;
+    int currentFoundWordLength;
+    bool isActivelySearchingWords;
+    int currZoom;
 signals:
     void saveButton();
     void saveAsButton();

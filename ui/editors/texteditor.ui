@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="">
     <property name="spacing">
      <number>0</number>
     </property>
@@ -30,106 +30,6 @@
     <property name="bottomMargin">
      <number>0</number>
     </property>
-    <item>
-     <widget class="QWidget" name="FindReplaceWidget" native="true">
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <property name="leftMargin">
-        <number>2</number>
-       </property>
-       <property name="topMargin">
-        <number>2</number>
-       </property>
-       <property name="rightMargin">
-        <number>2</number>
-       </property>
-       <property name="bottomMargin">
-        <number>2</number>
-       </property>
-       <item>
-        <widget class="QLineEdit" name="FindLineEdit"/>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="ReplaceLineEdit"/>
-       </item>
-       <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Orientation::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Policy::Preferred</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>0/0</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Orientation::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Policy::Preferred</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QToolButton" name="FindPrevButton">
-         <property name="text">
-          <string>...</string>
-         </property>
-         <property name="icon">
-          <iconset theme="QIcon::ThemeIcon::GoUp"/>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QToolButton" name="FindNextButton">
-         <property name="text">
-          <string>...</string>
-         </property>
-         <property name="icon">
-          <iconset theme="QIcon::ThemeIcon::GoDown"/>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="FindButton">
-         <property name="text">
-          <string>Find</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="ReplaceButton">
-         <property name="text">
-          <string>Replace</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QTextEdit" name="textEdit"/>
-    </item>
    </layout>
   </widget>
   <widget class="QToolBar" name="toolBar">
@@ -155,9 +55,6 @@
    <addaction name="actionCopy"/>
    <addaction name="actionPaste"/>
    <addaction name="actionFind"/>
-   <addaction name="separator"/>
-   <addaction name="actionZoomIn"/>
-   <addaction name="actionZoomOut"/>
    <addaction name="separator"/>
   </widget>
   <action name="actionCut">
@@ -200,6 +97,9 @@
    <property name="text">
     <string>Save</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>
    </property>
@@ -210,6 +110,9 @@
    </property>
    <property name="text">
     <string>SaveAs</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>
@@ -237,28 +140,6 @@
     <enum>QAction::MenuRole::NoRole</enum>
    </property>
   </action>
-  <action name="actionZoomIn">
-   <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::ZoomIn"/>
-   </property>
-   <property name="text">
-    <string>ZoomIn</string>
-   </property>
-   <property name="menuRole">
-    <enum>QAction::MenuRole::NoRole</enum>
-   </property>
-  </action>
-  <action name="actionZoomOut">
-   <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::ZoomOut"/>
-   </property>
-   <property name="text">
-    <string>ZoomOut</string>
-   </property>
-   <property name="menuRole">
-    <enum>QAction::MenuRole::NoRole</enum>
-   </property>
-  </action>
   <action name="actionFind">
    <property name="checkable">
     <bool>true</bool>
@@ -268,6 +149,9 @@
    </property>
    <property name="text">
     <string>Find</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>

@@ -1,4 +1,4 @@
-#include "filebrowser.h"
+#include "include\filebrowser.h"
 
 filebrowser::filebrowser(const QString &rootPath, QTreeView *treeView, QWidget *parent)
     : QWidget{parent}

@@ -1,4 +1,4 @@
-#include "configmenu.h"
+#include "include/configmenu.h"
 #include "ui_configmenu.h"
 #include <QFileDialog>
 

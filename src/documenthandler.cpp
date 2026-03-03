@@ -1,10 +1,10 @@
-#include "documenthandler.h"
+#include "include/documenthandler.h"
 #include <QFile>
 #include <QTextStream>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QSettings>
-
+#include <QStandardPaths>
 
 DocumentHandler::DocumentHandler(QWidget *parent, QSettings *settings, QGridLayout *editorPlace)
     : QWidget{parent}
@@ -12,7 +12,11 @@ DocumentHandler::DocumentHandler(QWidget *parent, QSettings *settings, QGridLayo
     Settings = settings;
     EditorPlace = editorPlace;
     currentEditor = NUL;
-    switchEditor(HTML);
+    switchEditor(EMPTY);
+    //Settings->value("general/WorkDirectory", "/home").toString()
+    QString appDataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir().mkpath(appDataPath);
+    registry = new UuidRegistry(appDataPath + "/notes_registry.db", this);
 }
 
 
@@ -39,14 +43,8 @@ void DocumentHandler::loadFile(QString fileName) {
     {
         saveable = false;
 
-        QFile file(fileName);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QMessageBox::warning(nullptr, tr("Error"), tr("Cannot open file: %1").arg(file.errorString()));
-            return;
-        }
-
-        QTextStream in(&file);
-        textEdit->setPlainText(in.readAll());
+        currentNote = new Note(fileName);
+        textEdit->setPlainText(currentNote->getContent());
         filePath = fileName;
 
         saveable = true;
@@ -56,32 +54,24 @@ void DocumentHandler::loadFile(QString fileName) {
 
 void DocumentHandler::saveFile() {
     if (filePath.isEmpty()) {
-        filePath = QFileDialog::getSaveFileName(nullptr, tr("Save New File"), Settings->value("general/WorkDirectory", "/home").toString(), tr("Text Files (*.txt);;All Files (*)"));
-        if (filePath.isEmpty()) return;
+        saveAsFile();
     }
-
-    QFile file(filePath);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(nullptr, tr("Error"), tr("Cannot save file: %1").arg(file.errorString()));
-        return;
+    else
+    {
+        currentNote->setContent(textEdit->toPlainText());
+        currentNote->save();
+        registry->writeEntry(currentNote->getUuid(), currentNote->getPath());
     }
-
-    QTextStream out(&file);
-    out << textEdit->toPlainText();
 }
 
 void DocumentHandler::saveAsFile() {
 
     filePath = QFileDialog::getSaveFileName(nullptr, tr("Save File As"), Settings->value("general/WorkDirectory", "/home").toString(), tr("Text Files (*.txt);;All Files (*)"));
     if (filePath.isEmpty()) return;
-    QFile file(filePath);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(nullptr, tr("Error"), tr("Cannot save file: %1").arg(file.errorString()));
-        return;
-    }
 
-    QTextStream out(&file);
-    out << textEdit->toPlainText();
+    currentNote->setContent(textEdit->toPlainText());
+    currentNote->saveAs(filePath);
+    registry->writeEntry(currentNote->getUuid(), currentNote->getPath());
 }
 
 void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
@@ -93,19 +83,19 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
     switch (currentEditor) {
     case EMPTY:
         EditorPlace->removeWidget(emptyEditor);
-        emptyEditor->deleteLater();;
+        emptyEditor->deleteLater();
         break;
     case TEXT:
         EditorPlace->removeWidget(textEditor);
-        textEditor->deleteLater();;
+        textEditor->deleteLater();
         break;
     case MARKDOWN:
         EditorPlace->removeWidget(markdownEditor);
-        markdownEditor->deleteLater();;
+        markdownEditor->deleteLater();
         break;
     case HTML:
         EditorPlace->removeWidget(htmlEditor);
-        htmlEditor->deleteLater();;
+        htmlEditor->deleteLater();
         break;
     default:
         break;
@@ -123,18 +113,30 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
         textEdit = textEditor->getQTextEdit();
         connect(textEditor, &TextEditor::saveButton, this, &DocumentHandler::saveFile);
         connect(textEditor, &TextEditor::saveAsButton, this, &DocumentHandler::saveAsFile);
+        connect((HyperlinkTextBrowser*)textEdit, &HyperlinkTextBrowser::uuidClicked, this, &DocumentHandler::parseUuid);
         break;
     case MARKDOWN:
-
+        markdownEditor = new MarkdownEditor();
+        EditorPlace->addWidget(markdownEditor);
+        textEdit = markdownEditor->GetQTextEdit();
+        //connect(markdownEditor, &MarkdownEditor::saveButton, this, &DocumentHandler::saveFile);
+        //connect(markdownEditor, &MarkdownEditor::saveAsButton, this, &DocumentHandler::saveAsFile);
+        connect((HyperlinkTextBrowser*)markdownEditor, &HyperlinkTextBrowser::uuidClicked, this, &DocumentHandler::parseUuid);
         break;
     case HTML:
         htmlEditor = new HtmlEditor();
         EditorPlace->addWidget(htmlEditor);
         textEdit = nullptr;
-
         break;
     default:
         break;
     }
     currentEditor = SwitchTo;
+}
+
+void DocumentHandler::parseUuid(QUuid uuid)
+{
+    QString string = registry->getPath(uuid);
+    loadFile(string);
+    emit linkFollowed(string);
 }

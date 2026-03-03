@@ -42,6 +42,8 @@ private slots:
 
     void StartSaveProcess();
 
+    void updateBrowser(const QString &path);
+
 private:
     DocumentHandler *dochandl;
     filebrowser *browser;
