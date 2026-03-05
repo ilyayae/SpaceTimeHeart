@@ -10,9 +10,9 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    src/subclasses/customtextbrowser.cpp \
     src/subclasses/findreplacewidget.cpp \
     src/noteTypes/uuidregistry.cpp \
-    src/subclasses/hyperlinktextbrowser.cpp \
     src\configmenu.cpp \
     src\documenthandler.cpp \
     src\editors\emptyeditor.cpp \
@@ -28,7 +28,6 @@ SOURCES += \
 HEADERS += \
     include/subclasses/findreplacewidget.h \
     include/noteTypes/uuidregistry.h \
-    include/subclasses/hyperlinktextbrowser.h \
     include\configmenu.h \
     include\documenthandler.h \
     include\editors\emptyeditor.h \
@@ -38,7 +37,8 @@ HEADERS += \
     include\editors\markdowneditor.h \
     include/subclasses/searchhighlighter.h \
     include\editors\texteditor.h \
-    include\noteTypes\note.h
+    include\noteTypes\note.h \
+    include/subclasses/customtextbrowser.h
 
 FORMS += \
     ui\findreplacewidget.ui \

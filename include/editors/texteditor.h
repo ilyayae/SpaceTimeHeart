@@ -7,7 +7,7 @@
 #include <QSlider>
 #include <QLabel>
 
-#include "include/subclasses/hyperlinktextbrowser.h"
+#include "include/subclasses/customtextbrowser.h"
 #include "include/subclasses/findreplacewidget.h"
 
 namespace Ui {
@@ -23,6 +23,8 @@ public:
     ~TextEditor();
     QTextBrowser* getQTextEdit();
     void highlightText(bool b);
+    int startZoom = 0;
+    int currZoom = 0;
 
 private slots:
     void on_actionUndo_triggered();
@@ -47,15 +49,16 @@ private slots:
 
 private:
     Ui::TextEditor *ui;
-    HyperlinkTextBrowser *myTextEdit = nullptr;
+    CustomTextBrowser *myTextEdit = nullptr;
     FindReplaceWidget *myFRWidget = nullptr;
     QList<int> textFoundPositions;
     int currentFoundPosition;
     int currentFoundWordLength;
     bool isActivelySearchingWords;
-    int currZoom;
 signals:
     void saveButton();
     void saveAsButton();
+    void Updated();
+    void zoomChanged(int zoom);
 };
 #endif // TEXTEDITOR_H

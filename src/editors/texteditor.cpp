@@ -29,7 +29,6 @@ QTextBrowser* TextEditor::getQTextEdit()
         toolbar->addWidget(iconLabel);
         toolbar->addWidget(slider);
         toolbar->addAction(separator);
-        currZoom = 0;
         slider->setMinimum(-5);
         slider->setMaximum(10);
         slider->setMaximumWidth(200);
@@ -37,13 +36,17 @@ QTextBrowser* TextEditor::getQTextEdit()
         toolbar->addAction(separator);
 
 
-        myTextEdit = new HyperlinkTextBrowser(ui->centralwidget);
+        myTextEdit = new CustomTextBrowser(ui->centralwidget);
 
         myFRWidget = new FindReplaceWidget(this, myTextEdit);
         ui->centralwidget->layout()->addWidget(myFRWidget);
         ui->centralwidget->layout()->addWidget(myTextEdit);
-        connect(myTextEdit, &HyperlinkTextBrowser::textChanged, this, &TextEditor::hyperlinkTextEdit_textChanged);
+        connect(myTextEdit, &CustomTextBrowser::textChanged, this, &TextEditor::hyperlinkTextEdit_textChanged);
         myFRWidget->show(false);
+        updateZoom(currZoom);
+
+        updateZoom(startZoom);
+        slider->setValue(currZoom);
     }
     return myTextEdit;
 }
@@ -99,11 +102,13 @@ void TextEditor::updateZoom(int zoom)
 {
     myTextEdit->zoomOut(currZoom);
     currZoom = zoom;
+    emit zoomChanged(currZoom);
     myTextEdit->zoomIn(currZoom);
 }
 
 
 void TextEditor::hyperlinkTextEdit_textChanged()
 {
+    emit Updated();
 }
 

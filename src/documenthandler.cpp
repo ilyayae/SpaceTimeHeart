@@ -109,19 +109,29 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
         break;
     case TEXT:
         textEditor = new TextEditor();
+        textEditor->startZoom = currZoom;
         EditorPlace->addWidget(textEditor);
         textEdit = textEditor->getQTextEdit();
         connect(textEditor, &TextEditor::saveButton, this, &DocumentHandler::saveFile);
         connect(textEditor, &TextEditor::saveAsButton, this, &DocumentHandler::saveAsFile);
-        connect((HyperlinkTextBrowser*)textEdit, &HyperlinkTextBrowser::uuidClicked, this, &DocumentHandler::parseUuid);
+        connect(textEditor, &TextEditor::Updated, this, &DocumentHandler::emitUpdate);
+        connect(textEditor, &TextEditor::zoomChanged, this, [this](int Zoom) {
+            currZoom = Zoom;
+        });
+        connect((CustomTextBrowser*)textEdit, &CustomTextBrowser::uuidClicked, this, &DocumentHandler::parseUuid);
         break;
     case MARKDOWN:
         markdownEditor = new MarkdownEditor();
+        markdownEditor->startZoom = currZoom;
         EditorPlace->addWidget(markdownEditor);
         textEdit = markdownEditor->GetQTextEdit();
-        //connect(markdownEditor, &MarkdownEditor::saveButton, this, &DocumentHandler::saveFile);
-        //connect(markdownEditor, &MarkdownEditor::saveAsButton, this, &DocumentHandler::saveAsFile);
-        connect((HyperlinkTextBrowser*)markdownEditor, &HyperlinkTextBrowser::uuidClicked, this, &DocumentHandler::parseUuid);
+        connect(markdownEditor, &MarkdownEditor::saveButton, this, &DocumentHandler::saveFile);
+        connect(markdownEditor, &MarkdownEditor::saveAsButton, this, &DocumentHandler::saveAsFile);
+        connect(markdownEditor, &MarkdownEditor::Updated, this, &DocumentHandler::emitUpdate);
+        connect(markdownEditor, &MarkdownEditor::zoomChanged, this, [this](int Zoom) {
+            currZoom = Zoom;
+        });
+        connect((CustomTextBrowser*)markdownEditor, &CustomTextBrowser::uuidClicked, this, &DocumentHandler::parseUuid);
         break;
     case HTML:
         htmlEditor = new HtmlEditor();
@@ -133,7 +143,10 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
     }
     currentEditor = SwitchTo;
 }
-
+void DocumentHandler::emitUpdate()
+{
+    emit fileUpdated();
+}
 void DocumentHandler::parseUuid(QUuid uuid)
 {
     QString string = registry->getPath(uuid);

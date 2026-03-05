@@ -13,6 +13,7 @@ FindReplaceWidget::~FindReplaceWidget()
 }
 //Function to show/hide the widget
 //Functions to find necessary strings by passing down the textedit
+//currnt implementation of next/previous buttons might be very expensive to compute, please rewrite it soon
 
 void FindReplaceWidget::show(bool b)
 {
@@ -29,33 +30,37 @@ QList<int> FindReplaceWidget::findText()
 {
     QString search = ui->FindLineEdit->text();
     QList<int> positions;
+    QScrollBar *scroll = myTextEdit->verticalScrollBar();
+    int savedScroll = scroll->value();
+    scroll->blockSignals(true);
     myTextEdit->moveCursor(QTextCursor::Start);
     while (myTextEdit->find(search))
     {
         QTextCursor cursor = myTextEdit->textCursor();
         positions.append(cursor.selectionStart());
     }
+    scroll->setValue(savedScroll);
+    scroll->blockSignals(false);
+
     return positions;
 }
 
 void FindReplaceWidget::selectText()
 {
-    if(!textFoundPositions.empty())
-    {
-        if(textFoundPositions.count() <= currentFoundPosition)
-        {
-            currentFoundPosition = textFoundPositions.count()-1;
-        }
-        QTextCursor cursor = myTextEdit->textCursor();
-        myTextEdit->moveCursor(QTextCursor::Start);
-        cursor.setPosition(textFoundPositions[currentFoundPosition]);
-        cursor.setPosition(textFoundPositions[currentFoundPosition] + currentFoundWordLength, QTextCursor::KeepAnchor);
-        myTextEdit->setTextCursor(cursor);
-        myTextEdit->ensureCursorVisible();
+    if (textFoundPositions.empty()) return;
+    if (currentFoundPosition >= textFoundPositions.count())
+        currentFoundPosition = textFoundPositions.count() - 1;
+    QTextCursor cursor = myTextEdit->textCursor();
+    cursor.setPosition(textFoundPositions[currentFoundPosition]);
+    cursor.setPosition(textFoundPositions[currentFoundPosition] + currentFoundWordLength, QTextCursor::KeepAnchor);
+    myTextEdit->setTextCursor(cursor);
+    myTextEdit->ensureCursorVisible();
+    QTimer::singleShot(0, this, [this]() {
         emit findReplaceChanged();
-
-        ui->CurrentFoundLabel->setText(QString::number(currentFoundPosition+1) + "/" + QString::number(textFoundPositions.count()));
-    }
+    });
+    ui->CurrentFoundLabel->setText(
+        QString::number(currentFoundPosition + 1) + "/" +
+        QString::number(textFoundPositions.count()));
 }
 
 void FindReplaceWidget::on_FindButton_clicked()
@@ -66,7 +71,7 @@ void FindReplaceWidget::on_FindButton_clicked()
         textFoundPositions = positions;
         currentFoundPosition = 0;
         currentFoundWordLength = ui->FindLineEdit->text().length();
-        HyperlinkTextBrowser* hyper = (HyperlinkTextBrowser*)myTextEdit;
+        CustomTextBrowser* hyper = (CustomTextBrowser*)myTextEdit;
         hyper->highlightText(true, ui->FindLineEdit->text());
         selectText();
         isActivelySearchingWords = true;

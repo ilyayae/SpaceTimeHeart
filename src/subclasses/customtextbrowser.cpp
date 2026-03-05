@@ -1,12 +1,10 @@
-#include "include/subclasses/hyperlinktextbrowser.h"
+#include "include/subclasses/customtextbrowser.h"
 #include <QMouseEvent>
 #include <QDesktopServices>
-#include <QUuid>
 
-HyperlinkTextBrowser::HyperlinkTextBrowser(QWidget *parent)
+CustomTextBrowser::CustomTextBrowser(QWidget *parent)
     : QTextBrowser(parent)
 {
-    setReadOnly(false);
     setUndoRedoEnabled(true);
     setOpenExternalLinks(true);
     uuidFindRegex.setPattern("\\[\\[([a-fA-F0-9\\-]{36})\\]\\]");
@@ -15,7 +13,40 @@ HyperlinkTextBrowser::HyperlinkTextBrowser(QWidget *parent)
     highlighter = new SearchHighlighter(document());
 }
 
-void HyperlinkTextBrowser::mousePressEvent(QMouseEvent *event)
+void CustomTextBrowser::setMarkdown(const QString &markdown)
+{
+    QTextBrowser::setMarkdown(markdown);
+    applyUnderline();
+}
+
+void CustomTextBrowser::applyUnderline()
+{
+    QTextDocument *doc = document();
+    QTextCursor cursor(doc);
+
+    while (true) {
+        cursor = doc->find("++", cursor);
+        if (cursor.isNull())
+            break;
+        int startPos = cursor.selectionStart();
+        cursor.removeSelectedText();
+        QTextCursor closeCursor = doc->find("++", cursor);
+        if (closeCursor.isNull())
+            break;
+        int endPos = closeCursor.selectionStart();
+        closeCursor.removeSelectedText();
+        cursor.setPosition(startPos);
+        cursor.setPosition(endPos, QTextCursor::KeepAnchor);
+        QTextCharFormat fmt = cursor.charFormat();
+        fmt.setFontUnderline(true);
+        cursor.mergeCharFormat(fmt);
+        cursor.setPosition(startPos + (endPos - startPos));
+    }
+}
+
+
+
+void CustomTextBrowser::mousePressEvent(QMouseEvent *event)
 {
     if (event->modifiers() & Qt::ControlModifier) {
         QString clicked = getClickedHyperlink(event->pos());
@@ -38,7 +69,7 @@ void HyperlinkTextBrowser::mousePressEvent(QMouseEvent *event)
     QTextBrowser::mousePressEvent(event);
 }
 
-void HyperlinkTextBrowser::mouseMoveEvent(QMouseEvent *event)
+void CustomTextBrowser::mouseMoveEvent(QMouseEvent *event)
 {
     QString hovered = getClickedHyperlink(event->pos());
     if (!hovered.isEmpty() && (event->modifiers() & Qt::ControlModifier)) {
@@ -49,7 +80,7 @@ void HyperlinkTextBrowser::mouseMoveEvent(QMouseEvent *event)
     QTextBrowser::mouseMoveEvent(event);
 }
 
-QString HyperlinkTextBrowser::getClickedHyperlink(const QPoint &pos)
+QString CustomTextBrowser::getClickedHyperlink(const QPoint &pos)
 {
     QTextCursor cursor = cursorForPosition(pos);
     int cursorPos = cursor.position();
@@ -80,7 +111,7 @@ QString HyperlinkTextBrowser::getClickedHyperlink(const QPoint &pos)
 }
 
 
-void HyperlinkTextBrowser::highlightText(bool b, QString find)
+void CustomTextBrowser::highlightText(bool b, QString find)
 {
     QTextCursor cursor = textCursor();
     if(b)

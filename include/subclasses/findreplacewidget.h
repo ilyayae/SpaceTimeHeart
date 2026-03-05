@@ -3,9 +3,11 @@
 
 #include <QWidget>
 #include <QTextBrowser>
+#include <QScrollBar>
+#include <QTimer>
 
 #include "ui_findreplacewidget.h"
-#include "include/subclasses/hyperlinktextbrowser.h"
+#include "include/subclasses/customtextbrowser.h"
 
 namespace Ui {
 class FindReplaceWidget;

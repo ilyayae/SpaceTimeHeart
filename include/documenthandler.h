@@ -34,6 +34,7 @@ public:
     void saveAsFile();
     void switchEditor(CurrentEditor SwitchTo);
     void parseUuid(QUuid uuid);
+    void emitUpdate();
 
 private:
     QString filePath;
@@ -43,6 +44,7 @@ private:
 
     Note *currentNote;
     UuidRegistry *registry;
+    int currZoom = 0;
 
     //Editors
     CurrentEditor currentEditor;

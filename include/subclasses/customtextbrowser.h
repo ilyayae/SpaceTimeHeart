@@ -1,17 +1,20 @@
-#ifndef HYPERLINKTEXTBROWSER_H
-#define HYPERLINKTEXTBROWSER_H
+#ifndef CUSTOMTEXTBROWSER_H
+#define CUSTOMTEXTBROWSER_H
+
+#include "include/subclasses/searchhighlighter.h"
 
 #include <QObject>
 #include <QTextBrowser>
-#include <QUuid>
 #include <QRegularExpression>
-#include "include/subclasses/searchhighlighter.h"
+#include <QUuid>
 
-class HyperlinkTextBrowser : public QTextBrowser
+class CustomTextBrowser : public QTextBrowser
 {
     Q_OBJECT
 public:
-    HyperlinkTextBrowser(QWidget *parent);
+    CustomTextBrowser(QWidget *parent);
+    void setMarkdown(const QString &markdown);
+    void applyUnderline();
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     QString getClickedHyperlink(const QPoint &pos);
@@ -24,4 +27,4 @@ signals:
     void uuidClicked(QUuid uuid);
 };
 
-#endif // HYPERLINKTEXTBROWSER_H
+#endif // CUSTOMTEXTBROWSER_H
