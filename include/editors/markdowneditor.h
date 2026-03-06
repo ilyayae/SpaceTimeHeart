@@ -72,6 +72,8 @@ private slots:
 
     void on_actionCodeBlock_triggered();
 
+    void setEditorText(QString content);
+
 private:
     Ui::MarkdownEditor *ui;
     CustomTextBrowser *myTextEdit = nullptr;

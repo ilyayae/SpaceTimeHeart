@@ -39,6 +39,7 @@ QTextBrowser* MarkdownEditor::GetQTextEdit()
         myTextEdit->setReadOnly(false);
 
         connect(myTextEdit, &CustomTextBrowser::textChanged, this, &MarkdownEditor::hyperlinkTextEdit_textChanged);
+        connect(myTextView, &CustomTextBrowser::mdCheckboxChanged, this, &MarkdownEditor::setEditorText);
 
 
         textEditScroll = myTextEdit->verticalScrollBar();
@@ -78,8 +79,6 @@ void MarkdownEditor::updateZoom(int zoom)
     myTextEdit->zoomIn(currZoom);
 }
 
-
-
 void MarkdownEditor::on_actionFind_toggled(bool checked)
 {
     myFRWidget->show(checked);
@@ -91,7 +90,6 @@ void MarkdownEditor::hyperlinkTextEdit_textChanged()
     markdownUpdateTimer->start(1000);
     emit Updated();
 }
-
 
 void MarkdownEditor::myTextEdit_scrolled(int value)
 {
@@ -134,36 +132,30 @@ void MarkdownEditor::on_actionUndo_triggered()
     myTextEdit->undo();
 }
 
-
 void MarkdownEditor::on_actionRedo_triggered()
 {
     myTextEdit->redo();
 }
-
 
 void MarkdownEditor::on_actionSave_triggered()
 {
     emit saveButton();
 }
 
-
 void MarkdownEditor::on_actionSaveAs_triggered()
 {
     emit saveAsButton();
 }
-
 
 void MarkdownEditor::on_actionCut_triggered()
 {
     myTextEdit->cut();
 }
 
-
 void MarkdownEditor::on_actionCopy_triggered()
 {
     myTextEdit->copy();
 }
-
 
 void MarkdownEditor::on_actionPaste_triggered()
 {
@@ -483,44 +475,345 @@ void MarkdownEditor::on_actionDotList_triggered()
     QTextCursor cursor = myTextEdit->textCursor();
     int save = cursor.position();
     int anchSave = cursor.anchor();
+    int start = cursor.selectionStart();
+    int end = cursor.selectionEnd();
 
-    cursor.movePosition(QTextCursor::StartOfBlock);
-    cursor.insertText(" - ");
+    QTextCursor iterCursor(myTextEdit->document());
+    iterCursor.setPosition(start);
+    int startBlock = iterCursor.blockNumber();
+    iterCursor.setPosition(end);
+    int endBlock = iterCursor.blockNumber();
 
-    cursor.setPosition(anchSave);
-    cursor.setPosition(save, QTextCursor::KeepAnchor);
+    QRegularExpression prefixRegex(R"(^((?:   )*)(-\[x\]\s?|-\[\]\s?|-\s?|\d+\.\s?))");
+
+    iterCursor.beginEditBlock();
+    for (int i = startBlock; i <= endBlock; ++i) {
+        QTextBlock block = myTextEdit->document()->findBlockByNumber(i);
+        iterCursor.setPosition(block.position());
+        iterCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        QString lineText = iterCursor.selectedText();
+
+        if (lineText.trimmed().isEmpty())
+            continue;
+
+        QRegularExpressionMatch match = prefixRegex.match(lineText + " ");
+
+        if (match.hasMatch()) {
+            QString indent = match.captured(1);
+            QString marker = match.captured(2);
+
+            if (QRegularExpression(R"(^-\s?)").match(marker).hasMatch()) {
+                QString content = lineText.mid(match.capturedLength());
+                iterCursor.insertText(content);
+            }
+
+            else {
+                QString newLine = indent + "- " + lineText.mid(match.capturedLength());
+                iterCursor.insertText(newLine);
+            }
+        }
+        else {
+            QRegularExpression leadingSpaces(R"(^(\s*))");
+            QRegularExpressionMatch spaceMatch = leadingSpaces.match(lineText);
+            QString indent = spaceMatch.captured(1);
+            QString content = lineText.mid(indent.length());
+            iterCursor.insertText(indent + "- " + content);
+        }
+    }
+    iterCursor.endEditBlock();
+    cursor = myTextEdit->textCursor();
+    int maxPos = myTextEdit->document()->characterCount() - 1;
+    cursor.setPosition(qMin(anchSave, maxPos));
+    cursor.setPosition(qMin(save, maxPos), QTextCursor::KeepAnchor);
+    myTextEdit->setTextCursor(cursor);
 }
-\
+
 void MarkdownEditor::on_actionNumberedList_triggered()
 {
+    QTextCursor cursor = myTextEdit->textCursor();
+    int save = cursor.position();
+    int anchSave = cursor.anchor();
+    int start = cursor.selectionStart();
+    int end = cursor.selectionEnd();
 
+    QTextCursor iterCursor(myTextEdit->document());
+    iterCursor.setPosition(start);
+    int startBlock = iterCursor.blockNumber();
+    iterCursor.setPosition(end);
+    int endBlock = iterCursor.blockNumber();
+
+    QRegularExpression prefixRegex(R"(^((?:   )*)(-\[x\]\s?|-\[\]\s?|-\s?|\d+\.\s?))");
+
+    QMap<int, int> indentCounters;
+
+    iterCursor.beginEditBlock();
+    for (int i = startBlock; i <= endBlock; ++i) {
+        QTextBlock block = myTextEdit->document()->findBlockByNumber(i);
+        iterCursor.setPosition(block.position());
+        iterCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        QString lineText = iterCursor.selectedText();
+
+        if (lineText.trimmed().isEmpty())
+            continue;
+
+        QRegularExpressionMatch match = prefixRegex.match(lineText + " ");
+
+        if (match.hasMatch()) {
+            QString indent = match.captured(1);
+            QString marker = match.captured(2);
+            int indentLevel = indent.length() / 3;
+
+            if (QRegularExpression(R"(^\d+\.\s?)").match(marker).hasMatch()) {
+                QString content = lineText.mid(match.capturedLength());
+                iterCursor.insertText(content);
+                QList<int> keys = indentCounters.keys();
+                for (int k : keys) {
+                    if (k >= indentLevel) indentCounters.remove(k);
+                }
+            }
+            else {
+                indentCounters[indentLevel] = indentCounters.value(indentLevel, 0) + 1;
+                QList<int> keys = indentCounters.keys();
+                for (int k : keys) {
+                    if (k > indentLevel) indentCounters.remove(k);
+                }
+                QString newLine = indent + QString::number(indentCounters[indentLevel]) + ". " + lineText.mid(match.capturedLength());
+                iterCursor.insertText(newLine);
+            }
+        }
+        else {
+            QRegularExpression leadingSpaces(R"(^(\s*))");
+            QRegularExpressionMatch spaceMatch = leadingSpaces.match(lineText);
+            QString indent = spaceMatch.captured(1);
+            int indentLevel = indent.length() / 3;
+            QString content = lineText.mid(indent.length());
+
+            indentCounters[indentLevel] = indentCounters.value(indentLevel, 0) + 1;
+            QList<int> keys = indentCounters.keys();
+            for (int k : keys) {
+                if (k > indentLevel) indentCounters.remove(k);
+            }
+            iterCursor.insertText(indent + QString::number(indentCounters[indentLevel]) + ". " + content);
+        }
+    }
+    iterCursor.endEditBlock();
+
+    cursor = myTextEdit->textCursor();
+    int maxPos = myTextEdit->document()->characterCount() - 1;
+    cursor.setPosition(qMin(anchSave, maxPos));
+    cursor.setPosition(qMin(save, maxPos), QTextCursor::KeepAnchor);
+    myTextEdit->setTextCursor(cursor);
 }
 
 void MarkdownEditor::on_actionMarkList_triggered()
 {
+    QTextCursor cursor = myTextEdit->textCursor();
+    int save = cursor.position();
+    int anchSave = cursor.anchor();
+    int start = cursor.selectionStart();
+    int end = cursor.selectionEnd();
 
+    QTextCursor iterCursor(myTextEdit->document());
+    iterCursor.setPosition(start);
+    int startBlock = iterCursor.blockNumber();
+    iterCursor.setPosition(end);
+    int endBlock = iterCursor.blockNumber();
+
+    QRegularExpression prefixRegex(R"(^((?:   )*)(-\[x\]\s?|-\[\]\s?|-\s?|\d+\.\s?))");
+
+    iterCursor.beginEditBlock();
+    for (int i = startBlock; i <= endBlock; ++i) {
+        QTextBlock block = myTextEdit->document()->findBlockByNumber(i);
+        iterCursor.setPosition(block.position());
+        iterCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        QString lineText = iterCursor.selectedText();
+
+        if (lineText.trimmed().isEmpty())
+            continue;
+
+        QRegularExpressionMatch match = prefixRegex.match(lineText + " ");
+
+        if (match.hasMatch()) {
+            QString indent = match.captured(1);
+            QString marker = match.captured(2);
+            if (QRegularExpression(R"(^-\[x\]\s?|^-\[\]\s?)").match(marker).hasMatch()) {
+                QString content = lineText.mid(match.capturedLength());
+                iterCursor.insertText(content);
+            }
+            else {
+                QString newLine = indent + "-[] " + lineText.mid(match.capturedLength());
+                iterCursor.insertText(newLine);
+            }
+        }
+        else {
+            QRegularExpression leadingSpaces(R"(^(\s*))");
+            QRegularExpressionMatch spaceMatch = leadingSpaces.match(lineText);
+            QString indent = spaceMatch.captured(1);
+            QString content = lineText.mid(indent.length());
+            iterCursor.insertText(indent + "-[] " + content);
+        }
+    }
+    iterCursor.endEditBlock();
+
+    cursor = myTextEdit->textCursor();
+    int maxPos = myTextEdit->document()->characterCount() - 1;
+    cursor.setPosition(qMin(anchSave, maxPos));
+    cursor.setPosition(qMin(save, maxPos), QTextCursor::KeepAnchor);
+    myTextEdit->setTextCursor(cursor);
 }
 
 void MarkdownEditor::on_actionHeader_triggered()
 {
+    QTextCursor cursor = myTextEdit->textCursor();
+    int save = cursor.position();
+    int anchSave = cursor.anchor();
+    int start = cursor.selectionStart();
+    int end = cursor.selectionEnd();
 
+    QTextCursor iterCursor(myTextEdit->document());
+    iterCursor.setPosition(start);
+    int startBlock = iterCursor.blockNumber();
+    iterCursor.setPosition(end);
+    int endBlock = iterCursor.blockNumber();
+
+    int added = 0;
+    iterCursor.beginEditBlock();
+    for (int i = startBlock; i <= endBlock; ++i) {
+        QTextBlock block = myTextEdit->document()->findBlockByNumber(i);
+        iterCursor.setPosition(block.position());
+        iterCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        QString lineText = iterCursor.selectedText();
+        int level = 0;
+        while (level < lineText.length() && lineText[level] == '#')
+            level++;
+        QString content = lineText.mid(level);
+        if (content.startsWith(" "))
+            content = content.mid(1);
+
+        int oldLength = lineText.length();
+
+        if (level >= 6) {
+            iterCursor.insertText(content);
+        } else {
+            QString hashes = QString("#").repeated(level + 1);
+            iterCursor.insertText(hashes + " " + content);
+        }
+
+        int newLength = iterCursor.block().text().length();
+        added += newLength - oldLength;
+    }
+    iterCursor.endEditBlock();
+
+    cursor = myTextEdit->textCursor();
+    int maxPos = myTextEdit->document()->characterCount() - 1;
+    cursor.setPosition(qMin(qMax(anchSave + added, 0), maxPos));
+    cursor.setPosition(qMin(qMax(save + added, 0), maxPos), QTextCursor::KeepAnchor);
+    myTextEdit->setTextCursor(cursor);
 }
-
 
 void MarkdownEditor::on_actionLine_triggered()
 {
+    QTextCursor cursor = myTextEdit->textCursor();
+    cursor.beginEditBlock();
+    cursor.movePosition(QTextCursor::StartOfBlock);
+    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    QString lineText = cursor.selectedText();
 
+    cursor.movePosition(QTextCursor::EndOfBlock);
+
+    if (!lineText.trimmed().isEmpty()) {
+        cursor.insertBlock();
+    }
+
+    cursor.insertBlock();
+    cursor.insertText("---");
+    cursor.insertBlock();
+    cursor.endEditBlock();
+    myTextEdit->setTextCursor(cursor);
 }
-
 
 void MarkdownEditor::on_actionQuote_triggered()
 {
+    QTextCursor cursor = myTextEdit->textCursor();
+    int save = cursor.position();
+    int anchSave = cursor.anchor();
+    int start = cursor.selectionStart();
+    int end = cursor.selectionEnd();
 
+    QTextCursor iterCursor(myTextEdit->document());
+    iterCursor.setPosition(start);
+    int startBlock = iterCursor.blockNumber();
+    iterCursor.setPosition(end);
+    int endBlock = iterCursor.blockNumber();
+
+    int totalAdded = 0;
+    iterCursor.beginEditBlock();
+    for (int i = startBlock; i <= endBlock; ++i) {
+        QTextBlock block = myTextEdit->document()->findBlockByNumber(i);
+        iterCursor.setPosition(block.position());
+        iterCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        QString lineText = iterCursor.selectedText();
+
+        if (lineText.trimmed().isEmpty())
+            continue;
+
+        if (lineText.startsWith("> ")) {
+            iterCursor.insertText(lineText.mid(2));
+            totalAdded -= 2;
+        } else if (lineText.startsWith(">")) {
+            iterCursor.insertText(lineText.mid(1));
+            totalAdded -= 1;
+        } else {
+            iterCursor.insertText("> " + lineText);
+            totalAdded += 2;
+        }
+    }
+    iterCursor.endEditBlock();
+
+    cursor = myTextEdit->textCursor();
+    int maxPos = myTextEdit->document()->characterCount() - 1;
+    cursor.setPosition(qMin(qMax(anchSave + totalAdded, 0), maxPos));
+    cursor.setPosition(qMin(qMax(save + totalAdded, 0), maxPos), QTextCursor::KeepAnchor);
+    myTextEdit->setTextCursor(cursor);
 }
-
 
 void MarkdownEditor::on_actionCodeBlock_triggered()
 {
+    QTextCursor cursor = myTextEdit->textCursor();
+    int start = cursor.selectionStart();
+    int end = cursor.selectionEnd();
 
+    cursor.beginEditBlock();
+
+    cursor.setPosition(end);
+    cursor.movePosition(QTextCursor::EndOfBlock);
+    cursor.insertBlock();
+    cursor.insertText("```");
+
+    cursor.setPosition(start);
+    cursor.movePosition(QTextCursor::StartOfBlock);
+    cursor.insertBlock();
+    cursor.movePosition(QTextCursor::PreviousBlock);
+    cursor.insertText("```");
+
+    cursor.endEditBlock();
+
+    cursor.movePosition(QTextCursor::EndOfBlock);
+    myTextEdit->setTextCursor(cursor);
+}
+
+void MarkdownEditor::setEditorText(QString newSource)
+{
+    QTextCursor cursor = myTextEdit->textCursor();
+    int savedPos = cursor.position();
+
+    myTextEdit->blockSignals(true);
+    myTextEdit->setPlainText(newSource);
+    myTextEdit->blockSignals(false);
+
+    cursor = myTextEdit->textCursor();
+    int maxPos = myTextEdit->document()->characterCount() - 1;
+    cursor.setPosition(qMin(savedPos, maxPos));
+    myTextEdit->setTextCursor(cursor);
 }
 

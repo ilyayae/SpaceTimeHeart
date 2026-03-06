@@ -15,8 +15,23 @@ CustomTextBrowser::CustomTextBrowser(QWidget *parent)
 
 void CustomTextBrowser::setMarkdown(const QString &markdown)
 {
-    QTextBrowser::setMarkdown(markdown);
+
+    originalMarkdown = markdown;
+    QString processed = preprocessMarkdown(markdown);
+    QTextBrowser::setMarkdown(processed);
     applyUnderline();
+}
+
+QString CustomTextBrowser::preprocessMarkdown(const QString &text)
+{
+    QStringList lines = text.split("\n");
+
+    for (int i = 0; i < lines.size(); i++) {
+        lines[i].replace(QRegularExpression(R"(-\[x\])"), QString::fromUtf8("- ☑"));
+        lines[i].replace(QRegularExpression(R"(-\[\])"), QString::fromUtf8("- ☐"));
+    }
+
+    return lines.join("\n");
 }
 
 void CustomTextBrowser::applyUnderline()
@@ -44,10 +59,42 @@ void CustomTextBrowser::applyUnderline()
     }
 }
 
-
-
 void CustomTextBrowser::mousePressEvent(QMouseEvent *event)
 {
+
+    QTextCursor cursor = cursorForPosition(event->pos());
+    QTextBlock block = cursor.block();
+    QString blockText = block.text();
+
+    if (blockText.contains(QChar(0x2610)) || blockText.contains(QChar(0x2611))) {
+        int clickedIndex = 0;
+        QTextBlock b = document()->begin();
+        while (b.isValid() && b != block) {
+            if (b.text().contains(QChar(0x2610)) || b.text().contains(QChar(0x2611)))
+                clickedIndex++;
+            b = b.next();
+        }
+
+        QStringList sourceLines = originalMarkdown.split("\n");
+        int checkboxCount = 0;
+        for (int i = 0; i < sourceLines.size(); i++) {
+            if (sourceLines[i].contains("-[x]") || sourceLines[i].contains("-[]")) {
+                if (checkboxCount == clickedIndex) {
+                    if (sourceLines[i].contains("-[x]")) {
+                        sourceLines[i].replace("-[x]", "-[]");
+                    } else {
+                        sourceLines[i].replace("-[]", "-[x]");
+                    }
+
+                    originalMarkdown = sourceLines.join("\n");
+                    emit mdCheckboxChanged(originalMarkdown);
+                    setMarkdown(originalMarkdown);
+                    return;
+                }
+                checkboxCount++;
+            }
+        }
+    }
     if (event->modifiers() & Qt::ControlModifier) {
         QString clicked = getClickedHyperlink(event->pos());
         if(!clicked.isEmpty())
@@ -110,7 +157,6 @@ QString CustomTextBrowser::getClickedHyperlink(const QPoint &pos)
     return "";
 }
 
-
 void CustomTextBrowser::highlightText(bool b, QString find)
 {
     QTextCursor cursor = textCursor();
@@ -118,4 +164,79 @@ void CustomTextBrowser::highlightText(bool b, QString find)
         highlighter->setSearchString(find);
     else
         highlighter->setSearchString("");
+}
+
+void CustomTextBrowser::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
+    {
+        //Check if the current line has list markers
+        //If the current line does, add them to the beggining of the new line
+        //Line markers can be almost infinite and in various combinations
+        //Ensure that ' - ', ' .1 ' and ' -[] ' are all supported
+        QTextCursor cursor = this->textCursor();
+        cursor.beginEditBlock();
+        int cursorPos = cursor.position();
+        cursor.movePosition(QTextCursor::StartOfBlock);
+        cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        QString lineText = cursor.selectedText();
+        QRegularExpression prefixRegex(R"(^((?:   )*(-\[x\]\s?|-\[\]\s?|-\s?|\d+\.\s?)))");
+        QRegularExpressionMatch match = prefixRegex.match(lineText + " ");
+
+        QString foundMarkers = "";
+
+        if (match.hasMatch())
+        {
+            foundMarkers = match.captured(1);
+            QString contentAfterPrefix = lineText.mid(foundMarkers.length()).trimmed();
+            if (contentAfterPrefix.isEmpty())
+            {
+                cursor.removeSelectedText();
+                cursor.endEditBlock();
+                this->setTextCursor(cursor);
+                return;
+            }
+
+            foundMarkers.replace("-[x]", "-[]");
+
+            QRegularExpression numberRegex(R"((\d+)\.\s?)");
+            QRegularExpressionMatch numberMatch = numberRegex.match(foundMarkers);
+            if (numberMatch.hasMatch()) {
+                int number = numberMatch.captured(1).toInt();
+                number++;
+                foundMarkers.replace(numberRegex, QString::number(number) + ". ");
+            }
+        }
+        cursor.setPosition(cursorPos);
+        cursor.insertText("  \n" + foundMarkers);
+
+        cursor.endEditBlock();
+    }
+    else if(event->key() == Qt::Key_Tab)
+    {
+        QTextCursor cursor = this->textCursor();
+        cursor.beginEditBlock();
+        int cursorPos = cursor.position();
+        cursor.movePosition(QTextCursor::StartOfBlock);
+        cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+        QString lineText = cursor.selectedText();
+        QRegularExpression numberRegex(R"((\d+)\.\s?)");
+        QRegularExpressionMatch numberMatch = numberRegex.match(lineText);
+        if (numberMatch.hasMatch()) {
+            lineText.replace(numberMatch.capturedStart(1), numberMatch.capturedLength(1), "1");
+        }
+        lineText.replace("-[x]", "-[]");
+        cursor.insertText(lineText);
+        cursor.movePosition(QTextCursor::StartOfBlock);
+        cursor.insertText("   ");
+
+        cursor.setPosition(cursorPos + 3);
+        cursor.endEditBlock();
+        this->setTextCursor(cursor);
+    }
+    else
+    {
+        QTextBrowser::keyPressEvent(event);
+    }
+    return;
 }
