@@ -10,6 +10,10 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    src/editors/calendareditor.cpp \
+    src/editors/imageannotationeditor.cpp \
+    src/calendarconfig.cpp \
+    src/noteTypes/calendardata.cpp \
     src/subclasses/customtextbrowser.cpp \
     src/subclasses/findreplacewidget.cpp \
     src/noteTypes/uuidregistry.cpp \
@@ -23,9 +27,15 @@ SOURCES += \
     src\editors\markdowneditor.cpp \
     src/subclasses/searchhighlighter.cpp \
     src\editors\texteditor.cpp \
-    src\noteTypes\note.cpp
+    src\noteTypes\note.cpp \
+    src/listEntries/dayinweekentry.cpp \
+    src/listEntries/monthinyearentry.cpp \
+    src/listEntries/moonentry.cpp
 
 HEADERS += \
+    include/calendarconfig.h \
+    include/editors/calendareditor.h \
+    include/editors/imageannotationeditor.h \
     include/subclasses/findreplacewidget.h \
     include/noteTypes/uuidregistry.h \
     include\configmenu.h \
@@ -38,16 +48,27 @@ HEADERS += \
     include/subclasses/searchhighlighter.h \
     include\editors\texteditor.h \
     include\noteTypes\note.h \
-    include/subclasses/customtextbrowser.h
+    include/subclasses/customtextbrowser.h \
+    include/noteTypes/calendardata.h \
+    include/listEntries/dayinweekentry.h \
+    include/listEntries/monthinyearentry.h \
+    include/listEntries/moonentry.h
 
 FORMS += \
+    ui/editors/calendareditor.ui \
+    ui/editors/imageannotationeditor.ui \
+    ui/calendarconfig.ui \
+    ui/filebrowser.ui \
+    ui/listEntries/dayinweekentry.ui \
+    ui/listEntries/monthinyearentry.ui \
+    ui/listEntries/moonentry.ui \
     ui\findreplacewidget.ui \
     ui\configmenu.ui \
     ui\editors\emptyeditor.ui \
     ui\editors\htmleditor.ui \
     ui\mainwindow.ui \
     ui\editors\markdowneditor.ui \
-    ui\editors\texteditor.ui
+    ui\editors\texteditor.ui \
 
 TRANSLATIONS +=
 CONFIG += lrelease

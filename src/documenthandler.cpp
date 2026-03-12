@@ -31,9 +31,9 @@ void DocumentHandler::loadFile(QString fileName) {
     } else if (suffix == "md")
     {
         switchEditor(MARKDOWN);
-    } else if (suffix == "html")
+    } else if (suffix == "ccal")
     {
-        switchEditor(HTML);
+        switchEditor(CALENDAR);
     } else
     {
         switchEditor(EMPTY);
@@ -93,9 +93,13 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
         EditorPlace->removeWidget(markdownEditor);
         markdownEditor->deleteLater();
         break;
-    case HTML:
-        EditorPlace->removeWidget(htmlEditor);
-        htmlEditor->deleteLater();
+    case CALENDAR:
+        EditorPlace->removeWidget(calendarEditor);
+        calendarEditor->deleteLater();
+        break;
+    case IMAGEANNOTATION:
+        EditorPlace->removeWidget(imageAnnotationEditor);
+        imageAnnotationEditor->deleteLater();
         break;
     default:
         break;
@@ -133,9 +137,14 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
         });
         connect((CustomTextBrowser*)markdownEditor, &CustomTextBrowser::uuidClicked, this, &DocumentHandler::parseUuid);
         break;
-    case HTML:
-        htmlEditor = new HtmlEditor();
-        EditorPlace->addWidget(htmlEditor);
+    case CALENDAR:
+        calendarEditor = new CalendarEditor();
+        EditorPlace->addWidget(calendarEditor);
+        textEdit = nullptr;
+        break;
+    case IMAGEANNOTATION:
+        imageAnnotationEditor = new ImageAnnotationEditor();
+        EditorPlace->addWidget(imageAnnotationEditor);
         textEdit = nullptr;
         break;
     default:

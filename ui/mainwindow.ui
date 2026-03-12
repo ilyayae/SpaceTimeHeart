@@ -23,7 +23,7 @@
    <property name="styleSheet">
     <string notr="true"/>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1">
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="1">
     <property name="spacing">
      <number>0</number>
     </property>
@@ -39,19 +39,6 @@
     <property name="bottomMargin">
      <number>0</number>
     </property>
-    <item>
-     <widget class="QTreeView" name="fileBrowser">
-      <property name="cursor" stdset="0">
-       <cursorShape>ArrowCursor</cursorShape>
-      </property>
-      <property name="uniformRowHeights">
-       <bool>true</bool>
-      </property>
-      <property name="animated">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
     <item>
      <layout class="QGridLayout" name="EditorPlace">
       <property name="spacing">

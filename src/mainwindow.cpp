@@ -10,28 +10,22 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+
+    QTimer::singleShot(0, this, [this]() {
+        settings = new QSettings("zhopets", "SpaceTimeHeart");
+        if (settings->value("general/FirstLaunch", true).toBool()) {
+            on_actionPreferences_triggered();
+        } else {
+            initEverything();
+        }
+    });
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-}
 
-// THIS BITCH SHOULD BE ***DESTROYED***. CURRENTLY ITS ONLY FUNCTION IS TO KICKSTART THE FUNCTIONALITY OF THE ENTIRE APPLICATION AFTER THE USER PRESSES A BUTTON.
-//  THIS SHOULD BE ON START!!! FOR SOME REASON IF THIS LOGIC IS PUT INTO CONSTRUCTOR AFTER "ui->setupUi(this);" THE ACTION MENU BREAKS (?????)
-void MainWindow::on_actionNew_triggered()
-{
-    //First launch settings
-
-    settings = new QSettings("zhopets", "SpaceTimeHeart");
-    if (settings->value("general/FirstLaunch", true).toBool())
-    {
-        MainWindow::on_actionPreferences_triggered();
-    }
-    else
-    {
-        initEverything();
-    }
 }
 
 //SLOTS
@@ -71,7 +65,9 @@ void MainWindow::initEverything()
 {
     //Instantiate objects
     dochandl = new DocumentHandler(this, settings, ui->EditorPlace);
-    browser = new filebrowser(settings->value("general/WorkDirectory", "/home").toString(), ui->fileBrowser, this);
+    browser = new filebrowser(settings->value("general/WorkDirectory", "/home").toString(), ui->centralwidget);
+    browser->setWindowFlags(Qt::Widget);
+    qobject_cast<QHBoxLayout*>(ui->centralwidget->layout())->insertWidget(0, browser);
 
     //Connect signals & slots
     connect(browser, &filebrowser::fileSelected, this, &MainWindow::openFromBrowser);
@@ -93,14 +89,14 @@ void MainWindow::openFromBrowser(const QString &path)
 
 void MainWindow::updateBrowser(const QString &path)
 {
-    QAbstractItemModel* aim = ui->fileBrowser->model();
+    QAbstractItemModel* aim = browser->view->model();
     QFileSystemModel* fsm = (QFileSystemModel*)aim;
     QModelIndex index = fsm->index(path);
     if(index.isValid())
     {
-        ui->fileBrowser->setCurrentIndex(index);
-        ui->fileBrowser->scrollTo(index, QAbstractItemView::PositionAtCenter);
-        ui->fileBrowser->expand(index.parent());
+        browser->view->setCurrentIndex(index);
+        browser->view->scrollTo(index, QAbstractItemView::PositionAtCenter);
+        browser->view->expand(index.parent());
     }
 }
 

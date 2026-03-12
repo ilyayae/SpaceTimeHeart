@@ -14,13 +14,16 @@
 #include <include/editors/texteditor.h>
 #include <include/editors/markdowneditor.h>
 #include <include/editors/htmleditor.h>
+#include <include/editors/calendareditor.h>
+#include <include/editors/imageannotationeditor.h>
 
 
 enum CurrentEditor {
     EMPTY,
     TEXT,
     MARKDOWN,
-    HTML,
+    CALENDAR,
+    IMAGEANNOTATION,
     NUL
 };
 
@@ -52,6 +55,8 @@ private:
     EmptyEditor *emptyEditor;
     TextEditor *textEditor;
     MarkdownEditor *markdownEditor;
+    CalendarEditor *calendarEditor;
+    ImageAnnotationEditor *imageAnnotationEditor;
     HtmlEditor *htmlEditor;
 signals:
     void fileUpdated();
