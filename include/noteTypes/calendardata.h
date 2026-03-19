@@ -17,6 +17,7 @@ QDataStream &operator<<(QDataStream &out, const MonthDefinition &m);
 QDataStream &operator>>(QDataStream &in,  MonthDefinition &m);
 struct MoonDefinition {
     QString name;
+    QString color;
     double cycleLengthDays = 29.53;
     double epochDayOffset  = 0.0;
 };

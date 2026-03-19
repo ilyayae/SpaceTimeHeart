@@ -10,10 +10,11 @@
 #include <QLineEdit>
 #include <QColorDialog>
 #include <QListWidget>
+#include <QFileInfo>
 
 #include <include/noteTypes/calendardata.h>
-#include <include/dayslot.h>
-#include <include/linkinday.h>
+#include <include/calendarObjects/dayslot.h>
+#include <include/calendarObjects/linkinday.h>
 #include <include/noteTypes/uuidregistry.h>
 
 namespace Ui {
@@ -27,16 +28,17 @@ class CalendarEditor : public QMainWindow
 public:
     explicit CalendarEditor(QWidget *parent = nullptr, UuidRegistry *registry = nullptr);
     ~CalendarEditor();
-    void Initialize(CalendarData data);
+    void Initialize(CalendarData *data);
     void UpdateCalendar(int year, int month);
-    CalendarData myData;
+    DayLink CreateDayLink();
+    CalendarData *myData;
     UuidRegistry *myRegistry;
     int currentYear;
     int currentMonth;
-    int selectedDay;
+    DaySlot *selectedDay;
 
 private slots:
-    void SelectDay(int day);
+    void SelectDay(DaySlot *day);
 
     void on_NextMonth_clicked();
 
@@ -51,6 +53,11 @@ private slots:
     void on_SpecificLink_clicked();
 
     void on_YearlyLink_clicked();
+
+    void emitUuid(QString uuid);
+signals:
+    void Updated();
+    void uuidClicked(QUuid uuid);
 
 private:
     Ui::CalendarEditor *ui;

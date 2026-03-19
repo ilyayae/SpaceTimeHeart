@@ -14,18 +14,22 @@ CalendarEditor::~CalendarEditor()
     delete ui;
 }
 
-void CalendarEditor::Initialize(CalendarData data)
+void CalendarEditor::Initialize(CalendarData *data)
 {
     myData = data;
-    UpdateCalendar(0,0);
+    UpdateCalendar(myData->lastViewedYear, myData->lastViewedMonth);
+    ui->DayLinksHolder->layout()->setAlignment(Qt::AlignLeft);
 }
 
 void CalendarEditor::UpdateCalendar(int year, int month)
 {
     currentYear = year;
     currentMonth = month;
+    selectedDay = nullptr;
+    myData->lastViewedMonth = currentMonth;
+    myData->lastViewedYear = currentYear;
 
-    ui->Date->setText(myData.config.months[currentMonth].name + ", year " + QString::number(currentYear));
+    ui->Date->setText(myData->config.months[currentMonth].name + ", year " + QString::number(currentYear));
 
     QLayoutItem* item;
     while ((item = ui->DayHolder->layout()->takeAt(0)) != nullptr) {
@@ -35,10 +39,10 @@ void CalendarEditor::UpdateCalendar(int year, int month)
         delete item;
     }
 
-    for(int o = 0; o < myData.config.weekLength; o++)
+    for(int o = 0; o < myData->config.weekLength; o++)
     {
         QLabel *weekdayLabel = new QLabel(ui->DayHolder);
-        QString fullName = myData.config.dayNames[o];
+        QString fullName = myData->config.dayNames[o];
         QString display = fullName.length() > 3 ? fullName.left(3) : fullName;
         weekdayLabel->setText(display);
         weekdayLabel->setToolTip(fullName);
@@ -49,23 +53,26 @@ void CalendarEditor::UpdateCalendar(int year, int month)
         qobject_cast<QGridLayout*>(ui->DayHolder->layout())->addWidget(weekdayLabel, 0, o);
     }
 
-    int firstDayWeekday = myData.config.weekdayOf(myData.config.absoluteDay(currentYear, currentMonth, 1));
-    for(int o = 1; o < myData.config.months[currentMonth].dayCount+1; o++)
+    int firstDayWeekday = myData->config.weekdayOf(myData->config.absoluteDay(currentYear, currentMonth, 1));
+    for(int o = 1; o < myData->config.months[currentMonth].dayCount+1; o++)
     {
         QList<double> moonsphases;
-        for(int i = 0; i < myData.config.moons.count(); i++)
+        QList<QString> mooncolors;
+        for(int i = 0; i < myData->config.moons.count(); i++)
         {
-            double phase = std::fmod((myData.config.absoluteDay(currentYear, currentMonth, o) - myData.config.moons[i].epochDayOffset) / myData.config.moons[i].cycleLengthDays, 1.0);
+            double phase = std::fmod((myData->config.absoluteDay(currentYear, currentMonth, o) - myData->config.moons[i].epochDayOffset) / myData->config.moons[i].cycleLengthDays, 1.0);
             moonsphases.append(phase);
+            mooncolors.append(myData->config.moons[i].color);
         }
-        QVector<DayLink> links = myData.linksForDay(currentYear, currentMonth, o);
-        DaySlot *day = new DaySlot(ui->DayHolder, o, myData.config.weekdayOf(myData.config.absoluteDay(currentYear, currentMonth, o)), &links, &moonsphases);
-        int col = myData.config.weekdayOf(myData.config.absoluteDay(currentYear, currentMonth, o));
+        QVector<DayLink> links = myData->linksForDay(currentYear, currentMonth, o);
+        DaySlot *day = new DaySlot(ui->DayHolder, o, myData->config.weekdayOf(myData->config.absoluteDay(currentYear, currentMonth, o)), &links, &moonsphases, &mooncolors);
+        int col = myData->config.weekdayOf(myData->config.absoluteDay(currentYear, currentMonth, o));
         int adjustedIndex = (o - 1) + firstDayWeekday;
-        int row = adjustedIndex / myData.config.weekLength + 1;
+        int row = adjustedIndex / myData->config.weekLength + 1;
         qobject_cast<QGridLayout*>(ui->DayHolder->layout())->addWidget(day, row, col);
         connect(day, &DaySlot::clicked, this, &CalendarEditor::SelectDay);
     }
+    ui->Scroll->hide();
 }
 
 void CalendarEditor::on_Date_clicked()
@@ -76,8 +83,8 @@ void CalendarEditor::on_Date_clicked()
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
 
     QComboBox *monthCombo = new QComboBox(&dialog);
-    for (int i = 0; i < myData.config.months.size(); i++)
-        monthCombo->addItem(myData.config.months[i].name, i);
+    for (int i = 0; i < myData->config.months.size(); i++)
+        monthCombo->addItem(myData->config.months[i].name, i);
     monthCombo->setCurrentIndex(currentMonth);
 
     QSpinBox *yearSpin = new QSpinBox(&dialog);
@@ -101,39 +108,38 @@ void CalendarEditor::on_Date_clicked()
     }
 }
 
-void CalendarEditor::SelectDay(int day)
+void CalendarEditor::SelectDay(DaySlot *day)
 {
-    QLayoutItem* item;
-    bool first = true;
-    while ((item = ui->DayLinksHolder->layout()->takeAt(0)) != nullptr) {
-        if (item->widget()) {
-            if(first)
-            {
-                first = false;
-            }
-            else
-            {
-                item->widget()->deleteLater();
-            }
-        }
+    ui->Scroll->show();
+    QLayout *layout = ui->DayLinksHolder->layout();
+    while (layout->count() > 1) {
+        QLayoutItem *item = layout->takeAt(layout->count() - 1);
+        if (item->widget())
+            item->widget()->deleteLater();
         delete item;
     }
+
+    if(selectedDay != nullptr)
+        selectedDay->ColorMe("#FFFFFF");
+
     selectedDay = day;
 
-    QVector<DayLink> links = myData.linksForDay(currentYear, currentMonth, day);
-    for(int i = 0; i < links.count(); i++)
+    selectedDay->ColorMe("#e3e3e3");
+
+    QVector<DayLink> links = myData->linksForDay(currentYear, currentMonth, day->dayNumber);
+    for (int i = 0; i < links.count(); i++)
     {
         DayLink link = links[i];
-        LinkInDay *linkInDay = new LinkInDay(ui->DayLinksHolder, &link);
-        ui->DayLinksHolder->layout()->addWidget(linkInDay);
+        QFileInfo info(myRegistry->getPath(QUuid::fromString(link.targetNoteId)));
+        LinkInDay *linkInDay = new LinkInDay(ui->DayLinksHolder, link, info.baseName());
+        layout->addWidget(linkInDay);
+        connect(linkInDay, &LinkInDay::GoToNote, this, &CalendarEditor::emitUuid);
     }
-
-    qDebug() << "Selected Day " + QString::number(selectedDay);
 }
 
 void CalendarEditor::on_NextMonth_clicked()
 {
-    if(currentMonth+1 >= myData.config.monthCount())
+    if(currentMonth+1 >= myData->config.monthCount())
     {
         UpdateCalendar(currentYear+1, 0);
     }
@@ -162,7 +168,7 @@ void CalendarEditor::on_PrevMonth_clicked()
     {
         if(currentYear-1 >= -999999)
         {
-            UpdateCalendar(currentYear-1, myData.config.monthCount()-1);
+            UpdateCalendar(currentYear-1, myData->config.monthCount()-1);
         }
     }
     else
@@ -172,6 +178,30 @@ void CalendarEditor::on_PrevMonth_clicked()
 }
 
 void CalendarEditor::on_SpecificLink_clicked()
+{
+    DayLink link = CreateDayLink();
+    if(link.targetNoteId.isEmpty())
+        return;
+    myData->addSpecificLink(currentYear, currentMonth, selectedDay->dayNumber, link);
+    selectedDay->thisDaysLinks.append(link);
+    SelectDay(selectedDay);
+    selectedDay->UpdateEventTracker();
+    emit Updated();
+}
+
+void CalendarEditor::on_YearlyLink_clicked()
+{
+    DayLink link = CreateDayLink();
+    if(link.targetNoteId.isEmpty())
+        return;
+    myData->addRecurringLink(currentMonth, selectedDay->dayNumber, link);
+    selectedDay->thisDaysLinks.append(link);
+    SelectDay(selectedDay);
+    selectedDay->UpdateEventTracker();
+    emit Updated();
+}
+
+DayLink CalendarEditor::CreateDayLink()
 {
     QDialog dialog(this);
     dialog.setWindowTitle("Create New Link");
@@ -183,8 +213,8 @@ void CalendarEditor::on_SpecificLink_clicked()
     QPushButton *colorPick = new QPushButton(&dialog);
     colorPick->setStyleSheet("background-color: " + chosenColor.name() + ";");
     colorPick->setFixedHeight(24);
-    connect(colorPick, &QPushButton::clicked, this, [&chosenColor, colorPick]() {
-        QColor c = QColorDialog::getColor(chosenColor, colorPick, "Pick a color");
+    connect(colorPick, &QPushButton::clicked, this, [&chosenColor, colorPick, &dialog]() {
+        QColor c = QColorDialog::getColor(chosenColor, &dialog, "Pick a color");
         if (c.isValid()) {
             chosenColor = c;
             colorPick->setStyleSheet("background-color: " + c.name() + ";");
@@ -239,24 +269,23 @@ void CalendarEditor::on_SpecificLink_clicked()
     layout->addWidget(searchEdit);
     layout->addWidget(resultsList);
 
-    QDialogButtonBox *buttons = new QDialogButtonBox(
-        QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
     connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
     layout->addWidget(buttons);
 
     if (dialog.exec() == QDialog::Accepted) {
         DayLink link;
-        link.displayLabel  = descEdit->text();
-        link.colorHex      = chosenColor.name();
-        link.targetNoteId  = chosenUuid.toString(QUuid::WithoutBraces);
-        myData.addSpecificLink(currentYear, currentMonth, selectedDay, link);
-        SelectDay(selectedDay);
+        link.displayLabel = descEdit->text();
+        link.colorHex = chosenColor.name();
+        link.targetNoteId = chosenUuid.toString(QUuid::WithoutBraces);
+        return link;
     }
+
+    return DayLink();
 }
 
-void CalendarEditor::on_YearlyLink_clicked()
+void CalendarEditor::emitUuid(QString uuid)
 {
-
+    emit uuidClicked(QUuid::fromString(uuid));
 }
-

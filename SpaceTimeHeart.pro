@@ -31,8 +31,9 @@ SOURCES += \
     src/listEntries/dayinweekentry.cpp \
     src/listEntries/monthinyearentry.cpp \
     src/listEntries/moonentry.cpp \
-    src/dayslot.cpp \
-    src/linkinday.cpp
+    src/calendarObjects/dayslot.cpp \
+    src/calendarObjects/linkinday.cpp \
+    src/calendarObjects/moonvisualiser.cpp
 
 HEADERS += \
     include/calendarconfig.h \
@@ -55,16 +56,18 @@ HEADERS += \
     include/listEntries/dayinweekentry.h \
     include/listEntries/monthinyearentry.h \
     include/listEntries/moonentry.h \
-    include/dayslot.h \
-    include/linkinday.h
+    include/calendarObjects/dayslot.h \
+    include/calendarObjects/linkinday.h \
+    include/calendarObjects/moonvisualiser.h
 
 FORMS += \
-    ui/dayslot.ui \
+    ui/calendarObjects/moonvisualiser.ui \
+    ui/calendarObjects/dayslot.ui \
     ui/editors/calendareditor.ui \
     ui/editors/imageannotationeditor.ui \
     ui/calendarconfig.ui \
     ui/filebrowser.ui \
-    ui/linkinday.ui \
+    ui/calendarObjects/linkinday.ui \
     ui/listEntries/dayinweekentry.ui \
     ui/listEntries/monthinyearentry.ui \
     ui/listEntries/moonentry.ui \

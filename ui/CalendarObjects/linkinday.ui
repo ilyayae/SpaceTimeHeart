@@ -104,6 +104,9 @@
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
         </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item>
@@ -115,7 +118,7 @@
          </size>
         </property>
         <property name="styleSheet">
-         <string notr="true">border: 0px;</string>
+         <string notr="true">border: 0px; background-color: rgba(0, 0, 0, 0);</string>
         </property>
         <property name="text">
          <string>[NOTE NAME]</string>

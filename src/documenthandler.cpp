@@ -54,7 +54,8 @@ void DocumentHandler::loadFile(QString fileName) {
         saveable = false;
         currentCalendar = new CalendarData();
         currentCalendar->load(fileName, *currentCalendar);
-        calendarEditor->Initialize(*currentCalendar);
+        calendarEditor->Initialize(currentCalendar);
+        filePath = fileName;
         saveable = true;
     }
 
@@ -68,9 +69,12 @@ void DocumentHandler::saveFile() {
     {
         if(currentEditor == TEXT || currentEditor == MARKDOWN)
         {
-            currentNote->setContent(textEdit->toPlainText());
-            currentNote->save();
-            registry->writeEntry(currentNote->getUuid(), currentNote->getPath());
+            if(currentNote != nullptr)
+            {
+                currentNote->setContent(textEdit->toPlainText());
+                currentNote->save();
+                registry->writeEntry(currentNote->getUuid(), currentNote->getPath());
+            }
         }
         else if (currentEditor == CALENDAR)
         {
@@ -100,7 +104,7 @@ void DocumentHandler::saveAsFile() {
 
 void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
 {
-    if(textEdit != nullptr)
+    if(textEdit != nullptr || currentCalendar != nullptr)
     {
         saveFile();
     }
@@ -165,6 +169,8 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
         calendarEditor = new CalendarEditor();
         calendarEditor->myRegistry = registry;
         EditorPlace->addWidget(calendarEditor);
+        connect(calendarEditor, &CalendarEditor::Updated, this, &DocumentHandler::emitUpdate);
+        connect(calendarEditor, &CalendarEditor::uuidClicked, this, &DocumentHandler::parseUuid);
         textEdit = nullptr;
         break;
     case IMAGEANNOTATION:

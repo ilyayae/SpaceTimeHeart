@@ -6,12 +6,12 @@ MonthInYearEntry::MonthInYearEntry(QWidget *parent)
     , ui(new Ui::MonthInYearEntry)
 {
     ui->setupUi(this);
+    ui->LineDays->setValidator(new QIntValidator(0, 9999, this));
 }
 
 MonthInYearEntry::~MonthInYearEntry()
 {
     delete ui;
-    ui->LineDays->setValidator(new QIntValidator(0, 9999, this));
 }
 
 void MonthInYearEntry::on_pushButton_clicked()

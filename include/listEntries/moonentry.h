@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QDoubleValidator>
+#include <QColorDialog>
 
 namespace Ui {
 class MoonEntry;
@@ -18,6 +19,7 @@ public:
     QString name;
     float cycle;
     float offset;
+    QString colorHex;
 
 private slots:
     void on_RemoveButton_clicked();
@@ -27,6 +29,8 @@ private slots:
     void on_LineCycle_textChanged(const QString &arg1);
 
     void on_LineOffset_textChanged(const QString &arg1);
+
+    void on_ColorButton_clicked();
 
 signals:
     void destroyMe(MoonEntry *me);

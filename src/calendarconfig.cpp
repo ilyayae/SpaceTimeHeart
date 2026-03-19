@@ -82,7 +82,7 @@ CalendarConfigData CalendarConfig::toConfigData() const
     cfg.months.reserve(listMonth.size());
     for (const MonthInYearEntry *entry : listMonth) {
         MonthDefinition md;
-        md.name     = entry->name;
+        md.name = entry->name;
         md.dayCount = entry->days;
         cfg.months.append(md);
     }
@@ -91,9 +91,10 @@ CalendarConfigData CalendarConfig::toConfigData() const
     cfg.moons.reserve(listMoon.size());
     for (const MoonEntry *entry : listMoon) {
         MoonDefinition moon;
-        moon.name            = entry->name;
+        moon.name = entry->name;
         moon.cycleLengthDays = static_cast<double>(entry->cycle);
-        moon.epochDayOffset  = static_cast<double>(entry->offset);
+        moon.epochDayOffset = static_cast<double>(entry->offset);
+        moon.color = entry->colorHex;
         cfg.moons.append(moon);
     }
 

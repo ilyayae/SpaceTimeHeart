@@ -19,12 +19,12 @@ QDataStream &operator>>(QDataStream &in, MonthDefinition &m)
 
 QDataStream &operator<<(QDataStream &out, const MoonDefinition &m)
 {
-    out << m.name << m.cycleLengthDays << m.epochDayOffset;
+    out << m.name << m.cycleLengthDays << m.epochDayOffset << m.color;
     return out;
 }
 QDataStream &operator>>(QDataStream &in, MoonDefinition &m)
 {
-    in >> m.name >> m.cycleLengthDays >> m.epochDayOffset;
+    in >> m.name >> m.cycleLengthDays >> m.epochDayOffset >> m.color;
     return in;
 }
 
