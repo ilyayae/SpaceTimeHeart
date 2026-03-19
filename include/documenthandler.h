@@ -16,6 +16,7 @@
 #include <include/editors/htmleditor.h>
 #include <include/editors/calendareditor.h>
 #include <include/editors/imageannotationeditor.h>
+#include <include/noteTypes/calendardata.h>
 
 
 enum CurrentEditor {
@@ -46,6 +47,7 @@ private:
     QGridLayout *EditorPlace;
 
     Note *currentNote;
+    CalendarData *currentCalendar;
     UuidRegistry *registry;
     int currZoom = 0;
 

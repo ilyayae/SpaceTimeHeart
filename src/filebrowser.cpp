@@ -152,7 +152,7 @@ void filebrowser::createCalendar()
     fileData.config = calconfig->toConfigData();
     fileData.config.calendarName = name.chopped(CCAL_EXTENSION.size()); // strip extension for display name
 
-    if (!saveCalendarFile(fullPath, fileData)) {
+    if (!fileData.save(fullPath, fileData)) {
         QMessageBox::warning(this, "Error",
                              "Failed to save calendar file:\n" + fullPath);
     }
@@ -160,7 +160,5 @@ void filebrowser::createCalendar()
     calconfig->close();
     calconfig->deleteLater();
     calconfig = nullptr;
-
-    // Refresh your file browser so the new .ccal appears
 }
 

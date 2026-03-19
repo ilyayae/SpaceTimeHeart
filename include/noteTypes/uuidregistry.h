@@ -17,6 +17,7 @@ public:
     QString getPath(const QUuid &uuid) const;
     QUuid getUuid(const QString &filePath) const;
     bool contains(const QUuid &uuid) const;
+    QList<QPair<QUuid, QString>> getAllUuids() const;
 
 private:
     void initDatabase();

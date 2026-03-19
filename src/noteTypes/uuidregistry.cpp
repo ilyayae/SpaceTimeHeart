@@ -114,3 +114,18 @@ bool UuidRegistry::contains(const QUuid &uuid) const
 
     return query.exec() && query.next();
 }
+
+QList<QPair<QUuid, QString>> UuidRegistry::getAllUuids() const
+{
+    QList<QPair<QUuid, QString>> result;
+    QSqlDatabase db = QSqlDatabase::database(connectionName);
+    QSqlQuery query(db);
+    query.prepare("SELECT uuid, filepath FROM uuid_registry");
+    if (query.exec()) {
+        while(query.next())
+        {
+            result.append(*new QPair<QUuid, QString>(query.value(0).toUuid(), query.value(1).toString()));
+        }
+    }
+    return result;
+}

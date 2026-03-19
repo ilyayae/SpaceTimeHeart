@@ -49,6 +49,14 @@ void DocumentHandler::loadFile(QString fileName) {
 
         saveable = true;
     }
+    else if (calendarEditor != nullptr)
+    {
+        saveable = false;
+        currentCalendar = new CalendarData();
+        currentCalendar->load(fileName, *currentCalendar);
+        calendarEditor->Initialize(*currentCalendar);
+        saveable = true;
+    }
 
 }
 
@@ -58,9 +66,17 @@ void DocumentHandler::saveFile() {
     }
     else
     {
-        currentNote->setContent(textEdit->toPlainText());
-        currentNote->save();
-        registry->writeEntry(currentNote->getUuid(), currentNote->getPath());
+        if(currentEditor == TEXT || currentEditor == MARKDOWN)
+        {
+            currentNote->setContent(textEdit->toPlainText());
+            currentNote->save();
+            registry->writeEntry(currentNote->getUuid(), currentNote->getPath());
+        }
+        else if (currentEditor == CALENDAR)
+        {
+            currentCalendar->save(filePath, *currentCalendar);
+            registry->writeEntry(currentCalendar->GetUuid(), currentCalendar->GetPath());
+        }
     }
 }
 
@@ -69,9 +85,17 @@ void DocumentHandler::saveAsFile() {
     filePath = QFileDialog::getSaveFileName(nullptr, tr("Save File As"), Settings->value("general/WorkDirectory", "/home").toString(), tr("Text Files (*.txt);;All Files (*)"));
     if (filePath.isEmpty()) return;
 
-    currentNote->setContent(textEdit->toPlainText());
-    currentNote->saveAs(filePath);
-    registry->writeEntry(currentNote->getUuid(), currentNote->getPath());
+    if(currentEditor == TEXT || currentEditor == MARKDOWN)
+    {
+        currentNote->setContent(textEdit->toPlainText());
+        currentNote->saveAs(filePath);
+        registry->writeEntry(currentNote->getUuid(), currentNote->getPath());
+    }
+    else if (currentEditor == CALENDAR)
+    {
+        currentCalendar->save(filePath, *currentCalendar);
+        registry->writeEntry(currentCalendar->GetUuid(), currentCalendar->GetPath());
+    }
 }
 
 void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
@@ -139,6 +163,7 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
         break;
     case CALENDAR:
         calendarEditor = new CalendarEditor();
+        calendarEditor->myRegistry = registry;
         EditorPlace->addWidget(calendarEditor);
         textEdit = nullptr;
         break;

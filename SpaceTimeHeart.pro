@@ -30,7 +30,9 @@ SOURCES += \
     src\noteTypes\note.cpp \
     src/listEntries/dayinweekentry.cpp \
     src/listEntries/monthinyearentry.cpp \
-    src/listEntries/moonentry.cpp
+    src/listEntries/moonentry.cpp \
+    src/dayslot.cpp \
+    src/linkinday.cpp
 
 HEADERS += \
     include/calendarconfig.h \
@@ -52,13 +54,17 @@ HEADERS += \
     include/noteTypes/calendardata.h \
     include/listEntries/dayinweekentry.h \
     include/listEntries/monthinyearentry.h \
-    include/listEntries/moonentry.h
+    include/listEntries/moonentry.h \
+    include/dayslot.h \
+    include/linkinday.h
 
 FORMS += \
+    ui/dayslot.ui \
     ui/editors/calendareditor.ui \
     ui/editors/imageannotationeditor.ui \
     ui/calendarconfig.ui \
     ui/filebrowser.ui \
+    ui/linkinday.ui \
     ui/listEntries/dayinweekentry.ui \
     ui/listEntries/monthinyearentry.ui \
     ui/listEntries/moonentry.ui \

@@ -197,6 +197,77 @@ void CalendarData::removeLinksToNote(const QString &noteId)
             ++it;
     }
 }
+bool CalendarData::save(const QString &path, CalendarData &data)
+{
+    if (data.myUuid.isNull())
+        data.myUuid = QUuid::createUuid();
+
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly))
+        return false;
+
+    QDataStream out(&file);
+    out.setVersion(QDataStream::Qt_6_0);
+
+    out << CCAL_MAGIC << CCAL_VERSION;
+
+    out << data.myUuid;
+    out << static_cast<qint32>(data.lastViewedYear) << static_cast<qint32>(data.lastViewedMonth);
+    out << data;
+
+    data.myPath = path;
+
+    return out.status() == QDataStream::Ok;
+}
+bool CalendarData::load(const QString &path, CalendarData &data)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly))
+        return false;
+
+    QDataStream in(&file);
+    in.setVersion(QDataStream::Qt_6_0);
+
+    uint32_t magic;
+    uint16_t version;
+    in >> magic >> version;
+
+    if (magic != CCAL_MAGIC)
+        return false;
+
+    if (version > CCAL_VERSION)
+        return false;
+
+    if (version >= 2) {
+        in >> data.myUuid;
+    } else {
+        data.myUuid = QUuid::createUuid();
+    }
+    if (version >= 3) {
+        qint32 y, m;
+        in >> y >> m;
+        data.lastViewedYear  = y;
+        data.lastViewedMonth = m;
+    } else {
+        data.lastViewedYear  = 1;
+        data.lastViewedMonth = 0;
+    }
+
+    in >> data;
+
+    data.myPath = path;
+
+    return in.status() == QDataStream::Ok;
+}
+
+QUuid CalendarData::GetUuid()
+{
+    return myUuid;
+}
+QString CalendarData::GetPath()
+{
+    return myPath;
+}
 
 QDataStream &operator<<(QDataStream &out, const CalendarData &d)
 {
@@ -249,42 +320,4 @@ QDataStream &operator>>(QDataStream &in, CalendarData &d)
     }
 
     return in;
-}
-
-bool saveCalendarFile(const QString &path, const CalendarData &data)
-{
-    QFile file(path);
-    if (!file.open(QIODevice::WriteOnly))
-        return false;
-
-    QDataStream out(&file);
-    out.setVersion(QDataStream::Qt_6_0);
-
-    out << CCAL_MAGIC << CCAL_VERSION;
-    out << data;
-
-    return out.status() == QDataStream::Ok;
-}
-bool loadCalendarFile(const QString &path, CalendarData &data)
-{
-    QFile file(path);
-    if (!file.open(QIODevice::ReadOnly))
-        return false;
-
-    QDataStream in(&file);
-    in.setVersion(QDataStream::Qt_6_0);
-
-    uint32_t magic;
-    uint16_t version;
-    in >> magic >> version;
-
-    if (magic != CCAL_MAGIC)
-        return false;
-
-    if (version > CCAL_VERSION)
-        return false;
-
-    in >> data;
-
-    return in.status() == QDataStream::Ok;
 }
