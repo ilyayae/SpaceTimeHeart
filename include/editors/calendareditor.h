@@ -36,6 +36,7 @@ public:
     int currentYear;
     int currentMonth;
     DaySlot *selectedDay;
+    void DestroyLink(DayLink link);
 
 private slots:
     void SelectDay(DaySlot *day);

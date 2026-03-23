@@ -64,8 +64,7 @@ void CalendarEditor::UpdateCalendar(int year, int month)
             moonsphases.append(phase);
             mooncolors.append(myData->config.moons[i].color);
         }
-        QVector<DayLink> links = myData->linksForDay(currentYear, currentMonth, o);
-        DaySlot *day = new DaySlot(ui->DayHolder, o, myData->config.weekdayOf(myData->config.absoluteDay(currentYear, currentMonth, o)), &links, &moonsphases, &mooncolors);
+        DaySlot *day = new DaySlot(ui->DayHolder, o, myData->config.weekdayOf(myData->config.absoluteDay(currentYear, currentMonth, o)), myData->linksForDay(currentYear, currentMonth, o).count(), &moonsphases, &mooncolors);
         int col = myData->config.weekdayOf(myData->config.absoluteDay(currentYear, currentMonth, o));
         int adjustedIndex = (o - 1) + firstDayWeekday;
         int row = adjustedIndex / myData->config.weekLength + 1;
@@ -134,7 +133,48 @@ void CalendarEditor::SelectDay(DaySlot *day)
         LinkInDay *linkInDay = new LinkInDay(ui->DayLinksHolder, link, info.baseName());
         layout->addWidget(linkInDay);
         connect(linkInDay, &LinkInDay::GoToNote, this, &CalendarEditor::emitUuid);
+        connect(linkInDay, &LinkInDay::DestroyLink, this, &CalendarEditor::DestroyLink);
     }
+}
+
+void CalendarEditor::DestroyLink(DayLink link)
+{
+    QMapIterator<RecurringDateKey, QVector<DayLink>> iteratorRec(myData->recurringEvents);
+    while(iteratorRec.hasNext())
+    {
+        iteratorRec.next();
+        QList<DayLink> linksForKey = myData->recurringEvents[iteratorRec.key()];
+        for(int i = linksForKey.size() - 1; i >= 0; i--)
+        {
+            if(linksForKey[i].colorHex == link.colorHex && linksForKey[i].displayLabel == link.displayLabel && linksForKey[i].targetNoteId == link.targetNoteId) linksForKey.remove(i);
+        }
+        myData->recurringEvents.remove(iteratorRec.key());
+        for(int i = 0; i < linksForKey.count(); i++)
+        {
+            myData->recurringEvents.insert(iteratorRec.key(), linksForKey);
+        }
+    }
+
+    QMapIterator<SpecificDateKey, QVector<DayLink>> iteratorSpe(myData->specificEvents);
+    while(iteratorSpe.hasNext())
+    {
+        iteratorSpe.next();
+        QList<DayLink> linksForKey = myData->specificEvents[iteratorSpe.key()];
+        for(int i = linksForKey.size() - 1; i >= 0; i--)
+        {
+            if(linksForKey[i].colorHex == link.colorHex && linksForKey[i].displayLabel == link.displayLabel && linksForKey[i].targetNoteId == link.targetNoteId) linksForKey.remove(i);
+        }
+        myData->specificEvents.remove(iteratorSpe.key());
+        for(int i = 0; i < linksForKey.count(); i++)
+        {
+            myData->specificEvents.insert(iteratorSpe.key(), linksForKey);
+        }
+    }
+
+    SelectDay(selectedDay);
+    selectedDay->thisDaysLinks = myData->linksForDay(currentYear, currentMonth, selectedDay->dayNumber).count();
+    selectedDay->UpdateEventTracker();
+    emit Updated();
 }
 
 void CalendarEditor::on_NextMonth_clicked()
@@ -183,7 +223,7 @@ void CalendarEditor::on_SpecificLink_clicked()
     if(link.targetNoteId.isEmpty())
         return;
     myData->addSpecificLink(currentYear, currentMonth, selectedDay->dayNumber, link);
-    selectedDay->thisDaysLinks.append(link);
+    selectedDay->thisDaysLinks++;
     SelectDay(selectedDay);
     selectedDay->UpdateEventTracker();
     emit Updated();
@@ -195,7 +235,7 @@ void CalendarEditor::on_YearlyLink_clicked()
     if(link.targetNoteId.isEmpty())
         return;
     myData->addRecurringLink(currentMonth, selectedDay->dayNumber, link);
-    selectedDay->thisDaysLinks.append(link);
+    selectedDay->thisDaysLinks++;
     SelectDay(selectedDay);
     selectedDay->UpdateEventTracker();
     emit Updated();

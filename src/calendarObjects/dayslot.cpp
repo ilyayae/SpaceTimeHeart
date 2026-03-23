@@ -1,13 +1,13 @@
 #include "include/calendarObjects/dayslot.h"
 #include "ui_dayslot.h"
 
-DaySlot::DaySlot(QWidget *parent, int _dayNumber, int _weekday, QVector<DayLink> *_thisDaysLinks, QList<double> *_moonsPhases, QList<QString> *_moonsColors)
+DaySlot::DaySlot(QWidget *parent, int _dayNumber, int _weekday, int _thisDaysLinks, QList<double> *_moonsPhases, QList<QString> *_moonsColors)
     : QWidget(parent)
     , ui(new Ui::DaySlot)
 {
     dayNumber = _dayNumber;
     weekday = _weekday; // unused
-    thisDaysLinks = *_thisDaysLinks;
+    thisDaysLinks = _thisDaysLinks;
     moonsPhases = *_moonsPhases;
     moonsColors = *_moonsColors;
     ui->setupUi(this);
@@ -55,9 +55,14 @@ void DaySlot::ColorMe(QString color)
 
 void DaySlot::UpdateEventTracker()
 {
-    if(thisDaysLinks.count() != 0)
+    if(thisDaysLinks != 0)
     {
-        ui->eventsLabel->setText("(" + QString::number(thisDaysLinks.count()) + ")");
+        ui->eventsLabel->setText("(" + QString::number(thisDaysLinks) + ")");
         ui->eventsLabel->setStyleSheet("color: black; border-radius: 5px; background: #ffc800;");
+    }
+    else
+    {
+        ui->eventsLabel->setText("");
+        ui->eventsLabel->setStyleSheet("background: transparent;");
     }
 }
