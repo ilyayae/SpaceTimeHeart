@@ -15,6 +15,7 @@ SOURCES += \
     src/editors/imageannotationeditor.cpp \
     src/calendarconfig.cpp \
     src/noteTypes/calendardata.cpp \
+    src/subclasses/customgraphicsview.cpp \
     src/subclasses/customtextbrowser.cpp \
     src/subclasses/findreplacewidget.cpp \
     src/noteTypes/uuidregistry.cpp \
@@ -60,7 +61,8 @@ HEADERS += \
     include/listEntries/moonentry.h \
     include/calendarObjects/dayslot.h \
     include/calendarObjects/linkinday.h \
-    include/calendarObjects/moonvisualiser.h
+    include/calendarObjects/moonvisualiser.h \
+    include/subclasses/customgraphicsview.h
 
 FORMS += \
     ui/calendarObjects/moonvisualiser.ui \
@@ -89,3 +91,6 @@ CONFIG += embed_translations
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    resources/resources.qrc

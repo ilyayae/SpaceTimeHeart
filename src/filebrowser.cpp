@@ -12,7 +12,7 @@ filebrowser::filebrowser(const QString &rootPath, QWidget *parent)
     model = new QFileSystemModel(this);
     model->setRootPath(root);
     model->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
-    model->setNameFilters({"*.txt", "*.md", "*.ccal"});
+    model->setNameFilters({"*.txt", "*.md", "*.ccal", "*.iman"});
     model->setNameFilterDisables(false);
 
     view = new QTreeView(this);

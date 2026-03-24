@@ -48,6 +48,7 @@ private:
 
     Note *currentNote;
     CalendarData *currentCalendar;
+    ImageAnnotationData *currentImageAnnotation;
     UuidRegistry *registry;
     int currZoom = 0;
 

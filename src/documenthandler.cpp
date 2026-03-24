@@ -34,6 +34,9 @@ void DocumentHandler::loadFile(QString fileName) {
     } else if (suffix == "ccal")
     {
         switchEditor(CALENDAR);
+    } else if (suffix == "iman")
+    {
+        switchEditor(IMAGEANNOTATION);
     } else
     {
         switchEditor(EMPTY);
@@ -55,6 +58,15 @@ void DocumentHandler::loadFile(QString fileName) {
         currentCalendar = new CalendarData();
         currentCalendar->load(fileName, *currentCalendar);
         calendarEditor->Initialize(currentCalendar);
+        filePath = fileName;
+        saveable = true;
+    }
+    else if (imageAnnotationEditor != nullptr)
+    {
+        saveable = false;
+        currentImageAnnotation = new ImageAnnotationData();
+        currentImageAnnotation->load(fileName, *currentImageAnnotation);
+        imageAnnotationEditor->Initialize(currentImageAnnotation);
         filePath = fileName;
         saveable = true;
     }
@@ -112,22 +124,27 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
     case EMPTY:
         EditorPlace->removeWidget(emptyEditor);
         emptyEditor->deleteLater();
+        emptyEditor = nullptr;
         break;
     case TEXT:
         EditorPlace->removeWidget(textEditor);
         textEditor->deleteLater();
+        textEditor = nullptr;
         break;
     case MARKDOWN:
         EditorPlace->removeWidget(markdownEditor);
         markdownEditor->deleteLater();
+        markdownEditor = nullptr;
         break;
     case CALENDAR:
         EditorPlace->removeWidget(calendarEditor);
         calendarEditor->deleteLater();
+        calendarEditor = nullptr;
         break;
     case IMAGEANNOTATION:
         EditorPlace->removeWidget(imageAnnotationEditor);
         imageAnnotationEditor->deleteLater();
+        imageAnnotationEditor = nullptr;
         break;
     default:
         break;
@@ -175,6 +192,7 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
         break;
     case IMAGEANNOTATION:
         imageAnnotationEditor = new ImageAnnotationEditor();
+        imageAnnotationEditor->myRegistry = registry;
         EditorPlace->addWidget(imageAnnotationEditor);
         textEdit = nullptr;
         break;
@@ -183,6 +201,7 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
     }
     currentEditor = SwitchTo;
 }
+
 void DocumentHandler::emitUpdate()
 {
     emit fileUpdated();
