@@ -9,9 +9,12 @@
 #include <QVBoxLayout>
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QFileDialog>
+#include <QSettings>
 
 #include "include/calendarconfig.h"
 #include "include/noteTypes/calendardata.h"
+#include "include/noteTypes/imageannotationdata.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

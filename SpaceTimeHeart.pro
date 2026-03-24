@@ -10,6 +10,7 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    src/noteTypes/imageannotationdata.cpp \
     src/editors/calendareditor.cpp \
     src/editors/imageannotationeditor.cpp \
     src/calendarconfig.cpp \
@@ -39,6 +40,7 @@ HEADERS += \
     include/calendarconfig.h \
     include/editors/calendareditor.h \
     include/editors/imageannotationeditor.h \
+    include/noteTypes/imageannotationdata.h \
     include/subclasses/findreplacewidget.h \
     include/noteTypes/uuidregistry.h \
     include\configmenu.h \

@@ -1,6 +1,7 @@
 #include "include\filebrowser.h"
 #include "ui_filebrowser.h"
 
+#include <QFile>
 filebrowser::filebrowser(const QString &rootPath, QWidget *parent)
     : QMainWindow{parent}
     , ui(new Ui::filebrowser)
@@ -105,7 +106,32 @@ void filebrowser::on_actionNewCallendar_triggered()
 
 void filebrowser::on_actionNewImageAnnotation_triggered()
 {
+    QSettings settings("zhopets", "SpaceTimeHeart");
+    QString filePath = QFileDialog::getOpenFileName(this, "Please select an image", "/home", "Images (*.png *.jpg *.webp)" );
+    if(filePath.isEmpty())
+        return;
+    QFile file(filePath);
+    file.open(QIODevice::ReadOnly);
+    QByteArray image = file.readAll();
 
+    bool ok;
+    QString name = QInputDialog::getText(
+        this, "New Calendar", "Calendar file name:",
+        QLineEdit::Normal, "untitled", &ok);
+    if(!ok)
+        return;
+    if (!name.endsWith(IMAN_EXTENSION))
+        name += IMAN_EXTENSION;
+    QString fullPath = root + "/" + name;
+    ImageAnnotationData *newIMAN = new ImageAnnotationData();
+    newIMAN->imageData = image;
+    QFileInfo info(filePath);
+    newIMAN->imageFormat = info.suffix();
+    newIMAN->myPath = fullPath;
+    if(!newIMAN->save(fullPath, *newIMAN)) {
+        QMessageBox::warning(this, "Error",
+                             "Failed to save image annotation file:\n" + filePath);
+    }
 }
 
 
