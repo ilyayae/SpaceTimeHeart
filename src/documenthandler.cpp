@@ -18,7 +18,16 @@ DocumentHandler::DocumentHandler(QWidget *parent, QSettings *settings, QGridLayo
     QDir().mkpath(appDataPath);
     registry = new UuidRegistry(appDataPath + "/notes_registry.db", this);
 }
-
+DocumentHandler::~DocumentHandler()
+{
+    if (textEdit) textEdit->deleteLater();
+    if (emptyEditor) emptyEditor->deleteLater();
+    if (textEditor) textEditor->deleteLater();
+    if (markdownEditor) markdownEditor->deleteLater();
+    if (calendarEditor) calendarEditor->deleteLater();
+    if (imageAnnotationEditor) imageAnnotationEditor->deleteLater();
+    if (htmlEditor) htmlEditor->deleteLater();
+}
 
 void DocumentHandler::loadFile(QString fileName) {
     if (fileName.isEmpty()) return;
@@ -90,8 +99,19 @@ void DocumentHandler::saveFile() {
         }
         else if (currentEditor == CALENDAR)
         {
-            currentCalendar->save(filePath, *currentCalendar);
-            registry->writeEntry(currentCalendar->GetUuid(), currentCalendar->GetPath());
+            if(currentCalendar != nullptr)
+            {
+                currentCalendar->save(filePath, *currentCalendar);
+                registry->writeEntry(currentCalendar->GetUuid(), currentCalendar->GetPath());
+            }
+        }
+        else if (currentEditor == IMAGEANNOTATION)
+        {
+            if(currentImageAnnotation != nullptr)
+            {
+                currentImageAnnotation->save(filePath, *currentImageAnnotation);
+                registry->writeEntry(currentImageAnnotation->GetUuid(), currentImageAnnotation->GetPath());
+            }
         }
     }
 }
@@ -112,11 +132,16 @@ void DocumentHandler::saveAsFile() {
         currentCalendar->save(filePath, *currentCalendar);
         registry->writeEntry(currentCalendar->GetUuid(), currentCalendar->GetPath());
     }
+    else if (currentEditor == IMAGEANNOTATION)
+    {
+        currentImageAnnotation->save(filePath, *currentImageAnnotation);
+        registry->writeEntry(currentImageAnnotation->GetUuid(), currentImageAnnotation->GetPath());
+    }
 }
 
 void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
 {
-    if(textEdit != nullptr || currentCalendar != nullptr)
+    if(textEdit != nullptr || currentCalendar != nullptr || currentImageAnnotation != nullptr)
     {
         saveFile();
     }
@@ -194,6 +219,7 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
         imageAnnotationEditor = new ImageAnnotationEditor();
         imageAnnotationEditor->myRegistry = registry;
         EditorPlace->addWidget(imageAnnotationEditor);
+        connect(imageAnnotationEditor, &ImageAnnotationEditor::uuidClicked, this, &DocumentHandler::parseUuid);
         textEdit = nullptr;
         break;
     default:
@@ -206,6 +232,7 @@ void DocumentHandler::emitUpdate()
 {
     emit fileUpdated();
 }
+
 void DocumentHandler::parseUuid(QUuid uuid)
 {
     QString string = registry->getPath(uuid);

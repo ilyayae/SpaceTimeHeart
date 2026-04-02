@@ -56,7 +56,9 @@ bool UuidRegistry::writeEntry(const QUuid &uuid, const QString &filePath)
     QSqlQuery query(db);
     query.prepare("INSERT OR REPLACE INTO uuid_registry (uuid, filepath) VALUES (:uuid, :path)");
     query.bindValue(":uuid", uuid.toString(QUuid::WithoutBraces));
-    query.bindValue(":path", filePath);
+    QSettings settings("zhopets", "SpaceTimeHeart");
+    QDir workDir(settings.value("general/WorkDirectory", "/home").toString());
+    query.bindValue(":path", workDir.relativeFilePath(filePath));
 
     if (!query.exec()) {
         qWarning() << "Failed to add entry:" << query.lastError().text();
@@ -87,7 +89,9 @@ QString UuidRegistry::getPath(const QUuid &uuid) const
     query.bindValue(":uuid", uuid.toString(QUuid::WithoutBraces));
 
     if (query.exec() && query.next()) {
-        return query.value(0).toString();
+        QSettings settings("zhopets", "SpaceTimeHeart");
+        QDir workDir(settings.value("general/WorkDirectory", "/home").toString());
+        return workDir.absoluteFilePath(query.value(0).toString());
     }
     return QString();
 }
@@ -97,7 +101,9 @@ QUuid UuidRegistry::getUuid(const QString &filePath) const
     QSqlDatabase db = QSqlDatabase::database(connectionName);
     QSqlQuery query(db);
     query.prepare("SELECT uuid FROM uuid_registry WHERE filepath = :path");
-    query.bindValue(":path", filePath);
+    QSettings settings("zhopets", "SpaceTimeHeart");
+    QDir workDir(settings.value("general/WorkDirectory", "/home").toString());
+    query.bindValue(":path", workDir.relativeFilePath(filePath));
 
     if (query.exec() && query.next()) {
         return QUuid::fromString(query.value(0).toString());
@@ -128,4 +134,59 @@ QList<QPair<QUuid, QString>> UuidRegistry::getAllUuids() const
         }
     }
     return result;
+}
+
+void UuidRegistry::validateEntries()
+{
+    QString connName = connectionName;
+    QSqlDatabase mainDb = QSqlDatabase::database(connName);
+    QString dbPath = mainDb.databaseName();
+
+    auto future = QtConcurrent::run([connName, dbPath]()
+                      {
+                          QSettings settings("zhopets", "SpaceTimeHeart");
+                          QDir workDir(settings.value("general/WorkDirectory", "/home").toString());
+
+                          QString threadConnName = connName + "_validator";
+                          {
+                              QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", threadConnName);
+                              db.setDatabaseName(dbPath);
+                              if (!db.open())
+                              {
+                                  QSqlDatabase::removeDatabase(threadConnName);
+                                  return;
+                              }
+                              QStringList invalidUuids;
+                              {
+                                  QSqlQuery selectQuery(db);
+                                  selectQuery.setForwardOnly(true);
+                                  selectQuery.exec("SELECT uuid, filepath FROM uuid_registry");
+                                  while (selectQuery.next())
+                                  {
+                                      QString uuid = selectQuery.value(0).toString();
+                                      QString relativePath = selectQuery.value(1).toString();
+                                      QString absolutePath = workDir.absoluteFilePath(relativePath);
+                                      if (!QFile::exists(absolutePath))
+                                          invalidUuids.append(uuid);
+                                  }
+                              }
+                              if (!invalidUuids.isEmpty())
+                              {
+                                  db.transaction();
+                                  QSqlQuery deleteQuery(db);
+                                  deleteQuery.prepare("DELETE FROM uuid_registry WHERE uuid = :uuid");
+                                  for (const QString &uuid : invalidUuids)
+                                  {
+                                      deleteQuery.bindValue(":uuid", uuid);
+                                      qDebug() << "Killing UUID:" + uuid.toStdString();;
+                                      deleteQuery.exec();
+                                  }
+                                  db.commit();
+                              }
+
+                              db.close();
+                          }
+                          QSqlDatabase::removeDatabase(threadConnName);
+                      });
+    Q_UNUSED(future);
 }

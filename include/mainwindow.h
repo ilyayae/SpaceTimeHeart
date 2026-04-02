@@ -43,10 +43,10 @@ private slots:
     void updateBrowser(const QString &path);
 
 private:
-    DocumentHandler *dochandl;
-    filebrowser *browser;
-    QTimer *timer;
-    QSettings *settings;
-    ConfigMenu *configMenu;
+    DocumentHandler *dochandl = nullptr;
+    filebrowser *browser = nullptr;
+    QTimer *timer = nullptr;
+    QSettings *settings = nullptr;
+    ConfigMenu *configMenu = nullptr;
 };
 #endif // MAINWINDOW_H

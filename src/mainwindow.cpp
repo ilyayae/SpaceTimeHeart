@@ -64,7 +64,11 @@ void MainWindow::on_actionPreferences_triggered()
 void MainWindow::initEverything()
 {
     //Instantiate objects
+    if(dochandl != nullptr)
+        dochandl->deleteLater();
     dochandl = new DocumentHandler(this, settings, ui->EditorPlace);
+    if(browser != nullptr)
+        browser->deleteLater();
     browser = new filebrowser(settings->value("general/WorkDirectory", "/home").toString(), ui->centralwidget);
     browser->setWindowFlags(Qt::Widget);
     qobject_cast<QHBoxLayout*>(ui->centralwidget->layout())->insertWidget(0, browser);
@@ -80,6 +84,7 @@ void MainWindow::initEverything()
     connect(timer, &QTimer::timeout, this, [this]() {
         dochandl->saveFile();
     });
+    dochandl->registry->validateEntries();
 }
 // Function to open file from filebrowser
 void MainWindow::openFromBrowser(const QString &path)

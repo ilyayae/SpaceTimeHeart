@@ -7,11 +7,12 @@
 bool MarkerData::operator==(const MarkerData &o) const
 {
     return qFuzzyCompare(X, o.X) &&
-           qFuzzyCompare(Y, o.Y) &&
-           Link == o.Link &&
-           Color == o.Color &&
-           Label == o.Label &&
-           IconId == o.IconId;
+        qFuzzyCompare(Y, o.Y) &&
+        Link == o.Link &&
+        Color == o.Color &&
+        Label == o.Label &&
+        IconId == o.IconId &&
+        size == o.size;
 }
 
 bool LineStyle::operator==(const LineStyle &o) const
@@ -36,6 +37,8 @@ bool ShapeData::operator==(const ShapeData &o) const
     if (!(StyleOfFill == o.StyleOfFill))
         return false;
     if (XYPoints.size() != o.XYPoints.size())
+        return false;
+    if(rounding != o.rounding)
         return false;
     for (int i = 0; i < XYPoints.size(); i++)
     {
@@ -69,13 +72,13 @@ QDataStream &operator<<(QDataStream &out, const MarkerData &m)
     qint64 xBits, yBits;
     memcpy(&xBits, &m.X, sizeof(double));
     memcpy(&yBits, &m.Y, sizeof(double));
-    out << m.Color << m.IconId << m.Label << m.Link << xBits << yBits;
+    out << m.Color << m.IconId << m.Label << m.Link << xBits << yBits << m.size;
     return out;
 }
 QDataStream &operator>>(QDataStream &in, MarkerData &m)
 {
     qint64 xBits, yBits;
-    in >> m.Color >> m.IconId >> m.Label >> m.Link >> xBits >> yBits;
+    in >> m.Color >> m.IconId >> m.Label >> m.Link >> xBits >> yBits >> m.size;
     memcpy(&m.X, &xBits, sizeof(double));
     memcpy(&m.Y, &yBits, sizeof(double));
     return in;
@@ -105,12 +108,12 @@ QDataStream &operator>>(QDataStream &in, FillStyle &m)
 
 QDataStream &operator<<(QDataStream &out, const ShapeData &m)
 {
-    out << m.Closed << m.StyleOfFill << m.StyleOfLine << m.XYPoints;
+    out << m.Closed << m.StyleOfFill << m.StyleOfLine << m.XYPoints << m.rounding;
     return out;
 }
 QDataStream &operator>>(QDataStream &in,  ShapeData &m)
 {
-    in >> m.Closed >> m.StyleOfFill >> m.StyleOfLine >> m.XYPoints;
+    in >> m.Closed >> m.StyleOfFill >> m.StyleOfLine >> m.XYPoints >> m.rounding;
     return in;
 }
 
@@ -127,9 +130,9 @@ QList<QUuid> ImageAnnotationData::GetMyLinks()
     return myLinks;
 }
 
-void ImageAnnotationData::addMarker(double x, double y, QUuid link, QString color, QString label, QString iconId)
+void ImageAnnotationData::addMarker(double x, double y, int size, QUuid link, QString color, QString label, QString iconId)
 {
-    MarkerData mark = {x,y,link,color,label,iconId};
+    MarkerData mark = {x,y,size,link,color,label,iconId};
     markers.append(mark);
 }
 void ImageAnnotationData::addShape(QList<QPair<double, double>> xyPoints, bool closed, QString lineColor, QString fillColor, int width, QString linePatternId, QString fillPatternId)

@@ -5,6 +5,9 @@
 #include <QObject>
 #include <QWidget>
 #include <QWheelEvent>
+#include <QPoint>
+#include <QScrollBar>
+
 
 class CustomGraphicsView : public QGraphicsView
 {
@@ -12,6 +15,12 @@ class CustomGraphicsView : public QGraphicsView
 public:
     CustomGraphicsView(QWidget *parent);
     void wheelEvent(QWheelEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    bool isPanning = false;
+    bool panningLocked = false;
+    QPoint lastPanPos;
 };
 
 #endif // CUSTOMGRAPHICSVIEW_H

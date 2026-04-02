@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/icons/markers">
         <file>D8.svg</file>
+        <file>Circle.svg</file>
     </qresource>
 </RCC>

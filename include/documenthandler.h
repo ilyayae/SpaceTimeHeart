@@ -33,12 +33,14 @@ class DocumentHandler : public QWidget
     Q_OBJECT
 public:
     explicit DocumentHandler(QWidget *parent = nullptr,  QSettings *settings = nullptr, QGridLayout *editorPlace = nullptr);
+    ~DocumentHandler();
     void loadFile(QString fileName);
     void saveFile();
     void saveAsFile();
     void switchEditor(CurrentEditor SwitchTo);
     void parseUuid(QUuid uuid);
     void emitUpdate();
+    UuidRegistry *registry;
 
 private:
     QString filePath;
@@ -49,18 +51,17 @@ private:
     Note *currentNote;
     CalendarData *currentCalendar;
     ImageAnnotationData *currentImageAnnotation;
-    UuidRegistry *registry;
     int currZoom = 0;
 
     //Editors
     CurrentEditor currentEditor;
     QTextBrowser *textEdit = nullptr;
-    EmptyEditor *emptyEditor;
-    TextEditor *textEditor;
-    MarkdownEditor *markdownEditor;
-    CalendarEditor *calendarEditor;
-    ImageAnnotationEditor *imageAnnotationEditor;
-    HtmlEditor *htmlEditor;
+    EmptyEditor *emptyEditor = nullptr;
+    TextEditor *textEditor = nullptr;
+    MarkdownEditor *markdownEditor = nullptr;
+    CalendarEditor *calendarEditor = nullptr;
+    ImageAnnotationEditor *imageAnnotationEditor = nullptr;
+    HtmlEditor *htmlEditor = nullptr;
 signals:
     void fileUpdated();
     void linkFollowed(const QString &path);

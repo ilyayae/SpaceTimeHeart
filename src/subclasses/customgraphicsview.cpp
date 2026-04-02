@@ -4,7 +4,7 @@ CustomGraphicsView::CustomGraphicsView(QWidget *parent)
     : QGraphicsView(parent)
 {
     setScene(new QGraphicsScene(this));
-    setDragMode(QGraphicsView::ScrollHandDrag);
+    setDragMode(QGraphicsView::NoDrag);
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 }
 
@@ -22,4 +22,35 @@ void CustomGraphicsView::wheelEvent(QWheelEvent *event)
             scale(1.0 / factor, 1.0 / factor);
     }
     event->accept();
+}
+
+
+void CustomGraphicsView::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        isPanning = true;
+        lastPanPos = event->pos();
+    }
+    QGraphicsView::mousePressEvent(event);
+}
+
+void CustomGraphicsView::mouseMoveEvent(QMouseEvent *event)
+{
+    if(isPanning && !panningLocked)
+    {
+        QPoint delta = event->pos() - lastPanPos;
+        lastPanPos = event->pos();
+        horizontalScrollBar()->setValue(horizontalScrollBar()->value() - delta.x());
+        verticalScrollBar()->setValue(verticalScrollBar()->value() - delta.y());
+        viewport()->update();
+    }
+    QGraphicsView::mouseMoveEvent(event);
+}
+
+void CustomGraphicsView::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+        isPanning = false;
+    QGraphicsView::mouseReleaseEvent(event);
 }

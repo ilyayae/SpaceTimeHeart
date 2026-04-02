@@ -23,6 +23,7 @@ void ConfigMenu::on_pButton_Save_clicked()
     setts->sync();
     emit savedSettings();
     //Should the config window close when everyting is saved?
+
     this->close();
 }
 

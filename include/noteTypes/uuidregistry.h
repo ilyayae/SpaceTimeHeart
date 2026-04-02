@@ -4,6 +4,9 @@
 #include <QUuid>
 #include <QString>
 #include <QtSql/QSqlDatabase>
+#include <QSettings>
+#include <QDir>
+#include <QtConcurrent>
 
 class UuidRegistry : public QObject
 {
@@ -18,6 +21,7 @@ public:
     QUuid getUuid(const QString &filePath) const;
     bool contains(const QUuid &uuid) const;
     QList<QPair<QUuid, QString>> getAllUuids() const;
+    void validateEntries();
 
 private:
     void initDatabase();

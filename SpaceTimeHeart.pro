@@ -1,5 +1,7 @@
 QT       += core gui
 QT += sql
+QT += core gui widgets svg
+QT += concurrent
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -10,6 +12,10 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    src/imageAnnotationObjects/pointhandle.cpp \
+    src/imageAnnotationObjects/shapegraphicsobject.cpp \
+    src/imageAnnotationObjects/vectorpaintercommands.cpp \
+    src/subclasses/markeritem.cpp \
     src/noteTypes/imageannotationdata.cpp \
     src/editors/calendareditor.cpp \
     src/editors/imageannotationeditor.cpp \
@@ -44,6 +50,7 @@ HEADERS += \
     include/noteTypes/imageannotationdata.h \
     include/subclasses/findreplacewidget.h \
     include/noteTypes/uuidregistry.h \
+    include/subclasses/markeritem.h \
     include\configmenu.h \
     include\documenthandler.h \
     include\editors\emptyeditor.h \
@@ -62,7 +69,10 @@ HEADERS += \
     include/calendarObjects/dayslot.h \
     include/calendarObjects/linkinday.h \
     include/calendarObjects/moonvisualiser.h \
-    include/subclasses/customgraphicsview.h
+    include/subclasses/customgraphicsview.h \
+    include/imageAnnotationObjects/pointhandle.h \
+    include/imageAnnotationObjects/shapegraphicsobject.h \
+    include/imageAnnotationObjects/vectorpaintercommands.h
 
 FORMS += \
     ui/calendarObjects/moonvisualiser.ui \

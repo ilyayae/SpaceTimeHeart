@@ -6,6 +6,7 @@
 #include <QMap>
 #include <cstdint>
 #include <QUuid>
+
 constexpr uint32_t IMAN_MAGIC   = 0x494D414E; // "IMAN" in ASCII
 constexpr uint16_t IMAN_VERSION = 1;
 inline const QString IMAN_EXTENSION = QStringLiteral(".iman");
@@ -18,6 +19,7 @@ struct MarkerData
 {
     double X;
     double Y;
+    int size = 16;
     QUuid Link;
     QString Color;
     QString Label;
@@ -52,6 +54,7 @@ struct ShapeData
     bool Closed; //Is shape closed creating a polygon or is ti just a jagged line
     LineStyle StyleOfLine;
     FillStyle StyleOfFill;
+    double rounding;
     bool operator==(const ShapeData &o) const;
 };
 QDataStream &operator<<(QDataStream &out, const ShapeData &m);
@@ -71,7 +74,7 @@ struct ImageAnnotationData
     QString GetPath();
     QList<QUuid> GetMyLinks();
 
-    void addMarker(double x, double y, QUuid link, QString color, QString label, QString iconId);
+    void addMarker(double x, double y, int size, QUuid link, QString color, QString label, QString iconId);
     void addShape(QList<QPair<double, double>> xyPoints, bool closed, QString lineColor, QString fillColor, int width, QString linePatternId, QString fillPatternId);
     void removeMarker(MarkerData marker);
     void removeShape(ShapeData shape);
