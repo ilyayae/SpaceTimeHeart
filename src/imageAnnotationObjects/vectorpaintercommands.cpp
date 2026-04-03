@@ -40,18 +40,20 @@ void FinalizeShapeCommand::undo()
 }
 
 
-MovePointCommand::MovePointCommand(ShapeData *shape, int id, QPair<double, double> newLocation)
+MovePointCommand::MovePointCommand(ShapeGraphicsObject *shape, int id, QPair<double, double> newLocation)
     :  NewLocation(newLocation), Shape(shape), Id(id)
 {
-    OldLocation = Shape->XYPoints[Id];
+    OldLocation = Shape->MyData->XYPoints[Id];
 }
 void MovePointCommand::redo()
 {
-    Shape->XYPoints[Id] = NewLocation;
+    Shape->MyData->XYPoints[Id] = NewLocation;
+    Shape->syncFromData();
 }
 void MovePointCommand::undo()
 {
-    Shape->XYPoints[Id] = OldLocation;
+    Shape->MyData->XYPoints[Id] = OldLocation;
+    Shape->syncFromData();
 }
 
 
@@ -70,19 +72,16 @@ void DeleteShapeCommand::undo()
 }
 
 
-ChangeStyleCommand::ChangeStyleCommand(ShapeData *shape, LineStyle styleOfLineNEW, FillStyle styleOfFillNEW)
-    : Shape(shape), StyleOfLineNEW(styleOfLineNEW), StyleOfFillNEW(styleOfFillNEW)
+ChangeStyleCommand::ChangeStyleCommand(ShapeData *shape, ShapeData newData)
+    : Shape(shape), NewData(newData)
 {
-    StyleOfLineOLD = Shape->StyleOfLine;
-    StyleOfFillOLD = Shape->StyleOfFill;
+    OldData = *Shape;
 }
 void ChangeStyleCommand::redo()
 {
-    Shape->StyleOfLine = StyleOfLineNEW;
-    Shape->StyleOfFill = StyleOfFillNEW;
+    *Shape = NewData;
 }
 void ChangeStyleCommand::undo()
 {
-    Shape->StyleOfLine = StyleOfLineOLD;
-    Shape->StyleOfFill = StyleOfFillOLD;
+    *Shape = OldData;
 }

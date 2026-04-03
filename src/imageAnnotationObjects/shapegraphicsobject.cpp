@@ -1,4 +1,5 @@
 #include "include/imageAnnotationObjects/shapegraphicsobject.h"
+#include "include/imageAnnotationObjects/vectorpaintercommands.h"
 
 ShapeGraphicsObject::ShapeGraphicsObject(ShapeData *myData, QGraphicsPixmapItem *image, QUndoStack *stack)
     : MyData(myData), Image(image), Stack(stack)
@@ -10,6 +11,8 @@ ShapeGraphicsObject::ShapeGraphicsObject(ShapeData *myData, QGraphicsPixmapItem 
         ph->hide();
         handles.append(ph);
     }
+    setAcceptHoverEvents(true);
+    setFiltersChildEvents(true);
 }
 ShapeGraphicsObject::~ShapeGraphicsObject()
 {
@@ -24,6 +27,7 @@ Qt::PenStyle penStyleFromString(const QString &style)
     if (style == "Dash-Dot-Dot") return Qt::DashDotDotLine;
     return Qt::SolidLine;
 }
+
 Qt::BrushStyle brushStyleFromString(const QString &style)
 {
     if (style == "None") return Qt::NoBrush;
@@ -34,12 +38,14 @@ Qt::BrushStyle brushStyleFromString(const QString &style)
     if (style == "Diagonal") return Qt::BDiagPattern;
     return Qt::SolidPattern;
 }
+
 void ShapeGraphicsObject::onPointMoved(PointHandle *point, QPair<double, double>)
 {
-    MovePointCommand *mpc = new MovePointCommand(MyData, point->Id, point->GetPosition());
+    MovePointCommand *mpc = new MovePointCommand(this, point->Id, point->GetPosition());
     Stack->push(mpc);
     syncFromData();
 }
+
 void ShapeGraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     if (handles.count() < 2)
@@ -55,8 +61,8 @@ void ShapeGraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsIte
 
         for (int i = 0; i < handles.count(); i++)
         {
-            double cx = MyData->XYPoints[i].first * Image->pixmap().width();
-            double cy = MyData->XYPoints[i].second * Image->pixmap().height();
+            double X = MyData->XYPoints[i].first * Image->pixmap().width(); // X Position on the image for this point.
+            double Y = MyData->XYPoints[i].second * Image->pixmap().height(); // Y Position on the image for this point.
 
             int prevIdx = (i == 0) ? handles.count() - 1 : i - 1;
             int nextIdx = (i + 1) % handles.count();
@@ -66,17 +72,28 @@ void ShapeGraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsIte
             double nx = MyData->XYPoints[nextIdx].first * Image->pixmap().width();
             double ny = MyData->XYPoints[nextIdx].second * Image->pixmap().height();
 
-            double startX = cx + (px - cx) * rounding;
-            double startY = cy + (py - cy) * rounding;
-            double endX = cx + (nx - cx) * rounding;
-            double endY = cy + (ny - cy) * rounding;
+            double startX = X + (px - X) * rounding;
+            double startY = Y + (py - Y) * rounding;
+            double endX = X + (nx - X) * rounding;
+            double endY = Y + (ny - Y) * rounding;
 
-            if (i == 0)
-                path.moveTo(startX, startY);
+            if (i == 0 && !MyData->Closed)
+            {
+                path.moveTo(X, Y);
+                path.lineTo(endX, endY);
+            }
+            else if (i == handles.count() - 1 && !MyData->Closed)
+            {
+                path.lineTo(X, Y);
+            }
             else
-                path.lineTo(startX, startY);
-
-            path.quadTo(cx, cy, endX, endY);
+            {
+                if (i == 0)
+                    path.moveTo(startX, startY);
+                else
+                    path.lineTo(startX, startY);
+                path.quadTo(X, Y, endX, endY);
+            }
         }
 
         if (MyData->Closed)
@@ -113,6 +130,7 @@ void ShapeGraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsIte
 
     painter->drawPath(path);
 }
+
 void ShapeGraphicsObject::syncFromData()
 {
     prepareGeometryChange();
@@ -135,12 +153,13 @@ void ShapeGraphicsObject::syncFromData()
     {
         double x = MyData->XYPoints[i].first * Image->pixmap().width();
         double y = MyData->XYPoints[i].second * Image->pixmap().height();
-        handles[i]->setPos(0, 0);
-        handles[i]->setRect(x - handles[i]->SIZE / 2.0, y - handles[i]->SIZE / 2.0, handles[i]->SIZE, handles[i]->SIZE);
+        handles[i]->setPos(x, y);
+        handles[i]->setRect(-handles[i]->SIZE / 2.0, -handles[i]->SIZE / 2.0, handles[i]->SIZE, handles[i]->SIZE);
     }
 
     update();
 }
+
 void ShapeGraphicsObject::setHandlesVisible(bool visible)
 {
     editing = visible;
@@ -160,33 +179,27 @@ void ShapeGraphicsObject::setHandlesVisible(bool visible)
 
     }
 }
+
 void ShapeGraphicsObject::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
     emit hovered(this, true);
     QGraphicsObject::hoverEnterEvent(event);
 }
+
 void ShapeGraphicsObject::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     emit hovered(this, false);
     QGraphicsObject::hoverLeaveEvent(event);
 }
+
 QRectF ShapeGraphicsObject::boundingRect() const
 {
-    QRectF result;
-    for(int i = 0; i < handles.count(); i++)
-    {
-        double x = MyData->XYPoints[i].first * Image->pixmap().width();
-        double y = MyData->XYPoints[i].second * Image->pixmap().height();
-        if (i == 0)
-            result = QRectF(x, y, 0, 0);
-        else
-            result = result.united(QRectF(x, y, 0, 0));
-    }
-    double margin = MyData->StyleOfLine.width / 2.0 + 1.0;
-    return result.adjusted(-margin, -margin, margin, margin);
+    return QRectF(0, 0, Image->pixmap().width(), Image->pixmap().height());
 }
+
 QPainterPath ShapeGraphicsObject::shape() const
-{    QPainterPath path;
+{
+    QPainterPath path;
 
     if (handles.count() < 2)
         return path;
@@ -203,7 +216,12 @@ QPainterPath ShapeGraphicsObject::shape() const
     }
 
     if (MyData->Closed)
+    {
         path.closeSubpath();
+        QPainterPathStroker stroker;
+        stroker.setWidth(MyData->StyleOfLine.width + 6.0);
+        return path.united(stroker.createStroke(path));
+    }
 
     QPainterPathStroker stroker;
     stroker.setWidth(MyData->StyleOfLine.width + 6.0);
@@ -221,7 +239,23 @@ void ShapeGraphicsObject::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
     QGraphicsObject::mousePressEvent(event);
 }
+
 void ShapeGraphicsObject::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     QGraphicsObject::mouseReleaseEvent(event);
+}
+
+bool ShapeGraphicsObject::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
+{
+    if (event->type() == QEvent::GraphicsSceneHoverEnter ||
+        event->type() == QEvent::GraphicsSceneHoverLeave)
+    {
+        return true;
+    }
+    return false;
+}
+
+void ShapeGraphicsObject::onPointClicked(PointHandle *point, bool clicked)
+{
+    emit handleHeld(clicked);
 }

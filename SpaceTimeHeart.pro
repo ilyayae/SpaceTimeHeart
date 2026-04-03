@@ -15,13 +15,13 @@ SOURCES += \
     src/imageAnnotationObjects/pointhandle.cpp \
     src/imageAnnotationObjects/shapegraphicsobject.cpp \
     src/imageAnnotationObjects/vectorpaintercommands.cpp \
-    src/subclasses/markeritem.cpp \
+    src/imageAnnotationObjects/markeritem.cpp \
     src/noteTypes/imageannotationdata.cpp \
     src/editors/calendareditor.cpp \
     src/editors/imageannotationeditor.cpp \
     src/calendarconfig.cpp \
     src/noteTypes/calendardata.cpp \
-    src/subclasses/customgraphicsview.cpp \
+    src/imageAnnotationObjects/customgraphicsview.cpp \
     src/subclasses/customtextbrowser.cpp \
     src/subclasses/findreplacewidget.cpp \
     src/noteTypes/uuidregistry.cpp \
@@ -50,7 +50,7 @@ HEADERS += \
     include/noteTypes/imageannotationdata.h \
     include/subclasses/findreplacewidget.h \
     include/noteTypes/uuidregistry.h \
-    include/subclasses/markeritem.h \
+    include/imageAnnotationObjects/markeritem.h \
     include\configmenu.h \
     include\documenthandler.h \
     include\editors\emptyeditor.h \
@@ -69,7 +69,7 @@ HEADERS += \
     include/calendarObjects/dayslot.h \
     include/calendarObjects/linkinday.h \
     include/calendarObjects/moonvisualiser.h \
-    include/subclasses/customgraphicsview.h \
+    include/imageAnnotationObjects/customgraphicsview.h \
     include/imageAnnotationObjects/pointhandle.h \
     include/imageAnnotationObjects/shapegraphicsobject.h \
     include/imageAnnotationObjects/vectorpaintercommands.h

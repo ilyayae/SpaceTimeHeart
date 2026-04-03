@@ -1,4 +1,4 @@
-#include "include/subclasses/markeritem.h"
+#include "include/imageAnnotationObjects/markeritem.h"
 #include "qgraphicsscene.h"
 #include "qgraphicsview.h"
 
@@ -108,31 +108,32 @@ void MarkerItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         cachedPixmap = tinted;
     }
 
-    painter->drawPixmap(QRect(0, 0, myData->size, myData->size), cachedPixmap);
+    painter->drawPixmap(QRect(-myData->size/2, -myData->size/2, myData->size, myData->size), cachedPixmap);
 
     if (isSelected)
         painter->fillRect(boundingRect(), QColor(255, 255, 0, 60));
 
     if (isHovered){
-        QFontMetrics fm(painter->font());
+        QFont font = painter->font();
+        font.setPointSize(14);
+        painter->setFont(font);
+        QFontMetrics fm(font);
         int textWidth = fm.horizontalAdvance(myData->Label);
-        int textX = (myData->size / 2) - (textWidth / 2);
-        int textY = myData->size + fm.ascent() + 4;
+        int textX = -textWidth / 2;
+        int textY = myData->size/2 + fm.ascent() + 4;
         QPen pen(Qt::black);
         QPainterPath outline;
-        QFont font = painter->font();
         outline.addText(textX, textY, font, myData->Label);
         pen.setWidth(2);
         painter->strokePath(outline, pen);
         painter->setPen(Qt::white);
         painter->drawText(textX, textY, myData->Label);
-
     }
 }
 
 QRectF MarkerItem::boundingRect() const
 {
-    return QRectF(0, 0, myData->size, myData->size);
+    return QRectF(-myData->size/2, -myData->size/2, myData->size, myData->size);
 }
 
 void MarkerItem::SelectMe(bool selected)

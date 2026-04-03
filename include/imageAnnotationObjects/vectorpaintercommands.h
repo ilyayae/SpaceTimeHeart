@@ -2,6 +2,7 @@
 #define VECTORPAINTERCOMMANDS_H
 
 #include "include/noteTypes/imageannotationdata.h"
+#include "include/imageAnnotationObjects/shapegraphicsobject.h"
 #include <QUndoCommand>
 
 class VectorPainterCommands : public QUndoCommand
@@ -36,13 +37,13 @@ private:
 class MovePointCommand : public QUndoCommand
 {
 public:
-    MovePointCommand(ShapeData *shape, int id, QPair<double, double> newLocation);
+    MovePointCommand(ShapeGraphicsObject *shape, int id, QPair<double, double> newLocation);
     void redo() override;
     void undo() override;
 private:
     QPair<double, double> NewLocation;
     QPair<double, double> OldLocation;
-    ShapeData *Shape;
+    ShapeGraphicsObject *Shape;
     int Id;
 };
 
@@ -61,15 +62,13 @@ private:
 class ChangeStyleCommand : public QUndoCommand
 {
 public:
-    ChangeStyleCommand(ShapeData *shape, LineStyle styleOfLineNEW, FillStyle styleOfFillNEW);
+    ChangeStyleCommand(ShapeData *shape, ShapeData newData);
     void redo() override;
     void undo() override;
 private:
     ShapeData *Shape;
-    LineStyle StyleOfLineOLD;
-    FillStyle StyleOfFillOLD;
-    LineStyle StyleOfLineNEW;
-    FillStyle StyleOfFillNEW;
+    ShapeData OldData;
+    ShapeData NewData;
 };
 
 #endif // VECTORPAINTERCOMMANDS_H

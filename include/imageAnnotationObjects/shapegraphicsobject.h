@@ -3,7 +3,6 @@
 
 #include "include/noteTypes/imageannotationdata.h"
 #include "include/imageAnnotationObjects/pointhandle.h"
-#include "include/imageAnnotationObjects/vectorpaintercommands.h"
 #include <QGraphicsObject>
 #include <QUndoStack>
 #include <QGraphicsSceneMouseEvent>
@@ -15,6 +14,7 @@ public:
     ShapeGraphicsObject(ShapeData *myData, QGraphicsPixmapItem *image, QUndoStack *stack);
     ~ShapeGraphicsObject();
     void onPointMoved(PointHandle *point, QPair<double, double>);
+    void onPointClicked(PointHandle *point, bool clicked);
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     void syncFromData();
     void setHandlesVisible(bool visible = true);
@@ -25,6 +25,7 @@ public:
     bool editing = false;
     QRectF boundingRect() const override;
     QPainterPath shape() const override;
+    bool sceneEventFilter(QGraphicsItem *watched, QEvent *event) override;
     QList<PointHandle*> handles;
     ShapeData *MyData;
     QGraphicsPixmapItem *Image;
@@ -34,6 +35,7 @@ private slots:
 signals:
     void hovered(ShapeGraphicsObject *me, bool hovered);
     void rightClicked(ShapeGraphicsObject *me);
+    void handleHeld(bool held);
 
 };
 

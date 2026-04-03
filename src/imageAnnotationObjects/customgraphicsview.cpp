@@ -1,4 +1,4 @@
-#include "include/subclasses/customgraphicsview.h"
+#include "include/imageAnnotationObjects/customgraphicsview.h"
 
 CustomGraphicsView::CustomGraphicsView(QWidget *parent)
     : QGraphicsView(parent)
@@ -31,6 +31,7 @@ void CustomGraphicsView::mousePressEvent(QMouseEvent *event)
     {
         isPanning = true;
         lastPanPos = event->pos();
+        firstPanPos =  event->pos();
     }
     QGraphicsView::mousePressEvent(event);
 }
@@ -51,6 +52,13 @@ void CustomGraphicsView::mouseMoveEvent(QMouseEvent *event)
 void CustomGraphicsView::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
+    {
+        float value = 3;
+        if ((event->pos() - firstPanPos).manhattanLength() <= value)
+        {
+            emit clicked(event->pos());
+        }
         isPanning = false;
+    }
     QGraphicsView::mouseReleaseEvent(event);
 }

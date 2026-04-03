@@ -4,10 +4,10 @@
 PointHandle::PointHandle(ShapeGraphicsObject *parent, int id)
     : Parent(parent), Id(id)
 {
-    setRect((Parent->MyData->XYPoints[Id].first * Parent->Image->pixmap().width()) - SIZE/2.0,
-            (Parent->MyData->XYPoints[Id].second * Parent->Image->pixmap().height()) - SIZE/2.0,
-            SIZE,
-            SIZE);
+    double x = Parent->MyData->XYPoints[Id].first * Parent->Image->pixmap().width();
+    double y = Parent->MyData->XYPoints[Id].second * Parent->Image->pixmap().height();
+    setPos(x, y);
+    setRect(-SIZE / 2.0, -SIZE / 2.0, SIZE, SIZE);
     setFlag(ItemIsMovable);
     setFlag(ItemSendsGeometryChanges);
     setFlag(ItemIgnoresTransformations);
@@ -16,14 +16,19 @@ PointHandle::PointHandle(ShapeGraphicsObject *parent, int id)
 
 QVariant PointHandle::itemChange(GraphicsItemChange change, const QVariant &value)
 {
-    if (change == ItemPositionChange && scene()) {
+    if (change == ItemPositionChange) {
         QPointF newPos = value.toPointF();
-        QRectF rect = scene()->sceneRect();
-        if (!rect.contains(newPos)) {
-            newPos.setX(qMin(rect.right(), qMax(newPos.x(), rect.left())));
-            newPos.setY(qMin(rect.bottom(), qMax(newPos.y(), rect.top())));
-            return newPos;
-        }
+        double imgW = Parent->Image->pixmap().width();
+        double imgH = Parent->Image->pixmap().height();
+        double cx = rect().center().x();
+        double cy = rect().center().y();
+        double minX = -cx;
+        double minY = -cy;
+        double maxX = imgW - cx;
+        double maxY = imgH - cy;
+        newPos.setX(qBound(minX, newPos.x(), maxX));
+        newPos.setY(qBound(minY, newPos.y(), maxY));
+        return newPos;
     }
     Parent->update();
     return QGraphicsItem::itemChange(change, value);
@@ -31,15 +36,17 @@ QVariant PointHandle::itemChange(GraphicsItemChange change, const QVariant &valu
 
 QPair<double, double> PointHandle::GetPosition()
 {
+    QPointF point = mapToScene(rect().center());
     return QPair<double, double>(
-        (rect().center().x() + pos().x()) / Parent->Image->pixmap().width(),
-        (rect().center().y() + pos().y()) / Parent->Image->pixmap().height()
+        (point.x()) / Parent->Image->pixmap().width(),
+        (point.y()) / Parent->Image->pixmap().height()
         );
 }
 
 void PointHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     storedPosition = GetPosition();
+    Parent->onPointClicked(this, true);
     QGraphicsEllipseItem::mousePressEvent(event);
 }
 void PointHandle::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
@@ -48,6 +55,7 @@ void PointHandle::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     {
         Parent->onPointMoved(this, storedPosition);
     }
+    Parent->onPointClicked(this, false);
     QGraphicsEllipseItem::mouseReleaseEvent(event);
 }
 

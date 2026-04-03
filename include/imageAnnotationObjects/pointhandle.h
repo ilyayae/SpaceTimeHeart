@@ -30,7 +30,6 @@ public:
 private:
 signals:
     void moved(PointHandle *me, QPair<double, double> storedPosition);
-    void clicked(PointHandle *me);
 };
 
 #endif // POINTHANDLE_H

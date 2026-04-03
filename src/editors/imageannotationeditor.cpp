@@ -1,4 +1,5 @@
 #include "include/editors/imageannotationeditor.h"
+#include "include/imageAnnotationObjects/vectorpaintercommands.h"
 #include "ui_imageannotationeditor.h"
 
 ImageAnnotationEditor::ImageAnnotationEditor(QWidget *parent)
@@ -68,22 +69,22 @@ ImageAnnotationEditor::ImageAnnotationEditor(QWidget *parent)
         currentBrushStyle = static_cast<Qt::BrushStyle>(fillStyleCombo->itemData(index).toInt());
     });
 
-    QCheckBox *roundingCheck = new QCheckBox("Round", this);
-    roundingCheck->setToolTip("Enable rounded corners");
-    ui->EditShapesToolBar->addWidget(roundingCheck);
-
+    QSpinBox *widthSpin = new QSpinBox(this);
+    widthSpin->setRange(1, 50);
+    widthSpin->setValue(currentWidth);
+    widthSpin->setSuffix("px");
+    widthSpin->setToolTip("Line width");
+    ui->EditShapesToolBar->addWidget(widthSpin);
+    connect(widthSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) {
+        currentWidth = value;
+    });
     QSpinBox *roundingSpin = new QSpinBox(this);
-    roundingSpin->setRange(0, 100);
+    roundingSpin->setRange(0, 50);
     roundingSpin->setValue(0);
-    roundingSpin->setSuffix("px");
-    roundingSpin->setToolTip("Rounding radius");
-    roundingSpin->setEnabled(false);
+    roundingSpin->setSuffix("%");
+    roundingSpin->setToolTip("Rounding");
     ui->EditShapesToolBar->addWidget(roundingSpin);
 
-    connect(roundingCheck, &QCheckBox::toggled, this, [this, roundingSpin](bool checked) {
-        roundingSpin->setEnabled(checked);
-        currentRounding = checked ? roundingSpin->value() : 0;
-    });
     connect(roundingSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) {
         currentRounding = value;
     });
@@ -107,6 +108,7 @@ void ImageAnnotationEditor::Initialize(ImageAnnotationData *data)
     ui->centralwidget->layout()->addWidget(graphicsView);
     graphicsView->scene()->addItem(imageItem);
     graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
+    connect(graphicsView, &CustomGraphicsView::clicked, this, &ImageAnnotationEditor::SceneClicked);
     UpdateMarkers();
     UpdateShapes();
     ui->EditMarkersToolBar->hide();
@@ -156,6 +158,8 @@ void ImageAnnotationEditor::UpdateShapes()
         graphicsView->scene()->addItem(obj);
         myShapes->append(obj);
         connect(obj, &ShapeGraphicsObject::rightClicked, this, &ImageAnnotationEditor::RightClickedShape);
+        connect(obj, &ShapeGraphicsObject::hovered, this, &ImageAnnotationEditor::HoveredShape);
+        connect(obj, &ShapeGraphicsObject::handleHeld, this, &ImageAnnotationEditor::ShapeInteracted);
     }
 }
 
@@ -192,7 +196,7 @@ MarkerData ImageAnnotationEditor::CreateMarker(double x, double y, MarkerData *p
     if(pregenData != nullptr)
         sizeEdit->setText(QString::number( pregenData->size ));
     else
-        sizeEdit->setText("16");
+        sizeEdit->setText("32");
     layout->addWidget(new QLabel("Size:", &dialog));
     layout->addWidget(sizeEdit);
 
@@ -295,153 +299,154 @@ MarkerData ImageAnnotationEditor::CreateMarker(double x, double y, MarkerData *p
     return MarkerData();
 }
 
-/*
-ShapeData ImageAnnotationEditor::CreateShape(ShapeData *pregenData)
+ShapeData ImageAnnotationEditor::EditShape(ShapeData *pregenData)
 {
-
-    QDialog dialog(this);
-    dialog.setWindowTitle("Edit Shape");
-    QVBoxLayout *layout = new QVBoxLayout(&dialog);
-
-    pregenData->Closed;
-    pregenData->StyleOfFill.fillColor;
-    pregenData->StyleOfFill.fillPatternId;
-    pregenData->StyleOfLine.lineColor;
-    pregenData->StyleOfLine.linePatternId;
-    pregenData->StyleOfLine.width;
-    pregenData->rounding;
-    pregenData->XYPoints; // These are set by another part of the code, all else can be configured here.
-
-    QLineEdit *labelEdit = new QLineEdit(&dialog);
     if(pregenData != nullptr)
-        labelEdit->setText(pregenData);
-    layout->addWidget(new QLabel("Label:", &dialog));
-    layout->addWidget(labelEdit);
-
-    QColor chosenColor("#FFFFFF");
-    if(pregenData != nullptr)
-        chosenColor = pregenData->Color;
-    QPushButton *colorPick = new QPushButton(&dialog);
-    colorPick->setStyleSheet("background-color: " + chosenColor.name() + ";");
-    colorPick->setFixedHeight(24);
-    connect(colorPick, &QPushButton::clicked, this, [&chosenColor, colorPick, &dialog]() {
-        QColor c = QColorDialog::getColor(chosenColor, &dialog, "Pick a color");
-        if (c.isValid()) {
-            chosenColor = c;
-            colorPick->setStyleSheet("background-color: " + c.name() + ";");
-        }
-    });
-    layout->addWidget(new QLabel("Color:", &dialog));
-    layout->addWidget(colorPick);
-
-    QLineEdit *sizeEdit = new QLineEdit(&dialog);
-    sizeEdit->setValidator(new QIntValidator(0, 999, this));
-    if(pregenData != nullptr)
-        sizeEdit->setText(QString::number( pregenData->size ));
-    else
-        sizeEdit->setText("16");
-    layout->addWidget(new QLabel("Size:", &dialog));
-    layout->addWidget(sizeEdit);
-
-    QStringList iconIds = { "Circle", "D8" };
-    QString chosenIconId = iconIds.first();
-    if(pregenData != nullptr)
-        chosenIconId = pregenData->IconId;
-    QHBoxLayout *iconLayout = new QHBoxLayout();
-    QButtonGroup *iconGroup = new QButtonGroup(&dialog);
-    iconGroup->setExclusive(true);
-    for (const QString &iconId : iconIds)
     {
-        QPushButton *iconBtn = new QPushButton(&dialog);
-        iconBtn->setCheckable(true);
-        iconBtn->setFixedSize(36, 36);
-        iconBtn->setIcon(QIcon(":/icons/markers/" + iconId + ".svg"));
-        iconBtn->setIconSize(QSize(24, 24));
-        if (iconId == chosenIconId)
-            iconBtn->setChecked(true);
-        iconGroup->addButton(iconBtn);
-        iconLayout->addWidget(iconBtn);
-        connect(iconBtn, &QPushButton::clicked, this, [iconId, &chosenIconId]() {
-            chosenIconId = iconId;
-        });
-    }
-    layout->addWidget(new QLabel("Icon:", &dialog));
-    layout->addLayout(iconLayout);
 
-    QList<QPair<QUuid, QString>> allEntries = myRegistry->getAllUuids();
-    QLineEdit *searchEdit = new QLineEdit(&dialog);
-    searchEdit->setPlaceholderText("Search for a note...");
-    QListWidget *resultsList = new QListWidget(&dialog);
-    resultsList->setMaximumHeight(150);
-    resultsList->hide();
-    QUuid chosenUuid;
-    if(pregenData != nullptr)
-        chosenUuid = pregenData->Link;
-    if(pregenData != nullptr && !pregenData->Link.isNull())
-    {
-        for(const auto &entry : allEntries)
-        {
-            if(entry.first == pregenData->Link)
-            {
-                searchEdit->setText(entry.second);
-                break;
+        QDialog dialog(this);
+        dialog.setWindowTitle("Edit Shape");
+        QVBoxLayout *layout = new QVBoxLayout(&dialog);
+
+
+        // --- --- --- --- --- --- --- --- --- --- ---
+
+        layout->addWidget(new QLabel("Line Style:", &dialog));
+        QColor chosenLineColor("#FFFFFF");
+        chosenLineColor = pregenData->StyleOfLine.lineColor;
+        QPushButton *lineColorPick = new QPushButton(&dialog);
+        lineColorPick->setStyleSheet("background-color: " + chosenLineColor.name() + ";");
+        lineColorPick->setFixedHeight(24);
+        connect(lineColorPick, &QPushButton::clicked, this, [&chosenLineColor, lineColorPick, &dialog]() {
+            QColor c = QColorDialog::getColor(chosenLineColor, &dialog, "Pick a color", QColorDialog::ShowAlphaChannel);
+            if (c.isValid()) {
+                chosenLineColor = c;
+                lineColorPick->setStyleSheet("background-color: " + c.name() + ";");
             }
+        });
+        layout->addWidget(new QLabel("Color:", &dialog));
+        layout->addWidget(lineColorPick);
+
+        QComboBox *lineStyleCombo = new QComboBox(&dialog);
+        QString chosenLineStyle("Solid");
+        lineStyleCombo->addItem("Solid", static_cast<int>(Qt::SolidLine));
+        lineStyleCombo->addItem("Dash", static_cast<int>(Qt::DashLine));
+        lineStyleCombo->addItem("Dot", static_cast<int>(Qt::DotLine));
+        lineStyleCombo->addItem("Dash-Dot", static_cast<int>(Qt::DashDotLine));
+        lineStyleCombo->addItem("Dash-Dot-Dot", static_cast<int>(Qt::DashDotDotLine));
+        lineStyleCombo->setToolTip("Line style");
+            lineStyleCombo->setCurrentText(pregenData->StyleOfLine.linePatternId);
+            chosenLineStyle = pregenData->StyleOfLine.linePatternId;
+        connect(lineStyleCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [&chosenLineStyle, lineStyleCombo](int index) {
+            chosenLineStyle = lineStyleCombo->itemText(index);
+        });
+        layout->addWidget(new QLabel("Style:", &dialog));
+        layout->addWidget(lineStyleCombo);
+
+        QSpinBox *lineWidthSpin = new QSpinBox(&dialog);
+        lineWidthSpin->setRange(1, 100);
+        lineWidthSpin->setValue(0);
+        lineWidthSpin->setSuffix("px");
+        lineWidthSpin->setToolTip("Line width");
+
+            lineWidthSpin->setValue(pregenData->StyleOfLine.width);
+
+        layout->addWidget(new QLabel("Width:", &dialog));
+        layout->addWidget(lineWidthSpin);
+
+        // --- --- --- --- --- --- --- --- --- --- ---
+        QFrame *separator1 = new QFrame(&dialog);
+        separator1->setFrameShape(QFrame::HLine);
+        separator1->setFrameShadow(QFrame::Sunken);
+        layout->addWidget(separator1);
+
+        layout->addWidget(new QLabel("Fill Style:", &dialog));
+        QColor chosenFillColor("#FFFFFF");
+            chosenFillColor = pregenData->StyleOfFill.fillColor;;
+        QPushButton *fillColorPick = new QPushButton(&dialog);
+        fillColorPick->setStyleSheet("background-color: " + chosenFillColor.name() + ";");
+        fillColorPick->setFixedHeight(24);
+        connect(fillColorPick, &QPushButton::clicked, this, [&chosenFillColor, fillColorPick, &dialog]() {
+            QColor c = QColorDialog::getColor(chosenFillColor, &dialog, "Pick a color", QColorDialog::ShowAlphaChannel);
+            if (c.isValid()) {
+                chosenFillColor = c;
+                fillColorPick->setStyleSheet("background-color: " + c.name() + ";");
+            }
+        });
+        layout->addWidget(new QLabel("Color:", &dialog));
+        layout->addWidget(fillColorPick);
+
+        QComboBox *fillStyleCombo = new QComboBox(&dialog);
+        QString chosenFillStyle("Solid");
+        fillStyleCombo->addItem("Solid", static_cast<int>(Qt::SolidPattern));
+        fillStyleCombo->addItem("None", static_cast<int>(Qt::NoBrush));
+        fillStyleCombo->addItem("Dense", static_cast<int>(Qt::Dense4Pattern));
+        fillStyleCombo->addItem("Horizontal", static_cast<int>(Qt::HorPattern));
+        fillStyleCombo->addItem("Vertical", static_cast<int>(Qt::VerPattern));
+        fillStyleCombo->addItem("Cross", static_cast<int>(Qt::CrossPattern));
+        fillStyleCombo->addItem("Diagonal", static_cast<int>(Qt::BDiagPattern));
+        fillStyleCombo->setToolTip("Fill style");
+            fillStyleCombo->setCurrentText(pregenData->StyleOfFill.fillPatternId);
+            chosenFillStyle = pregenData->StyleOfFill.fillPatternId;
+        connect(fillStyleCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [&chosenFillStyle, fillStyleCombo](int index) {
+            chosenFillStyle = fillStyleCombo->itemText(index);
+        });
+        layout->addWidget(new QLabel("Style:", &dialog));
+        layout->addWidget(fillStyleCombo);
+
+        // --- --- --- --- --- --- --- --- --- --- ---
+        QFrame *separator2 = new QFrame(&dialog);
+        separator2->setFrameShape(QFrame::HLine);
+        separator2->setFrameShadow(QFrame::Sunken);
+        layout->addWidget(separator2);
+
+
+        layout->addWidget(new QLabel("Is shape closed:", &dialog));
+        QCheckBox *closedCheck = new QCheckBox("Closed", this);
+        closedCheck->setToolTip("Enable closed shape");
+            pregenData->Closed ? closedCheck->setCheckState(Qt::Checked) : closedCheck->setCheckState(Qt::Unchecked);
+        layout->addWidget(closedCheck);
+
+        // --- --- --- --- --- --- --- --- --- --- ---
+        QFrame *separator3 = new QFrame(&dialog);
+        separator3->setFrameShape(QFrame::HLine);
+        separator3->setFrameShadow(QFrame::Sunken);
+        layout->addWidget(separator3);
+
+
+        layout->addWidget(new QLabel("Corner rounding:", &dialog));
+        QSpinBox *roundingSpin = new QSpinBox(&dialog);
+        roundingSpin->setRange(0, 50);
+        roundingSpin->setValue(0);
+        roundingSpin->setSuffix("%");
+        roundingSpin->setToolTip("Rounding");
+            roundingSpin->setValue(pregenData->rounding);
+        layout->addWidget(roundingSpin);
+
+        QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+        connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+        connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+        layout->addWidget(buttons);
+
+        if (dialog.exec() == QDialog::Accepted)
+        {
+            ShapeData data = *pregenData;
+            data.StyleOfLine.lineColor = chosenLineColor.name(QColor::HexArgb);
+            data.StyleOfLine.linePatternId = chosenLineStyle;
+            data.StyleOfLine.width = lineWidthSpin->value();
+            data.StyleOfFill.fillColor = chosenFillColor.name(QColor::HexArgb);
+            data.StyleOfFill.fillPatternId = chosenFillStyle;
+            data.Closed = closedCheck->isChecked();
+            data.rounding = roundingSpin->value();
+            return data;
+        }
+        else
+        {
+            return *pregenData;
         }
     }
-    connect(searchEdit, &QLineEdit::textChanged, this,
-            [&allEntries, resultsList, &chosenUuid](const QString &text) {
-                resultsList->clear();
-
-                chosenUuid = QUuid();
-                if (text.trimmed().isEmpty()) {
-                    resultsList->hide();
-                    return;
-                }
-                int count = 0;
-                for (const auto &entry : allEntries) {
-                    if (entry.second.contains(text, Qt::CaseInsensitive)) {
-                        QListWidgetItem *item = new QListWidgetItem(entry.second);
-                        item->setData(Qt::UserRole, entry.first.toString(QUuid::WithoutBraces));
-                        resultsList->addItem(item);
-                        if (++count >= 10)
-                            break;
-                    }
-                }
-                resultsList->setVisible(count > 0);
-            });
-    connect(resultsList, &QListWidget::itemClicked, this,
-            [searchEdit, resultsList, &chosenUuid](QListWidgetItem *item) {
-                chosenUuid = QUuid::fromString(item->data(Qt::UserRole).toString());
-                searchEdit->blockSignals(true);
-                searchEdit->setText(item->text());
-                searchEdit->blockSignals(false);
-                resultsList->hide();
-            });
-    layout->addWidget(new QLabel("Link to note:", &dialog));
-    layout->addWidget(searchEdit);
-    layout->addWidget(resultsList);
-
-    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
-    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
-    layout->addWidget(buttons);
-
-    if (dialog.exec() == QDialog::Accepted)
-    {
-        MarkerData marker;
-        marker.X = x;
-        marker.Y = y;
-        marker.Label = labelEdit->text();
-        marker.Color = chosenColor.name();
-        marker.IconId = chosenIconId;
-        marker.Link = chosenUuid;
-        marker.size = sizeEdit->text().toInt();
-        return marker;
-    }
-
-    return MarkerData();
+    return ShapeData();
 }
-*/
 
 void ImageAnnotationEditor::ClickedMarker(MarkerItem *mark, bool shift)
 {
@@ -506,25 +511,44 @@ void ImageAnnotationEditor::RightClickedMarker(MarkerItem *mark)
         UpdateMarkers();
     }
 }
+
 void ImageAnnotationEditor::RightClickedShape(ShapeGraphicsObject *shape)
 {
     if(isEditingMarkers)
         return;
     if(isEditingShapes)
     {
-        //ShapeData New = CreateShape(shape->MyData);
+        ShapeData New = EditShape(shape->MyData);
         //Detect if the New is empty:
-        //if(New.IconId.isEmpty())
-        //    return;
+        if(New == *shape->MyData || New.StyleOfLine.linePatternId.isEmpty())
+            return;
         for(int i = 0; i < myData->shapes.count(); i++)
         {
             if(myData->shapes[i] == *shape->MyData)
             {
-                //myData->shapes[i] = New;
+                undoStack.push(new ChangeStyleCommand(&myData->shapes[i], New));
             }
         }
         UpdateShapes();
     }
+}
+
+void ImageAnnotationEditor::HoveredShape(ShapeGraphicsObject *shape, bool hovered)
+{
+    if(isChangingShapes)
+    {
+        shape->setHandlesVisible(hovered);
+    }
+}
+
+void ImageAnnotationEditor::ShapeInteracted(bool clicked)
+{
+    graphicsView->panningLocked = clicked;
+}
+
+void ImageAnnotationEditor::SceneClicked(QPoint where)
+{
+    qDebug() << "HAI " + QString::number(where.x()) + " " + QString::number(where.y());
 }
 
 void ImageAnnotationEditor::emitUuid(QString uuid)
@@ -565,6 +589,7 @@ void ImageAnnotationEditor::on_actionShapesEditMode_toggled(bool arg1)
     {
         ui->EditShapesToolBar->hide();
         isEditingShapes = false;
+        isChangingShapes = false;
     }
 }
 
@@ -631,3 +656,21 @@ void ImageAnnotationEditor::on_actionRemoveMarker_triggered()
         }
     }
 }
+
+void ImageAnnotationEditor::on_actionPaint_Edit_toggled(bool arg1)
+{
+    isChangingShapes = arg1;
+}
+
+void ImageAnnotationEditor::on_actionUndo_triggered()
+{
+    undoStack.undo();
+    graphicsView->scene()->update();
+}
+
+void ImageAnnotationEditor::on_actionRedo_triggered()
+{
+    undoStack.redo();
+    graphicsView->scene()->update();
+}
+

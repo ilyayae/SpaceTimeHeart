@@ -20,9 +20,9 @@
 
 #include <include/noteTypes/imageannotationdata.h>
 #include <include/noteTypes/uuidregistry.h>
-#include <include/subclasses/customgraphicsview.h>
+#include <include/imageAnnotationObjects/customgraphicsview.h>
 #include "include/imageAnnotationObjects/shapegraphicsobject.h"
-#include "include/subclasses/markeritem.h"
+#include "include/imageAnnotationObjects/markeritem.h"
 
 namespace Ui {
 class ImageAnnotationEditor;
@@ -54,7 +54,9 @@ public:
 
     // Shapes painting/editing
     void UpdateShapes();
-    //ShapeData CreateShape(ShapeData *pregenData = nullptr);
+    ShapeData EditShape(ShapeData *pregenData);
+    void SceneClicked(QPoint where);
+    bool isChangingShapes = false;
     QList<ShapeGraphicsObject*> *myShapes = new QList<ShapeGraphicsObject*>();
     QUndoStack undoStack;
     QColor currentLineColor = QColor(0, 0, 0, 127);
@@ -62,6 +64,7 @@ public:
     Qt::PenStyle currentPenStyle = Qt::SolidLine;
     Qt::BrushStyle currentBrushStyle = Qt::SolidPattern;
     int currentRounding = 0;
+    int currentWidth = 1;
 
 private slots:
     void on_actionShapesEditMode_toggled(bool arg1);
@@ -71,9 +74,17 @@ private slots:
     void ClickedMarker(MarkerItem *mark, bool shift);
     void RightClickedMarker(MarkerItem *mark);
     void RightClickedShape(ShapeGraphicsObject *shape);
+    void HoveredShape(ShapeGraphicsObject *shape, bool hovered);
+    void ShapeInteracted(bool clicked);
     void dragMarkers(QPointF delta);
     void finishDragging(QPointF delta);
     void on_actionRemoveMarker_triggered();
+
+    void on_actionPaint_Edit_toggled(bool arg1);
+
+    void on_actionUndo_triggered();
+
+    void on_actionRedo_triggered();
 
 signals:
     void Updated();

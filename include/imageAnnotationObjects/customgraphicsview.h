@@ -21,6 +21,9 @@ public:
     bool isPanning = false;
     bool panningLocked = false;
     QPoint lastPanPos;
+    QPoint firstPanPos;
+signals:
+    void clicked(QPoint place);
 };
 
 #endif // CUSTOMGRAPHICSVIEW_H
