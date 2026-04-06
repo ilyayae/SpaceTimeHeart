@@ -33,6 +33,10 @@ void CustomGraphicsView::mousePressEvent(QMouseEvent *event)
         lastPanPos = event->pos();
         firstPanPos =  event->pos();
     }
+    if (event->button() == Qt::RightButton)
+    {
+        emit rClicked(mapToScene(event->pos()).toPoint());
+    }
     QGraphicsView::mousePressEvent(event);
 }
 
@@ -56,7 +60,7 @@ void CustomGraphicsView::mouseReleaseEvent(QMouseEvent *event)
         float value = 3;
         if ((event->pos() - firstPanPos).manhattanLength() <= value)
         {
-            emit clicked(event->pos());
+            emit clicked(mapToScene(event->pos()).toPoint());
         }
         isPanning = false;
     }

@@ -21,6 +21,7 @@
 #include <include/noteTypes/imageannotationdata.h>
 #include <include/noteTypes/uuidregistry.h>
 #include <include/imageAnnotationObjects/customgraphicsview.h>
+#include "include/imageAnnotationObjects/shapeinprogress.h"
 #include "include/imageAnnotationObjects/shapegraphicsobject.h"
 #include "include/imageAnnotationObjects/markeritem.h"
 
@@ -56,6 +57,8 @@ public:
     void UpdateShapes();
     ShapeData EditShape(ShapeData *pregenData);
     void SceneClicked(QPoint where);
+    void extracted(QPair<double, double> &pair, ShapeData &sd);
+    void SceneRClicked(QPoint where);
     bool isChangingShapes = false;
     QList<ShapeGraphicsObject*> *myShapes = new QList<ShapeGraphicsObject*>();
     QUndoStack undoStack;
@@ -65,6 +68,7 @@ public:
     Qt::BrushStyle currentBrushStyle = Qt::SolidPattern;
     int currentRounding = 0;
     int currentWidth = 1;
+    ShapeInProgress *shapeInProgress = nullptr;
 
 private slots:
     void on_actionShapesEditMode_toggled(bool arg1);

@@ -14,6 +14,7 @@ CONFIG += c++17
 SOURCES += \
     src/imageAnnotationObjects/pointhandle.cpp \
     src/imageAnnotationObjects/shapegraphicsobject.cpp \
+    src/imageAnnotationObjects/shapeinprogress.cpp \
     src/imageAnnotationObjects/vectorpaintercommands.cpp \
     src/imageAnnotationObjects/markeritem.cpp \
     src/noteTypes/imageannotationdata.cpp \
@@ -72,7 +73,8 @@ HEADERS += \
     include/imageAnnotationObjects/customgraphicsview.h \
     include/imageAnnotationObjects/pointhandle.h \
     include/imageAnnotationObjects/shapegraphicsobject.h \
-    include/imageAnnotationObjects/vectorpaintercommands.h
+    include/imageAnnotationObjects/vectorpaintercommands.h \
+    include/imageAnnotationObjects/shapeinprogress.h
 
 FORMS += \
     ui/calendarObjects/moonvisualiser.ui \

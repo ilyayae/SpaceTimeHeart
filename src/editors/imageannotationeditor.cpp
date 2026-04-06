@@ -88,11 +88,37 @@ ImageAnnotationEditor::ImageAnnotationEditor(QWidget *parent)
     connect(roundingSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) {
         currentRounding = value;
     });
+
+    connect(&undoStack, &QUndoStack::indexChanged, this, &ImageAnnotationEditor::UpdateShapes);
 }
 
 ImageAnnotationEditor::~ImageAnnotationEditor()
 {
     delete ui;
+}
+
+QString penStyleToString(Qt::PenStyle style)
+{
+    switch (style) {
+    case Qt::DashLine: return "Dash";
+    case Qt::DotLine: return "Dot";
+    case Qt::DashDotLine: return "Dash-Dot";
+    case Qt::DashDotDotLine: return "Dash-Dot-Dot";
+    default: return "Solid";
+    }
+}
+
+QString brushStyleToString(Qt::BrushStyle style)
+{
+    switch (style) {
+    case Qt::NoBrush: return "None";
+    case Qt::Dense4Pattern: return "Dense";
+    case Qt::HorPattern: return "Horizontal";
+    case Qt::VerPattern: return "Vertical";
+    case Qt::CrossPattern: return "Cross";
+    case Qt::BDiagPattern: return "Diagonal";
+    default: return "Solid";
+    }
 }
 
 void ImageAnnotationEditor::Initialize(ImageAnnotationData *data)
@@ -109,6 +135,7 @@ void ImageAnnotationEditor::Initialize(ImageAnnotationData *data)
     graphicsView->scene()->addItem(imageItem);
     graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
     connect(graphicsView, &CustomGraphicsView::clicked, this, &ImageAnnotationEditor::SceneClicked);
+    connect(graphicsView, &CustomGraphicsView::rClicked, this, &ImageAnnotationEditor::SceneRClicked);
     UpdateMarkers();
     UpdateShapes();
     ui->EditMarkersToolBar->hide();
@@ -148,7 +175,8 @@ void ImageAnnotationEditor::UpdateShapes()
 {
     for(int i = 0; i < myShapes->count(); i++)
     {
-        (*myShapes)[i]->deleteLater();
+        graphicsView->scene()->removeItem((*myShapes)[i]);
+        delete (*myShapes)[i];
     }
     myShapes->clear();
     for(int i = 0; i < myData->shapes.count(); i++)
@@ -548,7 +576,70 @@ void ImageAnnotationEditor::ShapeInteracted(bool clicked)
 
 void ImageAnnotationEditor::SceneClicked(QPoint where)
 {
-    qDebug() << "HAI " + QString::number(where.x()) + " " + QString::number(where.y());
+    if(isEditingShapes && !isChangingShapes)
+    {
+        // Check if we are already painting, if not start painting.
+        // Painting is a graphicsObjects, created when we start painting.
+        // It stores the list of points where the user clicked and the paint uses the same logic as shape painting
+        // but the styling is directly lifted from the current settings
+        // On click push a redo command that creates the graphics object if we are not painting already
+        // If we are painting, push a redo command to add a point to the object.
+        QPair<double, double> pair(
+            static_cast<double>(where.x()) / static_cast<double>(imageItem->pixmap().width()),
+            static_cast<double>(where.y()) / static_cast<double>(imageItem->pixmap().height())
+            );
+        if(shapeInProgress == nullptr)
+        {
+            undoStack.push(new StartPainting(&shapeInProgress, pair, &currentLineColor, &currentFillColor, &currentPenStyle, &currentBrushStyle, &currentRounding, &currentWidth, imageItem, graphicsView->scene()));
+        }
+        else
+        {
+            undoStack.push(new AddPointCommand(&shapeInProgress, pair));
+        }
+    }
+}
+
+void ImageAnnotationEditor::SceneRClicked(QPoint where)
+{
+    if(isEditingShapes && !isChangingShapes)
+    {
+        if(shapeInProgress == nullptr || shapeInProgress->XYPoints.count() < 2)
+        {
+            return;
+        }
+        else
+        {
+            QPair<double, double> pair(
+                static_cast<double>(where.x()) / static_cast<double>(imageItem->pixmap().width()),
+                static_cast<double>(where.y()) / static_cast<double>(imageItem->pixmap().height())
+                );
+
+            bool Closed = false;
+            if (shapeInProgress->XYPoints.count() >= 3)
+            {
+                QPair<double, double> firstPoint = shapeInProgress->XYPoints.first();
+                QPair<double, double> clickPoint = pair;
+                double dx = (firstPoint.first - clickPoint.first) * imageItem->pixmap().width();
+                double dy = (firstPoint.second - clickPoint.second) * imageItem->pixmap().height();
+                double threshold = 15.0;
+                if (dx * dx + dy * dy <= threshold * threshold)
+                {
+                    Closed = true;
+                }
+            }
+
+            LineStyle ls;
+            ls.width = currentWidth;
+            ls.lineColor = currentLineColor.name(QColor::HexArgb);
+            ls.linePatternId = penStyleToString(currentPenStyle);
+
+            FillStyle fs;
+            fs.fillColor = currentFillColor.name(QColor::HexArgb);
+            fs.fillPatternId = brushStyleToString(currentBrushStyle);
+
+            undoStack.push(new FinalizeShapeCommand(&shapeInProgress, Closed, ls, fs, currentRounding, myData, pair));
+        }
+    }
 }
 
 void ImageAnnotationEditor::emitUuid(QString uuid)
@@ -665,12 +756,14 @@ void ImageAnnotationEditor::on_actionPaint_Edit_toggled(bool arg1)
 void ImageAnnotationEditor::on_actionUndo_triggered()
 {
     undoStack.undo();
+    UpdateShapes();
     graphicsView->scene()->update();
 }
 
 void ImageAnnotationEditor::on_actionRedo_triggered()
 {
     undoStack.redo();
+    UpdateShapes();
     graphicsView->scene()->update();
 }
 

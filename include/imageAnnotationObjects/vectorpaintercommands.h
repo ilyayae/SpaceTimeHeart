@@ -1,6 +1,7 @@
 #ifndef VECTORPAINTERCOMMANDS_H
 #define VECTORPAINTERCOMMANDS_H
 
+#include "include/imageAnnotationObjects/shapeinprogress.h"
 #include "include/noteTypes/imageannotationdata.h"
 #include "include/imageAnnotationObjects/shapegraphicsobject.h"
 #include <QUndoCommand>
@@ -10,28 +11,58 @@ class VectorPainterCommands : public QUndoCommand
 public:
     VectorPainterCommands();
 };
+class StartPainting : public QUndoCommand
+{
+public:
+    StartPainting(ShapeInProgress **shape, QPair<double, double> startPoint, QColor *currentLineColor, QColor *currentFillColor, Qt::PenStyle *currentPenStyle,
+                  Qt::BrushStyle *currentBrushStyle, int *currentRounding, int *currentWidth, QGraphicsPixmapItem *image, QGraphicsScene *scene);
+    void redo() override;
+    void undo() override;
+private:
+    ShapeInProgress **Shape;
+    QPair<double, double> StartPoint;
+    QColor *storedLineColor;
+    QColor *storedFillColor;
+    Qt::PenStyle *storedPenStyle;
+    Qt::BrushStyle *storedBrushStyle;
+    int *storedRounding;
+    int *storedWidth;
+    QGraphicsPixmapItem *storedImage;
+    QGraphicsScene *Scene;
+};
 
 class AddPointCommand : public QUndoCommand
 {
 public:
-    AddPointCommand(QList<QPair<double, double>> *shapesPoints, QPair<double, double> addPoint);
+    AddPointCommand(ShapeInProgress **shape, QPair<double, double> addPoint);
     void redo() override;
     void undo() override;
 private:
-    QList<QPair<double, double>> *ShapesPoints;
+    ShapeInProgress **Shape;
     QPair<double, double> AddPoint;
 };
 
 class FinalizeShapeCommand : public QUndoCommand
 {
 public:
-    FinalizeShapeCommand(QList<QPair<double, double>> *shapesPoints, bool closed, LineStyle *styleOfLine, FillStyle *styleOfFill, ImageAnnotationData *data);
+    FinalizeShapeCommand(ShapeInProgress **shape, bool closed, LineStyle styleOfLine, FillStyle styleOfFill, int rounding, ImageAnnotationData *data, QPair<double, double> newLocation);
     ~FinalizeShapeCommand() override;
     void redo() override;
     void undo() override;
 private:
+    ShapeInProgress **Shape;
+    QPair<double, double> NewLocation;
+    ShapeData *newShape;
     ImageAnnotationData *Data;
-    ShapeData *Shape;
+    QList<QPair<double, double>> storedPoints;
+    QColor *storedLineColor;
+    QColor *storedFillColor;
+    Qt::PenStyle *storedPenStyle;
+    Qt::BrushStyle *storedBrushStyle;
+    int *storedRounding;
+    int *storedWidth;
+    QGraphicsPixmapItem *storedImage;
+    QGraphicsScene *Scene;
 };
 
 class MovePointCommand : public QUndoCommand
@@ -70,5 +101,7 @@ private:
     ShapeData OldData;
     ShapeData NewData;
 };
+
+
 
 #endif // VECTORPAINTERCOMMANDS_H

@@ -24,6 +24,7 @@ public:
     QPoint firstPanPos;
 signals:
     void clicked(QPoint place);
+    void rClicked(QPoint place);
 };
 
 #endif // CUSTOMGRAPHICSVIEW_H

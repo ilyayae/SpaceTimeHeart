@@ -1,42 +1,85 @@
 #include "include/imageAnnotationObjects/vectorpaintercommands.h"
 
 VectorPainterCommands::VectorPainterCommands() {}
-
-AddPointCommand::AddPointCommand(QList<QPair<double, double>> *shapesPoints, QPair<double, double> addPoint)
-    : ShapesPoints(shapesPoints), AddPoint(addPoint)
+StartPainting::StartPainting(ShapeInProgress **shape, QPair<double, double> startPoint, QColor *currentLineColor, QColor *currentFillColor, Qt::PenStyle *currentPenStyle,
+                             Qt::BrushStyle *currentBrushStyle, int *currentRounding, int *currentWidth, QGraphicsPixmapItem *image, QGraphicsScene *scene)
+    : Shape(shape), StartPoint(startPoint), storedLineColor(currentLineColor), storedFillColor(currentFillColor), storedPenStyle(currentPenStyle),
+    storedBrushStyle(currentBrushStyle), storedRounding(currentRounding), storedWidth(currentWidth), storedImage(image), Scene(scene)
 {
-    //Nothing
 }
+
+void StartPainting::redo()
+{
+    *Shape = new ShapeInProgress(StartPoint, storedLineColor, storedFillColor, storedPenStyle, storedBrushStyle, storedRounding, storedWidth, storedImage);
+    Scene->addItem(*Shape);
+}
+
+void StartPainting::undo()
+{
+    Scene->removeItem(*Shape);
+    delete *Shape;
+    *Shape = nullptr;
+}
+
+AddPointCommand::AddPointCommand(ShapeInProgress **shape, QPair<double, double> addPoint)
+    : Shape(shape), AddPoint(addPoint)
+{
+}
+
 void AddPointCommand::redo()
 {
-    ShapesPoints->append(AddPoint);
+    (*Shape)->XYPoints.append(AddPoint);
+    (*Shape)->update();
 }
+
 void AddPointCommand::undo()
 {
-    ShapesPoints->removeAt(ShapesPoints->lastIndexOf(AddPoint));
+    (*Shape)->XYPoints.removeAt((*Shape)->XYPoints.lastIndexOf(AddPoint));
+    (*Shape)->update();
 }
 
-
-FinalizeShapeCommand::FinalizeShapeCommand(QList<QPair<double, double>> *shapesPoints, bool closed, LineStyle *styleOfLine, FillStyle *styleOfFill, ImageAnnotationData *data)
-    : Data(data)
+FinalizeShapeCommand::FinalizeShapeCommand(ShapeInProgress **shape, bool closed, LineStyle styleOfLine, FillStyle styleOfFill, int rounding, ImageAnnotationData *data, QPair<double, double> newLocation)
+    : Shape(shape), NewLocation(newLocation), Data(data)
 {
-    Shape = new ShapeData();
-    Shape->Closed = closed;
-    Shape->StyleOfFill = *styleOfFill;
-    Shape->StyleOfLine = *styleOfLine;
-    Shape->XYPoints = *shapesPoints;
+    newShape = new ShapeData();
+    newShape->Closed = closed;
+    newShape->StyleOfFill = styleOfFill;
+    newShape->StyleOfLine = styleOfLine;
+    newShape->XYPoints = (*shape)->XYPoints;
+    if(!newShape->Closed)
+        newShape->XYPoints.append(NewLocation);
+    newShape->rounding = rounding;
+
+    storedPoints = (*shape)->XYPoints;
+    storedLineColor = (*shape)->CurrentLineColor;
+    storedFillColor = (*shape)->CurrentFillColor;
+    storedPenStyle = (*shape)->CurrentPenStyle;
+    storedBrushStyle = (*shape)->CurrentBrushStyle;
+    storedRounding = (*shape)->CurrentRounding;
+    storedWidth = (*shape)->CurrentWidth;
+    storedImage = (*shape)->Image;
+    Scene = (*shape)->scene();
 }
+
 FinalizeShapeCommand::~FinalizeShapeCommand()
 {
-    delete Shape;
+    delete newShape;
 }
+
 void FinalizeShapeCommand::redo()
 {
-    Data->shapes.append(*Shape);
+    Scene->removeItem(*Shape);
+    delete *Shape;
+    *Shape = nullptr;
+    Data->shapes.append(*newShape);
 }
+
 void FinalizeShapeCommand::undo()
 {
-    Data->shapes.removeAt(Data->shapes.lastIndexOf(*Shape));
+    Data->shapes.removeAt(Data->shapes.lastIndexOf(*newShape));
+    *Shape = new ShapeInProgress(storedPoints.first(), storedLineColor, storedFillColor, storedPenStyle, storedBrushStyle, storedRounding, storedWidth, storedImage);
+    (*Shape)->XYPoints = storedPoints;
+    Scene->addItem(*Shape);
 }
 
 
