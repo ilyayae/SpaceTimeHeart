@@ -11,7 +11,9 @@ class ShapeGraphicsObject : public QGraphicsObject
 {
     Q_OBJECT
 public:
-    ShapeGraphicsObject(ShapeData *myData, QGraphicsPixmapItem *image, QUndoStack *stack);
+    ShapeGraphicsObject(ImageAnnotationData *data, int shapeIndex, QGraphicsPixmapItem *image, QUndoStack *stack);
+    ImageAnnotationData *Data;
+    int ShapeIndex;
     ~ShapeGraphicsObject();
     void onPointMoved(PointHandle *point, QPair<double, double>);
     void onPointClicked(PointHandle *point, bool clicked);
@@ -22,12 +24,12 @@ public:
     void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+    ShapeData* MyData() const;
     bool editing = false;
     QRectF boundingRect() const override;
     QPainterPath shape() const override;
     bool sceneEventFilter(QGraphicsItem *watched, QEvent *event) override;
     QList<PointHandle*> handles;
-    ShapeData *MyData;
     QGraphicsPixmapItem *Image;
     QUndoStack *Stack;
 private slots:

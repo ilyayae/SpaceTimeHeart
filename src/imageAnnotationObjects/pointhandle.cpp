@@ -4,8 +4,8 @@
 PointHandle::PointHandle(ShapeGraphicsObject *parent, int id)
     : Parent(parent), Id(id)
 {
-    double x = Parent->MyData->XYPoints[Id].first * Parent->Image->pixmap().width();
-    double y = Parent->MyData->XYPoints[Id].second * Parent->Image->pixmap().height();
+    double x = Parent->MyData()->XYPoints[Id].first * Parent->Image->pixmap().width();
+    double y = Parent->MyData()->XYPoints[Id].second * Parent->Image->pixmap().height();
     setPos(x, y);
     setRect(-SIZE / 2.0, -SIZE / 2.0, SIZE, SIZE);
     setFlag(ItemIsMovable);

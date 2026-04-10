@@ -89,7 +89,10 @@ ImageAnnotationEditor::ImageAnnotationEditor(QWidget *parent)
         currentRounding = value;
     });
 
-    connect(&undoStack, &QUndoStack::indexChanged, this, &ImageAnnotationEditor::UpdateShapes);
+    connect(&undoStack, &QUndoStack::indexChanged, this, [this]() {
+        if (!isDraggingHandle)
+            UpdateShapes();
+    });
 }
 
 ImageAnnotationEditor::~ImageAnnotationEditor()
@@ -181,8 +184,7 @@ void ImageAnnotationEditor::UpdateShapes()
     myShapes->clear();
     for(int i = 0; i < myData->shapes.count(); i++)
     {
-        ShapeData *dat = &myData->shapes[i];
-        ShapeGraphicsObject *obj = new ShapeGraphicsObject(dat, imageItem, &undoStack); //Stops here
+        ShapeGraphicsObject *obj = new ShapeGraphicsObject(myData, i, imageItem, &undoStack);
         graphicsView->scene()->addItem(obj);
         myShapes->append(obj);
         connect(obj, &ShapeGraphicsObject::rightClicked, this, &ImageAnnotationEditor::RightClickedShape);
@@ -546,18 +548,34 @@ void ImageAnnotationEditor::RightClickedShape(ShapeGraphicsObject *shape)
         return;
     if(isEditingShapes)
     {
-        ShapeData New = EditShape(shape->MyData);
-        //Detect if the New is empty:
-        if(New == *shape->MyData || New.StyleOfLine.linePatternId.isEmpty())
-            return;
-        for(int i = 0; i < myData->shapes.count(); i++)
+        if (shape->scene())
+            shape->ungrabMouse();
+        if(isChangingShapes)
         {
-            if(myData->shapes[i] == *shape->MyData)
+            ShapeData New = EditShape(shape->MyData());
+            //Detect if the New is empty:
+            if(New == *shape->MyData() || New.StyleOfLine.linePatternId.isEmpty())
+                return;
+            for(int i = 0; i < myData->shapes.count(); i++)
             {
-                undoStack.push(new ChangeStyleCommand(&myData->shapes[i], New));
+                if(myData->shapes[i] == *shape->MyData())
+                {
+                    undoStack.push(new ChangeStyleCommand(&myData->shapes[i], New));
+                    break;
+                }
             }
         }
-        UpdateShapes();
+        else
+        {
+            for(int i = 0; i < myData->shapes.count(); i++)
+            {
+                if(myData->shapes[i] == *shape->MyData())
+                {
+                    undoStack.push(new DeleteShapeCommand(myData, myData->shapes[i]));
+                    break;
+                }
+            }
+        }
     }
 }
 
@@ -572,6 +590,7 @@ void ImageAnnotationEditor::HoveredShape(ShapeGraphicsObject *shape, bool hovere
 void ImageAnnotationEditor::ShapeInteracted(bool clicked)
 {
     graphicsView->panningLocked = clicked;
+    isDraggingHandle = clicked;
 }
 
 void ImageAnnotationEditor::SceneClicked(QPoint where)
@@ -591,6 +610,12 @@ void ImageAnnotationEditor::SceneClicked(QPoint where)
         if(shapeInProgress == nullptr)
         {
             undoStack.push(new StartPainting(&shapeInProgress, pair, &currentLineColor, &currentFillColor, &currentPenStyle, &currentBrushStyle, &currentRounding, &currentWidth, imageItem, graphicsView->scene()));
+            connect(graphicsView, &CustomGraphicsView::mouseMoved, this, [this](QPointF where) {
+                if(shapeInProgress != nullptr)
+                {
+                    shapeInProgress->movedMouseUpdate(where);
+                }
+            });
         }
         else
         {
@@ -756,14 +781,12 @@ void ImageAnnotationEditor::on_actionPaint_Edit_toggled(bool arg1)
 void ImageAnnotationEditor::on_actionUndo_triggered()
 {
     undoStack.undo();
-    UpdateShapes();
     graphicsView->scene()->update();
 }
 
 void ImageAnnotationEditor::on_actionRedo_triggered()
 {
     undoStack.redo();
-    UpdateShapes();
     graphicsView->scene()->update();
 }
 

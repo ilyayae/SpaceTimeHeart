@@ -68,13 +68,14 @@ private:
 class MovePointCommand : public QUndoCommand
 {
 public:
-    MovePointCommand(ShapeGraphicsObject *shape, int id, QPair<double, double> newLocation);
+    MovePointCommand(ImageAnnotationData *data, int shapeId, int id, QPair<double, double> newLocation);
     void redo() override;
     void undo() override;
 private:
     QPair<double, double> NewLocation;
     QPair<double, double> OldLocation;
-    ShapeGraphicsObject *Shape;
+    ImageAnnotationData *Data;
+    int ShapeId;
     int Id;
 };
 

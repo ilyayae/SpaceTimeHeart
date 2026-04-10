@@ -25,6 +25,7 @@ public:
 signals:
     void clicked(QPoint place);
     void rClicked(QPoint place);
+    void mouseMoved(QPointF where);
 };
 
 #endif // CUSTOMGRAPHICSVIEW_H

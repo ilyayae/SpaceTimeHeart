@@ -1,10 +1,10 @@
 #include "include/imageAnnotationObjects/shapegraphicsobject.h"
 #include "include/imageAnnotationObjects/vectorpaintercommands.h"
 
-ShapeGraphicsObject::ShapeGraphicsObject(ShapeData *myData, QGraphicsPixmapItem *image, QUndoStack *stack)
-    : MyData(myData), Image(image), Stack(stack)
+ShapeGraphicsObject::ShapeGraphicsObject(ImageAnnotationData *data, int shapeIndex, QGraphicsPixmapItem *image, QUndoStack *stack)
+    : Data(data), ShapeIndex(shapeIndex), Image(image), Stack(stack)
 {
-    for(int i = 0; i < MyData->XYPoints.count(); i++)
+    for(int i = 0; i < MyData()->XYPoints.count(); i++)
     {
         PointHandle *ph = new PointHandle(this, i);
         ph->setParentItem(this);
@@ -17,6 +17,11 @@ ShapeGraphicsObject::ShapeGraphicsObject(ShapeData *myData, QGraphicsPixmapItem 
 ShapeGraphicsObject::~ShapeGraphicsObject()
 {
 
+}
+
+ShapeData* ShapeGraphicsObject::MyData() const
+{
+    return &Data->shapes[ShapeIndex];
 }
 
 Qt::PenStyle penStyleFromString(const QString &style)
@@ -41,9 +46,10 @@ Qt::BrushStyle brushStyleFromString(const QString &style)
 
 void ShapeGraphicsObject::onPointMoved(PointHandle *point, QPair<double, double>)
 {
-    MovePointCommand *mpc = new MovePointCommand(this, point->Id, point->GetPosition());
+    MovePointCommand *mpc = new MovePointCommand(Data, ShapeIndex, point->Id, point->GetPosition());
     Stack->push(mpc);
-    syncFromData();
+    prepareGeometryChange();
+    update();
 }
 
 void ShapeGraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -52,37 +58,37 @@ void ShapeGraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsIte
         return;
 
     QPainterPath path;
-    double x0 = MyData->XYPoints[0].first * Image->pixmap().width();
-    double y0 = MyData->XYPoints[0].second * Image->pixmap().height();
+    double x0 = MyData()->XYPoints[0].first * Image->pixmap().width();
+    double y0 = MyData()->XYPoints[0].second * Image->pixmap().height();
 
-    if (MyData->rounding > 0 && handles.count() >= 3)
+    if (MyData()->rounding > 0 && handles.count() >= 3)
     {
-        double rounding = MyData->rounding / 100.0;
+        double rounding = MyData()->rounding / 100.0;
 
         for (int i = 0; i < handles.count(); i++)
         {
-            double X = MyData->XYPoints[i].first * Image->pixmap().width(); // X Position on the image for this point.
-            double Y = MyData->XYPoints[i].second * Image->pixmap().height(); // Y Position on the image for this point.
+            double X = MyData()->XYPoints[i].first * Image->pixmap().width(); // X Position on the image for this point.
+            double Y = MyData()->XYPoints[i].second * Image->pixmap().height(); // Y Position on the image for this point.
 
             int prevIdx = (i == 0) ? handles.count() - 1 : i - 1;
             int nextIdx = (i + 1) % handles.count();
 
-            double px = MyData->XYPoints[prevIdx].first * Image->pixmap().width();
-            double py = MyData->XYPoints[prevIdx].second * Image->pixmap().height();
-            double nx = MyData->XYPoints[nextIdx].first * Image->pixmap().width();
-            double ny = MyData->XYPoints[nextIdx].second * Image->pixmap().height();
+            double px = MyData()->XYPoints[prevIdx].first * Image->pixmap().width();
+            double py = MyData()->XYPoints[prevIdx].second * Image->pixmap().height();
+            double nx = MyData()->XYPoints[nextIdx].first * Image->pixmap().width();
+            double ny = MyData()->XYPoints[nextIdx].second * Image->pixmap().height();
 
             double startX = X + (px - X) * rounding;
             double startY = Y + (py - Y) * rounding;
             double endX = X + (nx - X) * rounding;
             double endY = Y + (ny - Y) * rounding;
 
-            if (i == 0 && !MyData->Closed)
+            if (i == 0 && !MyData()->Closed)
             {
                 path.moveTo(X, Y);
                 path.lineTo(endX, endY);
             }
-            else if (i == handles.count() - 1 && !MyData->Closed)
+            else if (i == handles.count() - 1 && !MyData()->Closed)
             {
                 path.lineTo(X, Y);
             }
@@ -96,12 +102,12 @@ void ShapeGraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsIte
             }
         }
 
-        if (MyData->Closed)
+        if (MyData()->Closed)
         {
-            double cx = MyData->XYPoints[0].first * Image->pixmap().width();
-            double cy = MyData->XYPoints[0].second * Image->pixmap().height();
-            double startX = cx + (MyData->XYPoints[handles.count() - 1].first * Image->pixmap().width() - cx) * rounding;
-            double startY = cy + (MyData->XYPoints[handles.count() - 1].second * Image->pixmap().height() - cy) * rounding;
+            double cx = MyData()->XYPoints[0].first * Image->pixmap().width();
+            double cy = MyData()->XYPoints[0].second * Image->pixmap().height();
+            double startX = cx + (MyData()->XYPoints[handles.count() - 1].first * Image->pixmap().width() - cx) * rounding;
+            double startY = cy + (MyData()->XYPoints[handles.count() - 1].second * Image->pixmap().height() - cy) * rounding;
             path.lineTo(startX, startY);
             path.closeSubpath();
         }
@@ -111,20 +117,20 @@ void ShapeGraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsIte
         path.moveTo(x0, y0);
         for (int i = 1; i < handles.count(); i++)
         {
-            double x = MyData->XYPoints[i].first * Image->pixmap().width();
-            double y = MyData->XYPoints[i].second * Image->pixmap().height();
+            double x = MyData()->XYPoints[i].first * Image->pixmap().width();
+            double y = MyData()->XYPoints[i].second * Image->pixmap().height();
             path.lineTo(x, y);
         }
 
-        if (MyData->Closed)
+        if (MyData()->Closed)
             path.closeSubpath();
     }
 
-    QPen pen(QColor(MyData->StyleOfLine.lineColor), MyData->StyleOfLine.width, penStyleFromString(MyData->StyleOfLine.linePatternId));
+    QPen pen(QColor(MyData()->StyleOfLine.lineColor), MyData()->StyleOfLine.width, penStyleFromString(MyData()->StyleOfLine.linePatternId));
     painter->setPen(pen);
 
-    if (MyData->Closed)
-        painter->setBrush(QBrush(MyData->StyleOfFill.fillColor, brushStyleFromString(MyData->StyleOfFill.fillPatternId)));
+    if (MyData()->Closed)
+        painter->setBrush(QBrush(MyData()->StyleOfFill.fillColor, brushStyleFromString(MyData()->StyleOfFill.fillPatternId)));
     else
         painter->setBrush(Qt::NoBrush);
 
@@ -135,14 +141,14 @@ void ShapeGraphicsObject::syncFromData()
 {
     prepareGeometryChange();
 
-    while (handles.count() > MyData->XYPoints.count())
+    while (handles.count() > MyData()->XYPoints.count())
     {
         PointHandle *h = handles.takeLast();
         scene()->removeItem(h);
         delete h;
     }
 
-    while (handles.count() < MyData->XYPoints.count())
+    while (handles.count() < MyData()->XYPoints.count())
     {
         PointHandle *h = new PointHandle(this, handles.count());
         handles.append(h);
@@ -151,8 +157,8 @@ void ShapeGraphicsObject::syncFromData()
 
     for (int i = 0; i < handles.count(); i++)
     {
-        double x = MyData->XYPoints[i].first * Image->pixmap().width();
-        double y = MyData->XYPoints[i].second * Image->pixmap().height();
+        double x = MyData()->XYPoints[i].first * Image->pixmap().width();
+        double y = MyData()->XYPoints[i].second * Image->pixmap().height();
         handles[i]->setPos(x, y);
         handles[i]->setRect(-handles[i]->SIZE / 2.0, -handles[i]->SIZE / 2.0, handles[i]->SIZE, handles[i]->SIZE);
     }
@@ -204,27 +210,27 @@ QPainterPath ShapeGraphicsObject::shape() const
     if (handles.count() < 2)
         return path;
 
-    double x0 = MyData->XYPoints[0].first * Image->pixmap().width();
-    double y0 = MyData->XYPoints[0].second * Image->pixmap().height();
+    double x0 = MyData()->XYPoints[0].first * Image->pixmap().width();
+    double y0 = MyData()->XYPoints[0].second * Image->pixmap().height();
 
     path.moveTo(x0, y0);
     for (int i = 1; i < handles.count(); i++)
     {
-        double x = MyData->XYPoints[i].first * Image->pixmap().width();
-        double y = MyData->XYPoints[i].second * Image->pixmap().height();
+        double x = MyData()->XYPoints[i].first * Image->pixmap().width();
+        double y = MyData()->XYPoints[i].second * Image->pixmap().height();
         path.lineTo(x, y);
     }
 
-    if (MyData->Closed)
+    if (MyData()->Closed)
     {
         path.closeSubpath();
         QPainterPathStroker stroker;
-        stroker.setWidth(MyData->StyleOfLine.width + 6.0);
+        stroker.setWidth(MyData()->StyleOfLine.width + 6.0);
         return path.united(stroker.createStroke(path));
     }
 
     QPainterPathStroker stroker;
-    stroker.setWidth(MyData->StyleOfLine.width + 6.0);
+    stroker.setWidth(MyData()->StyleOfLine.width + 6.0);
     return stroker.createStroke(path);
 }
 

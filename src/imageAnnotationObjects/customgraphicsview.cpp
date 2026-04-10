@@ -42,6 +42,7 @@ void CustomGraphicsView::mousePressEvent(QMouseEvent *event)
 
 void CustomGraphicsView::mouseMoveEvent(QMouseEvent *event)
 {
+    emit mouseMoved(mapToScene(event->pos()));
     if(isPanning && !panningLocked)
     {
         QPoint delta = event->pos() - lastPanPos;

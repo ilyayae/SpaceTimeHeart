@@ -8,6 +8,7 @@ ShapeInProgress::ShapeInProgress(QPoint point, QColor *currentLineColor, QColor 
 {
     setAcceptHoverEvents(true);
     addPoint(point);
+    scene()->installEventFilter(this);
 }
 
 ShapeInProgress::ShapeInProgress(QPair<double, double> pair, QColor *currentLineColor, QColor *currentFillColor, Qt::PenStyle *currentPenStyle,
@@ -30,12 +31,11 @@ void ShapeInProgress::addPoint(QPair<double, double> pair)
     XYPoints.append(pair);
 }
 
-void ShapeInProgress::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+void ShapeInProgress::movedMouseUpdate(QPointF where)
 {
-    mousePos = event->scenePos();
+    mousePos = where;
     update();
 }
-
 void ShapeInProgress::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     if (XYPoints.isEmpty())

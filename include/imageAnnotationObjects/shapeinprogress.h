@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QGraphicsSceneHoverEvent>
 #include <QPainter>
+#include <QGraphicsScene>
 
 class ShapeInProgress : public QGraphicsObject
 {
@@ -24,11 +25,12 @@ public:
     QGraphicsPixmapItem *Image;
     QPointF mousePos;
 
-    void hoverMoveEvent(QGraphicsSceneHoverEvent *event) override;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
     QRectF boundingRect() const override;
     void addPoint(QPair<double, double>);
     void addPoint(QPoint point);
+    void movedMouseUpdate(QPointF where);
+
 };
 
 #endif // SHAPEINPROGRESS_H

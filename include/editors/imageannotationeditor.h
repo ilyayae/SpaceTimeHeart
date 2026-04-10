@@ -46,6 +46,7 @@ public:
     // Bool switches
     bool isEditingMarkers = false;
     bool isEditingShapes = false;
+    bool isDraggingHandle = false;
 
     // Marker editing
     void UpdateMarkers();

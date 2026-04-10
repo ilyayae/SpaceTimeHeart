@@ -83,20 +83,18 @@ void FinalizeShapeCommand::undo()
 }
 
 
-MovePointCommand::MovePointCommand(ShapeGraphicsObject *shape, int id, QPair<double, double> newLocation)
-    :  NewLocation(newLocation), Shape(shape), Id(id)
+MovePointCommand::MovePointCommand(ImageAnnotationData *data, int shapeId, int id, QPair<double, double> newLocation)
+    :  NewLocation(newLocation), Data(data), ShapeId(shapeId), Id(id)
 {
-    OldLocation = Shape->MyData->XYPoints[Id];
+    OldLocation = Data->shapes[ShapeId].XYPoints[Id];
 }
 void MovePointCommand::redo()
 {
-    Shape->MyData->XYPoints[Id] = NewLocation;
-    Shape->syncFromData();
+    Data->shapes[ShapeId].XYPoints[Id] = NewLocation;
 }
 void MovePointCommand::undo()
 {
-    Shape->MyData->XYPoints[Id] = OldLocation;
-    Shape->syncFromData();
+    Data->shapes[ShapeId].XYPoints[Id] = OldLocation;
 }
 
 
