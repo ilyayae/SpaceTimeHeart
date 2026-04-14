@@ -44,14 +44,15 @@ private:
 
 signals:
     void fileSelected(const QString &path);
+    void openMindMap();
 private slots:
     void on_actionNewPlainNote_triggered();
     void on_actionNewMarkdownNote_triggered();
     void on_actionNewCallendar_triggered();
-    void on_actionNewImageAnnotation_triggered();
-    void on_actionDeleteFolder_triggered();
-    void on_actionDeleteFile_triggered();
+    void on_actionNewImageAnnotation_triggered();\
     void on_actionNewFolder_triggered();
+    void on_actionDelete_triggered();
+    void on_actionMindMap_triggered();
 };
 
 #endif // FILEBROWSER_H

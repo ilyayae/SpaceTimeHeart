@@ -75,6 +75,9 @@ void MainWindow::initEverything()
 
     //Connect signals & slots
     connect(browser, &filebrowser::fileSelected, this, &MainWindow::openFromBrowser);
+    connect(browser, &filebrowser::openMindMap, this, [this](){
+        dochandl->switchEditor(MINDMAP);
+    });
     connect(dochandl, &DocumentHandler::fileUpdated, this, &MainWindow::StartSaveProcess);
     connect(dochandl, &DocumentHandler::linkFollowed, this, &MainWindow::updateBrowser);
 

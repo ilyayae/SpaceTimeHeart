@@ -93,8 +93,9 @@ void DocumentHandler::saveFile() {
             if(currentNote != nullptr)
             {
                 currentNote->setContent(textEdit->toPlainText());
+                currentNote->setLinkedUuids(textEdit->getUuids());
                 currentNote->save();
-                registry->writeEntry(currentNote->getUuid(), currentNote->getPath());
+                registry->writeEntry(currentNote->getUuid(), currentNote->getPath(), currentNote->GetMyLinks());
             }
         }
         else if (currentEditor == CALENDAR)
@@ -102,7 +103,7 @@ void DocumentHandler::saveFile() {
             if(currentCalendar != nullptr)
             {
                 currentCalendar->save(filePath, *currentCalendar);
-                registry->writeEntry(currentCalendar->GetUuid(), currentCalendar->GetPath());
+                registry->writeEntry(currentCalendar->GetUuid(), currentCalendar->GetPath(), currentCalendar->GetMyLinks());
             }
         }
         else if (currentEditor == IMAGEANNOTATION)
@@ -110,7 +111,7 @@ void DocumentHandler::saveFile() {
             if(currentImageAnnotation != nullptr)
             {
                 currentImageAnnotation->save(filePath, *currentImageAnnotation);
-                registry->writeEntry(currentImageAnnotation->GetUuid(), currentImageAnnotation->GetPath());
+                registry->writeEntry(currentImageAnnotation->GetUuid(), currentImageAnnotation->GetPath(), currentImageAnnotation->GetMyLinks());
             }
         }
     }
@@ -171,6 +172,10 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
         imageAnnotationEditor->deleteLater();
         imageAnnotationEditor = nullptr;
         break;
+    case MINDMAP:
+        EditorPlace->removeWidget(mindMap);
+        mindMap->deleteLater();
+        mindMap = nullptr;
     default:
         break;
     }
@@ -184,6 +189,7 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
     case TEXT:
         textEditor = new TextEditor();
         textEditor->startZoom = currZoom;
+        textEditor->registry = registry;
         EditorPlace->addWidget(textEditor);
         textEdit = textEditor->getQTextEdit();
         connect(textEditor, &TextEditor::saveButton, this, &DocumentHandler::saveFile);
@@ -197,6 +203,7 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
     case MARKDOWN:
         markdownEditor = new MarkdownEditor();
         markdownEditor->startZoom = currZoom;
+        markdownEditor->registry = registry;
         EditorPlace->addWidget(markdownEditor);
         textEdit = markdownEditor->GetQTextEdit();
         connect(markdownEditor, &MarkdownEditor::saveButton, this, &DocumentHandler::saveFile);
@@ -205,7 +212,7 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
         connect(markdownEditor, &MarkdownEditor::zoomChanged, this, [this](int Zoom) {
             currZoom = Zoom;
         });
-        connect((CustomTextBrowser*)markdownEditor, &CustomTextBrowser::uuidClicked, this, &DocumentHandler::parseUuid);
+        connect(markdownEditor, &MarkdownEditor::uuidClicked, this, &DocumentHandler::parseUuid);
         break;
     case CALENDAR:
         calendarEditor = new CalendarEditor();
@@ -222,6 +229,11 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
         connect(imageAnnotationEditor, &ImageAnnotationEditor::uuidClicked, this, &DocumentHandler::parseUuid);
         textEdit = nullptr;
         break;
+    case MINDMAP:
+        mindMap = new MindMap();
+        mindMap->myRegistry = registry;
+        mindMap->setUp();
+        EditorPlace->addWidget(mindMap);
     default:
         break;
     }

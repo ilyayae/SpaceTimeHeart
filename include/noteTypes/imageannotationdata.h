@@ -75,7 +75,7 @@ struct ImageAnnotationData
     QList<QUuid> GetMyLinks();
 
     void addMarker(double x, double y, int size, QUuid link, QString color, QString label, QString iconId);
-    void addShape(QList<QPair<double, double>> xyPoints, bool closed, QString lineColor, QString fillColor, int width, QString linePatternId, QString fillPatternId);
+    void addShape(QList<QPair<double, double>> xyPoints, bool closed, QString lineColor, QString fillColor, int width, QString linePatternId, QString fillPatternId, double rounding);
     void removeMarker(MarkerData marker);
     void removeShape(ShapeData shape);
     bool save(const QString &path, ImageAnnotationData &data);

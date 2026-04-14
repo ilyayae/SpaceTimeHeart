@@ -5,6 +5,7 @@
 #include <QUuid>
 #include <QFile>
 #include <QMessageBox>
+#include <include/noteTypes/uuidregistry.h>
 
 class Note : public QObject
 {
@@ -15,16 +16,19 @@ public:
     QUuid getUuid();
     QString getPath();
     QString getContent();
+    QList<QUuid> GetMyLinks();
     void setContent(QString c);
+    void setLinkedUuids(QList<QUuid> list);
     void load();
     void save();
     void saveAs(QString path);
+
+    QList<QUuid> myLinks;
 
 private:
     QUuid *uuid;
     QString filePath;
     QString content;
-    QList<QString> linkedUuids;
 };
 
 #endif // NOTE_H

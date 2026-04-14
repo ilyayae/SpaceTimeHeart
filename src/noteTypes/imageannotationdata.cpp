@@ -127,6 +127,14 @@ QString ImageAnnotationData::GetPath()
 }
 QList<QUuid> ImageAnnotationData::GetMyLinks()
 {
+    myLinks.clear();
+
+    for(const MarkerData &marker : markers)
+    {
+        if(!marker.Link.isNull())
+            myLinks.append(marker.Link);
+    }
+
     return myLinks;
 }
 
@@ -135,11 +143,11 @@ void ImageAnnotationData::addMarker(double x, double y, int size, QUuid link, QS
     MarkerData mark = {x,y,size,link,color,label,iconId};
     markers.append(mark);
 }
-void ImageAnnotationData::addShape(QList<QPair<double, double>> xyPoints, bool closed, QString lineColor, QString fillColor, int width, QString linePatternId, QString fillPatternId)
+void ImageAnnotationData::addShape(QList<QPair<double, double>> xyPoints, bool closed, QString lineColor, QString fillColor, int width, QString linePatternId, QString fillPatternId, double rounding)
 {
     LineStyle lstyle = {lineColor, linePatternId, width};
     FillStyle fstyle = {fillColor, fillPatternId};
-    ShapeData shape = {xyPoints, closed, lstyle, fstyle};
+    ShapeData shape = {xyPoints, closed, lstyle, fstyle, rounding};
     shapes.append(shape);
 }
 void ImageAnnotationData::removeMarker(MarkerData marker)

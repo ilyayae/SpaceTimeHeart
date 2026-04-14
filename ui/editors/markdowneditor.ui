@@ -80,6 +80,8 @@
    <addaction name="actionPaste"/>
    <addaction name="actionFind"/>
    <addaction name="separator"/>
+   <addaction name="actionInsertLink"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="QToolBar" name="toolBar_2">
    <property name="windowTitle">
@@ -303,6 +305,17 @@
    </property>
    <property name="text">
     <string>Find</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionInsertLink">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::InsertLink"/>
+   </property>
+   <property name="text">
+    <string>InsertLink</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>

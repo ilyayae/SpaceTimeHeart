@@ -134,19 +134,6 @@ void filebrowser::on_actionNewImageAnnotation_triggered()
     }
 }
 
-
-void filebrowser::on_actionDeleteFolder_triggered()
-{
-
-}
-
-
-void filebrowser::on_actionDeleteFile_triggered()
-{
-
-}
-
-
 void filebrowser::on_actionNewFolder_triggered()
 {
     bool ok;
@@ -186,5 +173,17 @@ void filebrowser::createCalendar()
     calconfig->close();
     calconfig->deleteLater();
     calconfig = nullptr;
+}
+
+
+void filebrowser::on_actionDelete_triggered()
+{
+
+}
+
+
+void filebrowser::on_actionMindMap_triggered()
+{
+    emit openMindMap();
 }
 

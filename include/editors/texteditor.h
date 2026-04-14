@@ -6,9 +6,13 @@
 #include <QClipboard>
 #include <QSlider>
 #include <QLabel>
+#include <QListWidget>
+#include <QDialog>
+#include <QDialogButtonBox>
 
 #include "include/subclasses/customtextbrowser.h"
 #include "include/subclasses/findreplacewidget.h"
+#include <include/noteTypes/uuidregistry.h>
 
 namespace Ui {
 class TextEditor;
@@ -19,12 +23,14 @@ class TextEditor : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit TextEditor(QWidget *parent = nullptr);
+    explicit TextEditor(QWidget *parent = nullptr, UuidRegistry *reg = nullptr);
     ~TextEditor();
-    QTextBrowser* getQTextEdit();
+    CustomTextBrowser* getQTextEdit();
     void highlightText(bool b);
+    QList<QUuid> getUuids();
     int startZoom = 0;
     int currZoom = 0;
+    UuidRegistry *registry;
 
 private slots:
     void on_actionUndo_triggered();
@@ -46,6 +52,8 @@ private slots:
     void updateZoom(int zoom);
 
     void hyperlinkTextEdit_textChanged();
+
+    void on_actionInsertLink_triggered();
 
 private:
     Ui::TextEditor *ui;

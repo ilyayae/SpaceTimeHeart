@@ -48,15 +48,15 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionMindMap"/>
    <addaction name="actionNewFolder"/>
-   <addaction name="actionDeleteFolder"/>
    <addaction name="separator"/>
    <addaction name="actionNewPlainNote"/>
    <addaction name="actionNewMarkdownNote"/>
    <addaction name="actionNewCallendar"/>
    <addaction name="actionNewImageAnnotation"/>
-   <addaction name="actionDeleteFile"/>
    <addaction name="separator"/>
+   <addaction name="actionDelete"/>
   </widget>
   <action name="actionNewFolder">
    <property name="icon">
@@ -113,23 +113,23 @@
     <enum>QAction::MenuRole::NoRole</enum>
    </property>
   </action>
-  <action name="actionDeleteFolder">
+  <action name="actionDelete">
    <property name="icon">
     <iconset theme="QIcon::ThemeIcon::EditDelete"/>
    </property>
    <property name="text">
-    <string>DeleteFolder</string>
+    <string>Delete</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>
    </property>
   </action>
-  <action name="actionDeleteFile">
+  <action name="actionMindMap">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditDelete"/>
+    <iconset theme="QIcon::ThemeIcon::EditSelectAll"/>
    </property>
    <property name="text">
-    <string>DeleteFile</string>
+    <string>MindMap</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>

@@ -30,9 +30,19 @@ QString Note::getContent()
     return content;
 }
 
+QList<QUuid> Note::GetMyLinks()
+{
+    return myLinks;
+}
+
 void Note::setContent(QString c)
 {
     content = c;
+}
+
+void Note::setLinkedUuids(QList<QUuid> list)
+{
+    myLinks = list;
 }
 
 void Note::load()
@@ -80,6 +90,16 @@ void Note::load()
                     uuid = new QUuid(uuidCandidate);
                 }
             }
+            else if(key == "LINKEDUUIDS")
+            {
+                myLinks.clear();
+                for (const QString &part : value.split(',', Qt::SkipEmptyParts))
+                {
+                    QUuid linkCandidate = QUuid::fromString(part);
+                    if (!linkCandidate.isNull())
+                        myLinks << linkCandidate;
+                }
+            }
         }
         else
         {
@@ -97,10 +117,7 @@ void Note::load()
 void Note::save()
 {
     if (uuid == nullptr)
-    {
-        delete uuid;
         uuid = new QUuid(QUuid::createUuid());
-    }
 
     QFile file(filePath);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -108,9 +125,13 @@ void Note::save()
         return;
     }
 
+    QStringList linkParts;
+    for (const QUuid &link : myLinks)
+        linkParts << link.toString(QUuid::WithoutBraces);
+
     QTextStream out(&file);
     out << "#&$UUID:" << uuid->toString(QUuid::WithoutBraces) << "\n";
-    out << "#&$LINKEDUUIDS:" << "\n";
+    out << "#&$LINKEDUUIDS:" << linkParts.join(',') << "\n";
     out << "#&$NOTE:Please do not touch this or above lines of text, these hold information for proper work of the SpaceTimeHeart application with this file \n";
     out << content;
     file.close();

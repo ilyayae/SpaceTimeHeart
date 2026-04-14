@@ -16,7 +16,9 @@
 #include <include/editors/htmleditor.h>
 #include <include/editors/calendareditor.h>
 #include <include/editors/imageannotationeditor.h>
+#include <include/editors/mindmap.h>
 #include <include/noteTypes/calendardata.h>
+
 
 
 enum CurrentEditor {
@@ -25,6 +27,7 @@ enum CurrentEditor {
     MARKDOWN,
     CALENDAR,
     IMAGEANNOTATION,
+    MINDMAP,
     NUL
 };
 
@@ -55,13 +58,14 @@ private:
 
     //Editors
     CurrentEditor currentEditor;
-    QTextBrowser *textEdit = nullptr;
+    CustomTextBrowser *textEdit = nullptr;
     EmptyEditor *emptyEditor = nullptr;
     TextEditor *textEditor = nullptr;
     MarkdownEditor *markdownEditor = nullptr;
     CalendarEditor *calendarEditor = nullptr;
     ImageAnnotationEditor *imageAnnotationEditor = nullptr;
     HtmlEditor *htmlEditor = nullptr;
+    MindMap *mindMap = nullptr;
 signals:
     void fileUpdated();
     void linkFollowed(const QString &path);

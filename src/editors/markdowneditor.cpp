@@ -1,11 +1,12 @@
 #include "include/editors/markdowneditor.h"
 #include "ui_markdowneditor.h"
 
-MarkdownEditor::MarkdownEditor(QWidget *parent)
+MarkdownEditor::MarkdownEditor(QWidget *parent, UuidRegistry *reg)
     : QMainWindow(parent)
     , ui(new Ui::MarkdownEditor)
 {
     ui->setupUi(this);
+    registry = reg;
 }
 
 MarkdownEditor::~MarkdownEditor()
@@ -13,7 +14,7 @@ MarkdownEditor::~MarkdownEditor()
     delete ui;
 }
 
-QTextBrowser* MarkdownEditor::GetQTextEdit()
+CustomTextBrowser* MarkdownEditor::GetQTextEdit()
 {
     if (!myTextEdit)
     {
@@ -39,7 +40,13 @@ QTextBrowser* MarkdownEditor::GetQTextEdit()
         myTextEdit->setReadOnly(false);
 
         connect(myTextEdit, &CustomTextBrowser::textChanged, this, &MarkdownEditor::hyperlinkTextEdit_textChanged);
+        connect(myTextEdit, &CustomTextBrowser::uuidClicked, this, [this](QUuid uuid){
+            emit uuidClicked(uuid);
+        });
         connect(myTextView, &CustomTextBrowser::mdCheckboxChanged, this, &MarkdownEditor::setEditorText);
+        connect(myTextView, &CustomTextBrowser::uuidClicked, this, [this](QUuid uuid){
+            emit uuidClicked(uuid);
+        });
 
 
         textEditScroll = myTextEdit->verticalScrollBar();
@@ -815,5 +822,73 @@ void MarkdownEditor::setEditorText(QString newSource)
     int maxPos = myTextEdit->document()->characterCount() - 1;
     cursor.setPosition(qMin(savedPos, maxPos));
     myTextEdit->setTextCursor(cursor);
+}
+
+void MarkdownEditor::on_actionInsertLink_triggered()
+{
+
+    QDialog dialog;
+    dialog.setWindowTitle("Insert Note Link");
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+
+    QList<QPair<QUuid, QString>> allEntries = registry->getAllUuids();
+
+    QLineEdit *searchEdit = new QLineEdit(&dialog);
+    searchEdit->setPlaceholderText("Search for a note...");
+
+    QListWidget *resultsList = new QListWidget(&dialog);
+    resultsList->setMaximumHeight(150);
+    resultsList->hide();
+
+    QUuid chosenUuid;
+
+    connect(searchEdit, &QLineEdit::textChanged, &dialog,
+            [&allEntries, resultsList, &chosenUuid](const QString &text) {
+                resultsList->clear();
+                chosenUuid = QUuid();
+                if (text.trimmed().isEmpty()) {
+                    resultsList->hide();
+                    return;
+                }
+                int count = 0;
+                for (const auto &entry : allEntries) {
+                    if (entry.second.contains(text, Qt::CaseInsensitive)) {
+                        QListWidgetItem *item = new QListWidgetItem(entry.second);
+                        item->setData(Qt::UserRole, entry.first.toString(QUuid::WithoutBraces));
+                        resultsList->addItem(item);
+                        if (++count >= 10)
+                            break;
+                    }
+                }
+                resultsList->setVisible(count > 0);
+            });
+
+    connect(resultsList, &QListWidget::itemClicked, &dialog,
+            [searchEdit, resultsList, &chosenUuid](QListWidgetItem *item) {
+                chosenUuid = QUuid::fromString(item->data(Qt::UserRole).toString());
+                searchEdit->blockSignals(true);
+                searchEdit->setText(item->text());
+                searchEdit->blockSignals(false);
+                resultsList->hide();
+            });
+
+    layout->addWidget(new QLabel("Link to note:", &dialog));
+    layout->addWidget(searchEdit);
+    layout->addWidget(resultsList);
+
+    QDialogButtonBox *buttons = new QDialogButtonBox(
+        QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    layout->addWidget(buttons);
+
+    if (dialog.exec() != QDialog::Accepted || chosenUuid.isNull())
+        return;
+
+    // Insert [[uuid]] at the current cursor position
+    QTextCursor cursor = myTextEdit->textCursor();
+    cursor.insertText("[[" + chosenUuid.toString(QUuid::WithoutBraces) + "]]");
+    myTextEdit->setTextCursor(cursor);
+    myTextEdit->setFocus();
 }
 

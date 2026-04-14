@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="">
+   <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
      <number>0</number>
     </property>
@@ -55,6 +55,8 @@
    <addaction name="actionCopy"/>
    <addaction name="actionPaste"/>
    <addaction name="actionFind"/>
+   <addaction name="separator"/>
+   <addaction name="actionInsertLink"/>
    <addaction name="separator"/>
   </widget>
   <action name="actionCut">
@@ -152,6 +154,20 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionInsertLink">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::InsertLink"/>
+   </property>
+   <property name="text">
+    <string>InsertLink</string>
+   </property>
+   <property name="toolTip">
+    <string>InsertLink</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>

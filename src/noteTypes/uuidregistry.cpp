@@ -41,24 +41,32 @@ void UuidRegistry::initDatabase()
     QSqlQuery query(db);
     query.exec(
         "CREATE TABLE IF NOT EXISTS uuid_registry ("
-        "   uuid TEXT PRIMARY KEY,"
-        "   filepath TEXT NOT NULL UNIQUE"
+        "   uuid            TEXT PRIMARY KEY,"
+        "   filepath        TEXT NOT NULL UNIQUE,"
+        "   connected_uuids TEXT NOT NULL DEFAULT ''"
         ")"
         );
 
-    // Index for reverse lookups by filepath
     query.exec("CREATE INDEX IF NOT EXISTS idx_filepath ON uuid_registry(filepath)");
 }
 
-bool UuidRegistry::writeEntry(const QUuid &uuid, const QString &filePath)
+bool UuidRegistry::writeEntry(const QUuid &uuid, const QString &filePath, const QList<QUuid> &links)
 {
+    QStringList parts;
+    for (const QUuid &link : links)
+        parts << link.toString(QUuid::WithoutBraces);
+
     QSqlDatabase db = QSqlDatabase::database(connectionName);
     QSqlQuery query(db);
-    query.prepare("INSERT OR REPLACE INTO uuid_registry (uuid, filepath) VALUES (:uuid, :path)");
-    query.bindValue(":uuid", uuid.toString(QUuid::WithoutBraces));
+    query.prepare(
+        "INSERT OR REPLACE INTO uuid_registry (uuid, filepath, connected_uuids) "
+        "VALUES (:uuid, :path, :links)"
+        );
+    query.bindValue(":uuid",  uuid.toString(QUuid::WithoutBraces));
     QSettings settings("zhopets", "SpaceTimeHeart");
     QDir workDir(settings.value("general/WorkDirectory", "/home").toString());
-    query.bindValue(":path", workDir.relativeFilePath(filePath));
+    query.bindValue(":path",  workDir.relativeFilePath(filePath));
+    query.bindValue(":links", parts.join(','));
 
     if (!query.exec()) {
         qWarning() << "Failed to add entry:" << query.lastError().text();
@@ -131,6 +139,24 @@ QList<QPair<QUuid, QString>> UuidRegistry::getAllUuids() const
         while(query.next())
         {
             result.append(*new QPair<QUuid, QString>(query.value(0).toUuid(), query.value(1).toString()));
+        }
+    }
+    return result;
+}
+
+QList<QUuid> UuidRegistry::getConnectedUuids(const QUuid &uuid) const
+{
+    QSqlDatabase db = QSqlDatabase::database(connectionName);
+    QSqlQuery query(db);
+    query.prepare("SELECT connected_uuids FROM uuid_registry WHERE uuid = :uuid");
+    query.bindValue(":uuid", uuid.toString(QUuid::WithoutBraces));
+
+    QList<QUuid> result;
+    if (query.exec() && query.next()) {
+        const QString raw = query.value(0).toString();
+        if (!raw.isEmpty()) {
+            for (const QString &part : raw.split(',', Qt::SkipEmptyParts))
+                result << QUuid::fromString(part);
         }
     }
     return result;

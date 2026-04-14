@@ -54,4 +54,3 @@ void SearchHighlighter::highlightBlock(const QString &text) {
         index += searchString.length();
     }
 }
-

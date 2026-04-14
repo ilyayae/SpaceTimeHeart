@@ -21,6 +21,7 @@ public:
     QString getClickedHyperlink(const QPoint &pos);
     void highlightText(bool b, QString find);
     void keyPressEvent(QKeyEvent *event) override;
+    QList<QUuid> getUuids();
 private:
     QRegularExpression uuidFindRegex;
     QRegularExpression linkFindRegex;

@@ -268,6 +268,35 @@ QString CalendarData::GetPath()
 {
     return myPath;
 }
+QList<QUuid> CalendarData::GetMyLinks()
+{
+    QList<QUuid> list;
+    QSet<QString> seen;
+
+    auto tryAdd = [&](const DayLink &link) {
+        if (link.targetNoteId.isEmpty())
+            return;
+        QUuid uuid(link.targetNoteId);
+        if (uuid.isNull())
+            return;
+        QString key = uuid.toString(QUuid::WithoutBraces);
+        if (!seen.contains(key)) {
+            seen.insert(key);
+            list.append(uuid);
+        }
+    };
+
+    for (const QVector<DayLink> &Links : recurringEvents)
+        for (const DayLink &link : Links)
+            tryAdd(link);
+
+    for (const QVector<DayLink> &Links : specificEvents)
+        for (const DayLink &link : Links)
+            tryAdd(link);
+
+    return list;
+}
+
 
 QDataStream &operator<<(QDataStream &out, const CalendarData &d)
 {

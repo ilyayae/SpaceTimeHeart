@@ -548,8 +548,6 @@ void ImageAnnotationEditor::RightClickedShape(ShapeGraphicsObject *shape)
         return;
     if(isEditingShapes)
     {
-        if (shape->scene())
-            shape->ungrabMouse();
         if(isChangingShapes)
         {
             ShapeData New = EditShape(shape->MyData());
@@ -565,27 +563,18 @@ void ImageAnnotationEditor::RightClickedShape(ShapeGraphicsObject *shape)
                 }
             }
         }
-        else
-        {
-            for(int i = 0; i < myData->shapes.count(); i++)
-            {
-                if(myData->shapes[i] == *shape->MyData())
-                {
-                    undoStack.push(new DeleteShapeCommand(myData, myData->shapes[i]));
-                    break;
-                }
-            }
-        }
     }
 }
 
 void ImageAnnotationEditor::HoveredShape(ShapeGraphicsObject *shape, bool hovered)
 {
-    if(isChangingShapes)
+    if(isChangingShapes && shapeInProgress == nullptr)
     {
         shape->setHandlesVisible(hovered);
+        hoveredShape = hovered ? shape : nullptr;
     }
 }
+
 
 void ImageAnnotationEditor::ShapeInteracted(bool clicked)
 {
@@ -619,7 +608,28 @@ void ImageAnnotationEditor::SceneClicked(QPoint where)
         }
         else
         {
-            undoStack.push(new AddPointCommand(&shapeInProgress, pair));
+            QPair<double, double> firstPoint = shapeInProgress->XYPoints.first();
+            QPair<double, double> clickPoint = pair;
+            double dx = (firstPoint.first - clickPoint.first) * imageItem->pixmap().width();
+            double dy = (firstPoint.second - clickPoint.second) * imageItem->pixmap().height();
+            double threshold = 5.0;
+            if (dx * dx + dy * dy <= threshold * threshold)
+            {
+                LineStyle ls;
+                ls.width = currentWidth;
+                ls.lineColor = currentLineColor.name(QColor::HexArgb);
+                ls.linePatternId = penStyleToString(currentPenStyle);
+
+                FillStyle fs;
+                fs.fillColor = currentFillColor.name(QColor::HexArgb);
+                fs.fillPatternId = brushStyleToString(currentBrushStyle);
+
+                undoStack.push(new FinalizeShapeCommand(&shapeInProgress, true, ls, fs, currentRounding, myData, pair));
+            }
+            else
+            {
+                undoStack.push(new AddPointCommand(&shapeInProgress, pair));
+            }
         }
     }
 }
@@ -646,7 +656,7 @@ void ImageAnnotationEditor::SceneRClicked(QPoint where)
                 QPair<double, double> clickPoint = pair;
                 double dx = (firstPoint.first - clickPoint.first) * imageItem->pixmap().width();
                 double dy = (firstPoint.second - clickPoint.second) * imageItem->pixmap().height();
-                double threshold = 15.0;
+                double threshold = 5.0;
                 if (dx * dx + dy * dy <= threshold * threshold)
                 {
                     Closed = true;
@@ -788,5 +798,15 @@ void ImageAnnotationEditor::on_actionRedo_triggered()
 {
     undoStack.redo();
     graphicsView->scene()->update();
+}
+
+
+void ImageAnnotationEditor::on_actionDeleteShape_triggered()
+{
+    if (isChangingShapes && hoveredShape != nullptr)
+    {
+        undoStack.push(new DeleteShapeCommand(myData, *hoveredShape->MyData()));
+        hoveredShape = nullptr;
+    }
 }
 

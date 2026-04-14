@@ -12,11 +12,15 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    src/editors/mindmap.cpp \
     src/imageAnnotationObjects/pointhandle.cpp \
     src/imageAnnotationObjects/shapegraphicsobject.cpp \
     src/imageAnnotationObjects/shapeinprogress.cpp \
     src/imageAnnotationObjects/vectorpaintercommands.cpp \
     src/imageAnnotationObjects/markeritem.cpp \
+    src/mindMapObjects/mindmapedge.cpp \
+    src/mindMapObjects/mindmapnode.cpp \
+    src/mindMapObjects/mindmapview.cpp \
     src/noteTypes/imageannotationdata.cpp \
     src/editors/calendareditor.cpp \
     src/editors/imageannotationeditor.cpp \
@@ -74,9 +78,14 @@ HEADERS += \
     include/imageAnnotationObjects/pointhandle.h \
     include/imageAnnotationObjects/shapegraphicsobject.h \
     include/imageAnnotationObjects/vectorpaintercommands.h \
-    include/imageAnnotationObjects/shapeinprogress.h
+    include/imageAnnotationObjects/shapeinprogress.h \
+    include/editors/mindmap.h \
+    include/mindMapObjects/mindmapedge.h \
+    include/mindMapObjects/mindmapnode.h \
+    include/mindMapObjects/mindmapview.h
 
 FORMS += \
+    ui/editors/mindmap.ui \
     ui/calendarObjects/moonvisualiser.ui \
     ui/calendarObjects/dayslot.ui \
     ui/editors/calendareditor.ui \

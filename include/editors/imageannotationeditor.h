@@ -70,6 +70,7 @@ public:
     int currentRounding = 0;
     int currentWidth = 1;
     ShapeInProgress *shapeInProgress = nullptr;
+    ShapeGraphicsObject *hoveredShape = nullptr;
 
 private slots:
     void on_actionShapesEditMode_toggled(bool arg1);
@@ -90,6 +91,8 @@ private slots:
     void on_actionUndo_triggered();
 
     void on_actionRedo_triggered();
+
+    void on_actionDeleteShape_triggered();
 
 signals:
     void Updated();

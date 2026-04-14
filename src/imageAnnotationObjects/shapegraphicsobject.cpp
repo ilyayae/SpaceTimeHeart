@@ -236,13 +236,10 @@ QPainterPath ShapeGraphicsObject::shape() const
 
 void ShapeGraphicsObject::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if(editing)
-    {
         if(event->button() == Qt::RightButton)
         {
             emit rightClicked(this);
         }
-    }
     QGraphicsObject::mousePressEvent(event);
 }
 

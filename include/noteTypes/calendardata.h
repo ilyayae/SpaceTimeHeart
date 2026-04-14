@@ -6,6 +6,7 @@
 #include <QMap>
 #include <cstdint>
 #include <QUuid>
+#include <QSet>
 constexpr uint32_t CCAL_MAGIC   = 0x4343414C; // "CCAL" in ASCII
 constexpr uint16_t CCAL_VERSION = 3;
 inline const QString CCAL_EXTENSION = QStringLiteral(".ccal");
@@ -76,6 +77,7 @@ struct CalendarData {
     bool load(const QString &path, CalendarData &data);
     QUuid GetUuid();
     QString GetPath();
+    QList<QUuid> GetMyLinks();
 };
 QDataStream &operator<<(QDataStream &out, const CalendarData &d);
 QDataStream &operator>>(QDataStream &in,  CalendarData &d);

@@ -7,9 +7,13 @@
 #include <QSlider>
 #include <QScrollBar>
 #include <QTimer>
+#include <QListWidget>
+#include <QDialog>
+#include <QDialogButtonBox>
 
 #include "include/subclasses/customtextbrowser.h"
 #include "include/subclasses/findreplacewidget.h"
+#include "include/noteTypes/uuidregistry.h"
 
 namespace Ui {
 class MarkdownEditor;
@@ -20,14 +24,15 @@ class MarkdownEditor : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MarkdownEditor(QWidget *parent = nullptr);
+    explicit MarkdownEditor(QWidget *parent = nullptr, UuidRegistry *reg = nullptr);
     ~MarkdownEditor();
-    QTextBrowser* GetQTextEdit();
+    CustomTextBrowser* GetQTextEdit();
     QList<int> findText();
     void selectText();
     void highlightText(bool b);
     int startZoom = 0;
     int currZoom = 0;
+    UuidRegistry *registry;
 
 private slots:
     void updateZoom(int zoom);
@@ -74,6 +79,8 @@ private slots:
 
     void setEditorText(QString content);
 
+    void on_actionInsertLink_triggered();
+
 private:
     Ui::MarkdownEditor *ui;
     CustomTextBrowser *myTextEdit = nullptr;
@@ -88,6 +95,7 @@ signals:
     void saveAsButton();
     void Updated();
     void zoomChanged(int zoom);
+    void uuidClicked(QUuid uuid);
 };
 
 #endif // MARKDOWNEDITOR_H

@@ -15,13 +15,15 @@ public:
     explicit UuidRegistry(const QString &dbPath, QObject *parent = nullptr);
     ~UuidRegistry();
 
-    bool writeEntry(const QUuid &uuid, const QString &filePath);
+    bool writeEntry(const QUuid &uuid, const QString &filePath, const QList<QUuid> &links = {});
     bool removeEntry(const QUuid &uuid);
     QString getPath(const QUuid &uuid) const;
     QUuid getUuid(const QString &filePath) const;
     bool contains(const QUuid &uuid) const;
     QList<QPair<QUuid, QString>> getAllUuids() const;
+    QList<QUuid> getConnectedUuids(const QUuid &uuid) const;
     void validateEntries();
+    void debugPrintAll() const;
 
 private:
     void initDatabase();

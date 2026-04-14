@@ -240,3 +240,19 @@ void CustomTextBrowser::keyPressEvent(QKeyEvent *event)
     }
     return;
 }
+
+QList<QUuid> CustomTextBrowser::getUuids()
+{
+    QList<QUuid> result;
+    QRegularExpressionMatchIterator it = uuidFindRegex.globalMatch(toPlainText());
+    while (it.hasNext())
+    {
+        QRegularExpressionMatch match = it.next();
+        QUuid uuid = QUuid::fromString(match.captured(1));
+        if (!uuid.isNull())
+        {
+            result.append(uuid);
+        }
+    }
+    return result;
+}
