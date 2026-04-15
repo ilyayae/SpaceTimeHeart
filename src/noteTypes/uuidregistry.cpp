@@ -19,7 +19,27 @@ UuidRegistry::UuidRegistry(const QString &dbPath, QObject *parent)
         }
 
         initDatabase();
+        //debugPrintAll();
     }
+}
+void UuidRegistry::debugPrintAll() const
+{
+    QSqlDatabase db = QSqlDatabase::database(connectionName);
+    QSqlQuery query(db);
+    query.prepare("SELECT uuid, filepath, connected_uuids FROM uuid_registry");
+
+    if (!query.exec()) {
+        qWarning() << "debugPrintAll failed:" << query.lastError().text();
+        return;
+    }
+
+    qDebug() << "=== UuidRegistry Contents ===";
+    while (query.next()) {
+        qDebug() << query.value(0).toString()
+        << "-" << query.value(1).toString()
+        << "-" << (query.value(2).toString().isEmpty() ? "(none)" : query.value(2).toString());
+    }
+    qDebug() << "==============================";
 }
 
 UuidRegistry::~UuidRegistry()

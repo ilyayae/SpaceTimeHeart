@@ -233,6 +233,7 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
         mindMap = new MindMap();
         mindMap->myRegistry = registry;
         mindMap->setUp();
+        connect(mindMap, &MindMap::uuidClicked, this, &DocumentHandler::parseUuid);
         EditorPlace->addWidget(mindMap);
     default:
         break;

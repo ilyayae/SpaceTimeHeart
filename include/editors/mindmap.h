@@ -21,6 +21,9 @@ public:
     void extracted();
     void setUp();
 
+signals:
+    void uuidClicked(QUuid uuid);
+
 private:
     Ui::MindMap *ui;
     MindMapView *myView;

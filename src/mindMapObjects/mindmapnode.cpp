@@ -6,34 +6,81 @@ MindMapNode::MindMapNode(QGraphicsItem *parent, QUuid myUuid, QString myName, QL
     MyUuid = myUuid;
     MyName = myName;
     MyConnections = myConnections;
+    size_t hash = qHash(MyUuid.toString());
+    int hue = hash % 360;
+    color = QColor::fromHsvF(hue / 360.0, 0.6, 0.8);
+    setZValue(1);
+    setAcceptHoverEvents(true);
 }
 
 QRectF MindMapNode::boundingRect() const
 {
-    qreal w = BASE_WIDTH  * m_nodeScale;
-    qreal h = BASE_HEIGHT * m_nodeScale;
-    return QRectF(-w / 2, -h / 2, w, h);
+    qreal pad = 10;
+    return QRectF(-BASE_SIZE / 2 - pad, -BASE_SIZE / 2 - pad,
+                  BASE_SIZE + pad * 2,  BASE_SIZE + pad * 2);
 }
 
 void MindMapNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     painter->setRenderHint(QPainter::Antialiasing);
 
-    QRectF rect = boundingRect();
+    QRectF rect(-BASE_SIZE / 2, -BASE_SIZE / 2, BASE_SIZE, BASE_SIZE);
 
-    // Drop shadow
-    painter->setPen(Qt::NoPen);
-    painter->setBrush(QColor(0, 0, 0, 60));
-    painter->drawRoundedRect(rect.translated(3, 3), 10, 10);
+    if (amHovered)
+        rect = rect.adjusted(-5, -5, 5, 5);
 
-    // Node body
-    painter->setBrush(m_color);
-    painter->setPen(QPen(m_color.darker(130), 2));
-    painter->drawRoundedRect(rect, 10, 10);
+    painter->setBrush(amHovered ? color.lighter(110) : color);
+    painter->setPen(QPen(color.darker(130), 2));
+    painter->drawEllipse(amHovered ? rect.adjusted(-5, -5, 5, 5) : rect);
 
-    // Label
-    QColor textColor = m_color.lightness() > 160 ? Qt::black : Qt::white;
+    QColor textColor = color.lightness() > 160 ? Qt::black : Qt::white;
     painter->setPen(textColor);
-    painter->setFont(QFont("Segoe UI", 9, QFont::Medium));
-    painter->drawText(rect, Qt::AlignCenter | Qt::TextWordWrap, m_name);
+    painter->setFont(QFont("Segoe UI", 12, QFont::Medium));
+    painter->drawText(rect, Qt::AlignCenter | Qt::TextWordWrap, MyName);
+}
+
+void MindMapNode::Connect(QMap<QUuid, MindMapNode*> *nodesMap)
+{
+    for(QUuid connectTo : MyConnections)
+    {
+        MindMapNode *to = nodesMap->value(connectTo);
+        if(to != nullptr)
+        {
+            MindMapEdge *edge = new MindMapEdge(this, to);
+            MyEdges.append(edge);
+            scene()->addItem(edge);
+        }
+    }
+}
+
+void MindMapNode::setHighlightEdges(bool highlighted)
+{
+    for(MindMapEdge *ed : MyEdges)
+    {
+        ed->highlighted = highlighted;
+        ed->update();
+    }
+    amHovered = highlighted;
+    update();
+}
+
+void MindMapNode::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    setHighlightEdges(true);
+    QGraphicsObject::hoverEnterEvent(event);
+}
+
+void MindMapNode::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    setHighlightEdges(false);
+    QGraphicsObject::hoverLeaveEvent(event);
+}
+
+void MindMapNode::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        emit Clicked(MyUuid);
+    }
+    event->accept();
 }
