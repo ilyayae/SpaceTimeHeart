@@ -11,7 +11,7 @@ class ShapeGraphicsObject : public QGraphicsObject
 {
     Q_OBJECT
 public:
-    ShapeGraphicsObject(ImageAnnotationData *data, int shapeIndex, QGraphicsPixmapItem *image, QUndoStack *stack);
+    ShapeGraphicsObject(ImageAnnotationData *data, int shapeIndex, QGraphicsItem *image, QUndoStack *stack);
     ImageAnnotationData *Data;
     int ShapeIndex;
     ~ShapeGraphicsObject();
@@ -30,7 +30,7 @@ public:
     QPainterPath shape() const override;
     bool sceneEventFilter(QGraphicsItem *watched, QEvent *event) override;
     QList<PointHandle*> handles;
-    QGraphicsPixmapItem *Image;
+    QGraphicsItem *Image;
     QUndoStack *Stack;
 private slots:
 

@@ -71,7 +71,27 @@ void CalendarEditor::UpdateCalendar(int year, int month)
         qobject_cast<QGridLayout*>(ui->DayHolder->layout())->addWidget(day, row, col);
         connect(day, &DaySlot::clicked, this, &CalendarEditor::SelectDay);
     }
-    ui->Scroll->hide();
+
+    QLayout *layout = ui->DayLinksHolder->layout();
+    while (layout->count() > 1) {
+        QLayoutItem *item = layout->takeAt(layout->count() - 1);
+        if (item->widget())
+            item->widget()->deleteLater();
+        delete item;
+    }
+    for(int i = 0; i < myData->config.months[currentMonth].dayCount; i++)
+    {
+        QVector<DayLink> links = myData->linksForDay(currentYear, currentMonth, i);
+        for (int i = 0; i < links.count(); i++)
+        {
+            DayLink link = links[i];
+            QFileInfo info(myRegistry->getPath(QUuid::fromString(link.targetNoteId)));
+            LinkInDay *linkInDay = new LinkInDay(ui->DayLinksHolder, link, info.baseName());
+            layout->addWidget(linkInDay);
+            connect(linkInDay, &LinkInDay::GoToNote, this, &CalendarEditor::emitUuid);
+            connect(linkInDay, &LinkInDay::DestroyLink, this, &CalendarEditor::DestroyLink);
+        }
+    }
 }
 
 void CalendarEditor::on_Date_clicked()

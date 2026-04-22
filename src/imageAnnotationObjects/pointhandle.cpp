@@ -4,8 +4,8 @@
 PointHandle::PointHandle(ShapeGraphicsObject *parent, int id)
     : Parent(parent), Id(id)
 {
-    double x = Parent->MyData()->XYPoints[Id].first * Parent->Image->pixmap().width();
-    double y = Parent->MyData()->XYPoints[Id].second * Parent->Image->pixmap().height();
+    double x = Parent->MyData()->XYPoints[Id].first * Parent->Image->boundingRect().width();
+    double y = Parent->MyData()->XYPoints[Id].second * Parent->Image->boundingRect().height();
     setPos(x, y);
     setRect(-SIZE / 2.0, -SIZE / 2.0, SIZE, SIZE);
     setFlag(ItemIsMovable);
@@ -18,8 +18,8 @@ QVariant PointHandle::itemChange(GraphicsItemChange change, const QVariant &valu
 {
     if (change == ItemPositionChange) {
         QPointF newPos = value.toPointF();
-        double imgW = Parent->Image->pixmap().width();
-        double imgH = Parent->Image->pixmap().height();
+        double imgW = Parent->Image->boundingRect().width();
+        double imgH = Parent->Image->boundingRect().height();
         double cx = rect().center().x();
         double cy = rect().center().y();
         double minX = -cx;
@@ -38,8 +38,8 @@ QPair<double, double> PointHandle::GetPosition()
 {
     QPointF point = mapToScene(rect().center());
     return QPair<double, double>(
-        (point.x()) / Parent->Image->pixmap().width(),
-        (point.y()) / Parent->Image->pixmap().height()
+        (point.x()) / Parent->Image->boundingRect().width(),
+        (point.y()) / Parent->Image->boundingRect().height()
         );
 }
 

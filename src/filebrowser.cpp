@@ -107,7 +107,7 @@ void filebrowser::on_actionNewCallendar_triggered()
 void filebrowser::on_actionNewImageAnnotation_triggered()
 {
     QSettings settings("zhopets", "SpaceTimeHeart");
-    QString filePath = QFileDialog::getOpenFileName(this, "Please select an image", "/home", "Images (*.png *.jpg *.webp)" );
+    QString filePath = QFileDialog::getOpenFileName(this, "Please select an image", "/home", "Images (*.png *.jpg *.webp *.svg)" );
     if(filePath.isEmpty())
         return;
     QFile file(filePath);

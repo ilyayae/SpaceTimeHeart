@@ -12,9 +12,9 @@ class ShapeInProgress : public QGraphicsObject
     Q_OBJECT
 public:
     ShapeInProgress(QPoint point, QColor *currentLineColor, QColor *currentFillColor, Qt::PenStyle *currentPenStyle,
-                    Qt::BrushStyle *currentBrushStyle, int *currentRounding, int *currentWidth, QGraphicsPixmapItem *image);
+                    Qt::BrushStyle *currentBrushStyle, int *currentRounding, int *currentWidth, QGraphicsItem *image);
     ShapeInProgress(QPair<double, double> pair, QColor *currentLineColor, QColor *currentFillColor, Qt::PenStyle *currentPenStyle,
-                    Qt::BrushStyle *currentBrushStyle, int *currentRounding, int *currentWidth, QGraphicsPixmapItem *image);
+                    Qt::BrushStyle *currentBrushStyle, int *currentRounding, int *currentWidth, QGraphicsItem *image);
     QColor *CurrentLineColor;
     QColor *CurrentFillColor;
     Qt::PenStyle *CurrentPenStyle;
@@ -22,7 +22,7 @@ public:
     int *CurrentRounding;
     int *CurrentWidth;
     QList<QPair<double, double>> XYPoints;
-    QGraphicsPixmapItem *Image;
+    QGraphicsItem *Image;
     QPointF mousePos;
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;

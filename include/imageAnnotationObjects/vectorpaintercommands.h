@@ -15,7 +15,7 @@ class StartPainting : public QUndoCommand
 {
 public:
     StartPainting(ShapeInProgress **shape, QPair<double, double> startPoint, QColor *currentLineColor, QColor *currentFillColor, Qt::PenStyle *currentPenStyle,
-                  Qt::BrushStyle *currentBrushStyle, int *currentRounding, int *currentWidth, QGraphicsPixmapItem *image, QGraphicsScene *scene);
+                  Qt::BrushStyle *currentBrushStyle, int *currentRounding, int *currentWidth, QGraphicsItem *image, QGraphicsScene *scene);
     void redo() override;
     void undo() override;
 private:
@@ -27,7 +27,7 @@ private:
     Qt::BrushStyle *storedBrushStyle;
     int *storedRounding;
     int *storedWidth;
-    QGraphicsPixmapItem *storedImage;
+    QGraphicsItem *storedImage;
     QGraphicsScene *Scene;
 };
 
@@ -61,7 +61,7 @@ private:
     Qt::BrushStyle *storedBrushStyle;
     int *storedRounding;
     int *storedWidth;
-    QGraphicsPixmapItem *storedImage;
+    QGraphicsItem *storedImage;
     QGraphicsScene *Scene;
 };
 

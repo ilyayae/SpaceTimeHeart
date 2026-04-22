@@ -127,10 +127,20 @@ QString brushStyleToString(Qt::BrushStyle style)
 void ImageAnnotationEditor::Initialize(ImageAnnotationData *data)
 {
     myData = data;
-    QPixmap *pixMap = new QPixmap();
-    pixMap->loadFromData(myData->imageData);
-    imageItem = new QGraphicsPixmapItem();
-    imageItem->setPixmap(*pixMap);
+    if(myData->imageFormat == "svg")
+    {
+        QSvgRenderer *renderer = new QSvgRenderer(myData->imageData);
+        QGraphicsSvgItem *svg = new QGraphicsSvgItem();
+        svg->setSharedRenderer(renderer);
+        imageItem = svg;
+    }
+    else
+    {
+        QPixmap *pixMap = new QPixmap();
+        pixMap->loadFromData(myData->imageData);
+        imageItem = new QGraphicsPixmapItem();
+        qgraphicsitem_cast<QGraphicsPixmapItem*>(imageItem)->setPixmap(*pixMap);
+    }
     imageItem->setZValue(0);
     imageItem->setEnabled(false);
     graphicsView = new CustomGraphicsView(ui->centralwidget);
@@ -156,7 +166,7 @@ void ImageAnnotationEditor::UpdateMarkers()
     {
         MarkerData *dat = &myData->markers[i];
         MarkerItem *mark = new MarkerItem(dat);
-        mark->setPos(dat->X * imageItem->pixmap().width(), dat->Y * imageItem->pixmap().height());
+        mark->setPos(dat->X * imageItem->boundingRect().width(), dat->Y * imageItem->boundingRect().height());
         mark->setZValue(1);
         graphicsView->scene()->addItem(mark);
         myMarkers->append(mark);
@@ -593,8 +603,8 @@ void ImageAnnotationEditor::SceneClicked(QPoint where)
         // On click push a redo command that creates the graphics object if we are not painting already
         // If we are painting, push a redo command to add a point to the object.
         QPair<double, double> pair(
-            static_cast<double>(where.x()) / static_cast<double>(imageItem->pixmap().width()),
-            static_cast<double>(where.y()) / static_cast<double>(imageItem->pixmap().height())
+            static_cast<double>(where.x()) / static_cast<double>(imageItem->boundingRect().width()),
+            static_cast<double>(where.y()) / static_cast<double>(imageItem->boundingRect().height())
             );
         if(shapeInProgress == nullptr)
         {
@@ -610,8 +620,8 @@ void ImageAnnotationEditor::SceneClicked(QPoint where)
         {
             QPair<double, double> firstPoint = shapeInProgress->XYPoints.first();
             QPair<double, double> clickPoint = pair;
-            double dx = (firstPoint.first - clickPoint.first) * imageItem->pixmap().width();
-            double dy = (firstPoint.second - clickPoint.second) * imageItem->pixmap().height();
+            double dx = (firstPoint.first - clickPoint.first) * imageItem->boundingRect().width();
+            double dy = (firstPoint.second - clickPoint.second) * imageItem->boundingRect().height();
             double threshold = 5.0;
             if (dx * dx + dy * dy <= threshold * threshold)
             {
@@ -645,8 +655,8 @@ void ImageAnnotationEditor::SceneRClicked(QPoint where)
         else
         {
             QPair<double, double> pair(
-                static_cast<double>(where.x()) / static_cast<double>(imageItem->pixmap().width()),
-                static_cast<double>(where.y()) / static_cast<double>(imageItem->pixmap().height())
+                static_cast<double>(where.x()) / static_cast<double>(imageItem->boundingRect().width()),
+                static_cast<double>(where.y()) / static_cast<double>(imageItem->boundingRect().height())
                 );
 
             bool Closed = false;
@@ -654,8 +664,8 @@ void ImageAnnotationEditor::SceneRClicked(QPoint where)
             {
                 QPair<double, double> firstPoint = shapeInProgress->XYPoints.first();
                 QPair<double, double> clickPoint = pair;
-                double dx = (firstPoint.first - clickPoint.first) * imageItem->pixmap().width();
-                double dy = (firstPoint.second - clickPoint.second) * imageItem->pixmap().height();
+                double dx = (firstPoint.first - clickPoint.first) * imageItem->boundingRect().width();
+                double dy = (firstPoint.second - clickPoint.second) * imageItem->boundingRect().height();
                 double threshold = 5.0;
                 if (dx * dx + dy * dy <= threshold * threshold)
                 {
@@ -686,7 +696,7 @@ void ImageAnnotationEditor::dragMarkers(QPointF delta)
 {
     for(int i = 0; i < selectedMarkers->count(); i++)
     {
-        (*selectedMarkers)[i]->setPos(QPointF((*selectedMarkers)[i]->myData->X * imageItem->pixmap().width(), (*selectedMarkers)[i]->myData->Y * imageItem->pixmap().height()) + delta);
+        (*selectedMarkers)[i]->setPos(QPointF((*selectedMarkers)[i]->myData->X * imageItem->boundingRect().width(), (*selectedMarkers)[i]->myData->Y * imageItem->boundingRect().height()) + delta);
     }
     graphicsView->viewport()->update();
 }
@@ -696,9 +706,9 @@ void ImageAnnotationEditor::finishDragging(QPointF delta)
     graphicsView->panningLocked = false;
     for(int i = 0; i < selectedMarkers->count(); i++)
     {
-        (*selectedMarkers)[i]->setPos(QPointF((*selectedMarkers)[i]->myData->X * imageItem->pixmap().width(), (*selectedMarkers)[i]->myData->Y * imageItem->pixmap().height()) + delta);
-        (*selectedMarkers)[i]->myData->X = (*selectedMarkers)[i]->pos().x() / imageItem->pixmap().width();
-        (*selectedMarkers)[i]->myData->Y = (*selectedMarkers)[i]->pos().y() / imageItem->pixmap().height();
+        (*selectedMarkers)[i]->setPos(QPointF((*selectedMarkers)[i]->myData->X * imageItem->boundingRect().width(), (*selectedMarkers)[i]->myData->Y * imageItem->boundingRect().height()) + delta);
+        (*selectedMarkers)[i]->myData->X = (*selectedMarkers)[i]->pos().x() / imageItem->boundingRect().width();
+        (*selectedMarkers)[i]->myData->Y = (*selectedMarkers)[i]->pos().y() / imageItem->boundingRect().height();
     }
     graphicsView->viewport()->update();
 }
@@ -754,7 +764,7 @@ void ImageAnnotationEditor::on_actionAddMarker_triggered()
         {
             scenePos = graphicsView->mapToScene(graphicsView->viewport()->rect().center());
         }
-        MarkerData marker = CreateMarker(scenePos.x() / imageItem->pixmap().width(), scenePos.y() / imageItem->pixmap().height());
+        MarkerData marker = CreateMarker(scenePos.x() / imageItem->boundingRect().width(), scenePos.y() / imageItem->boundingRect().height());
         if(marker.IconId.isEmpty())
             return;
         myData->markers.append(marker);

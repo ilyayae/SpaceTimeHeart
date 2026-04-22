@@ -2,7 +2,7 @@
 
 VectorPainterCommands::VectorPainterCommands() {}
 StartPainting::StartPainting(ShapeInProgress **shape, QPair<double, double> startPoint, QColor *currentLineColor, QColor *currentFillColor, Qt::PenStyle *currentPenStyle,
-                             Qt::BrushStyle *currentBrushStyle, int *currentRounding, int *currentWidth, QGraphicsPixmapItem *image, QGraphicsScene *scene)
+                             Qt::BrushStyle *currentBrushStyle, int *currentRounding, int *currentWidth, QGraphicsItem *image, QGraphicsScene *scene)
     : Shape(shape), StartPoint(startPoint), storedLineColor(currentLineColor), storedFillColor(currentFillColor), storedPenStyle(currentPenStyle),
     storedBrushStyle(currentBrushStyle), storedRounding(currentRounding), storedWidth(currentWidth), storedImage(image), Scene(scene)
 {

@@ -39,7 +39,7 @@ CustomTextBrowser* TextEditor::getQTextEdit()
 
         myTextEdit = new CustomTextBrowser(ui->centralwidget);
         myTextEdit->setReadOnly(false);
-
+        myTextEdit->registry = registry;
         myFRWidget = new FindReplaceWidget(this, myTextEdit);
         ui->centralwidget->layout()->addWidget(myFRWidget);
         ui->centralwidget->layout()->addWidget(myTextEdit);

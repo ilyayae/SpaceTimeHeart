@@ -26,7 +26,7 @@ void SearchHighlighter::highlightBlock(const QString &text) {
         if (!uuid.isNull())
         {
             QTextCharFormat format;
-            format.setForeground(QColor("blue"));
+            format.setForeground(Qt::transparent); //Qt::transparent
             format.setFontUnderline(true);
             setFormat(match.capturedStart(), match.capturedLength(), format);
         }

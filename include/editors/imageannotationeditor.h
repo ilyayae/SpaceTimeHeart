@@ -17,6 +17,7 @@
 #include <QUndoStack>
 #include <QToolButton>
 #include <QCheckBox>
+#include <QGraphicsSvgItem>
 
 #include <include/noteTypes/imageannotationdata.h>
 #include <include/noteTypes/uuidregistry.h>
@@ -41,7 +42,7 @@ public:
     ImageAnnotationData *myData;
     UuidRegistry *myRegistry;
     CustomGraphicsView *graphicsView = nullptr;
-    QGraphicsPixmapItem *imageItem = nullptr;
+    QGraphicsItem *imageItem = nullptr;
 
     // Bool switches
     bool isEditingMarkers = false;

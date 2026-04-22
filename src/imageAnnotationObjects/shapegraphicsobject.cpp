@@ -1,7 +1,7 @@
 #include "include/imageAnnotationObjects/shapegraphicsobject.h"
 #include "include/imageAnnotationObjects/vectorpaintercommands.h"
 
-ShapeGraphicsObject::ShapeGraphicsObject(ImageAnnotationData *data, int shapeIndex, QGraphicsPixmapItem *image, QUndoStack *stack)
+ShapeGraphicsObject::ShapeGraphicsObject(ImageAnnotationData *data, int shapeIndex, QGraphicsItem *image, QUndoStack *stack)
     : Data(data), ShapeIndex(shapeIndex), Image(image), Stack(stack)
 {
     for(int i = 0; i < MyData()->XYPoints.count(); i++)
@@ -58,8 +58,8 @@ void ShapeGraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsIte
         return;
 
     QPainterPath path;
-    double x0 = MyData()->XYPoints[0].first * Image->pixmap().width();
-    double y0 = MyData()->XYPoints[0].second * Image->pixmap().height();
+    double x0 = MyData()->XYPoints[0].first * Image->boundingRect().width();
+    double y0 = MyData()->XYPoints[0].second * Image->boundingRect().height();
 
     if (MyData()->rounding > 0 && handles.count() >= 3)
     {
@@ -67,16 +67,16 @@ void ShapeGraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsIte
 
         for (int i = 0; i < handles.count(); i++)
         {
-            double X = MyData()->XYPoints[i].first * Image->pixmap().width(); // X Position on the image for this point.
-            double Y = MyData()->XYPoints[i].second * Image->pixmap().height(); // Y Position on the image for this point.
+            double X = MyData()->XYPoints[i].first * Image->boundingRect().width(); // X Position on the image for this point.
+            double Y = MyData()->XYPoints[i].second * Image->boundingRect().height(); // Y Position on the image for this point.
 
             int prevIdx = (i == 0) ? handles.count() - 1 : i - 1;
             int nextIdx = (i + 1) % handles.count();
 
-            double px = MyData()->XYPoints[prevIdx].first * Image->pixmap().width();
-            double py = MyData()->XYPoints[prevIdx].second * Image->pixmap().height();
-            double nx = MyData()->XYPoints[nextIdx].first * Image->pixmap().width();
-            double ny = MyData()->XYPoints[nextIdx].second * Image->pixmap().height();
+            double px = MyData()->XYPoints[prevIdx].first * Image->boundingRect().width();
+            double py = MyData()->XYPoints[prevIdx].second * Image->boundingRect().height();
+            double nx = MyData()->XYPoints[nextIdx].first * Image->boundingRect().width();
+            double ny = MyData()->XYPoints[nextIdx].second * Image->boundingRect().height();
 
             double startX = X + (px - X) * rounding;
             double startY = Y + (py - Y) * rounding;
@@ -104,10 +104,10 @@ void ShapeGraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsIte
 
         if (MyData()->Closed)
         {
-            double cx = MyData()->XYPoints[0].first * Image->pixmap().width();
-            double cy = MyData()->XYPoints[0].second * Image->pixmap().height();
-            double startX = cx + (MyData()->XYPoints[handles.count() - 1].first * Image->pixmap().width() - cx) * rounding;
-            double startY = cy + (MyData()->XYPoints[handles.count() - 1].second * Image->pixmap().height() - cy) * rounding;
+            double cx = MyData()->XYPoints[0].first * Image->boundingRect().width();
+            double cy = MyData()->XYPoints[0].second * Image->boundingRect().height();
+            double startX = cx + (MyData()->XYPoints[handles.count() - 1].first * Image->boundingRect().width() - cx) * rounding;
+            double startY = cy + (MyData()->XYPoints[handles.count() - 1].second * Image->boundingRect().height() - cy) * rounding;
             path.lineTo(startX, startY);
             path.closeSubpath();
         }
@@ -117,8 +117,8 @@ void ShapeGraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsIte
         path.moveTo(x0, y0);
         for (int i = 1; i < handles.count(); i++)
         {
-            double x = MyData()->XYPoints[i].first * Image->pixmap().width();
-            double y = MyData()->XYPoints[i].second * Image->pixmap().height();
+            double x = MyData()->XYPoints[i].first * Image->boundingRect().width();
+            double y = MyData()->XYPoints[i].second * Image->boundingRect().height();
             path.lineTo(x, y);
         }
 
@@ -157,8 +157,8 @@ void ShapeGraphicsObject::syncFromData()
 
     for (int i = 0; i < handles.count(); i++)
     {
-        double x = MyData()->XYPoints[i].first * Image->pixmap().width();
-        double y = MyData()->XYPoints[i].second * Image->pixmap().height();
+        double x = MyData()->XYPoints[i].first * Image->boundingRect().width();
+        double y = MyData()->XYPoints[i].second * Image->boundingRect().height();
         handles[i]->setPos(x, y);
         handles[i]->setRect(-handles[i]->SIZE / 2.0, -handles[i]->SIZE / 2.0, handles[i]->SIZE, handles[i]->SIZE);
     }
@@ -200,7 +200,7 @@ void ShapeGraphicsObject::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
 QRectF ShapeGraphicsObject::boundingRect() const
 {
-    return QRectF(0, 0, Image->pixmap().width(), Image->pixmap().height());
+    return QRectF(0, 0, Image->boundingRect().width(), Image->boundingRect().height());
 }
 
 QPainterPath ShapeGraphicsObject::shape() const
@@ -210,14 +210,14 @@ QPainterPath ShapeGraphicsObject::shape() const
     if (handles.count() < 2)
         return path;
 
-    double x0 = MyData()->XYPoints[0].first * Image->pixmap().width();
-    double y0 = MyData()->XYPoints[0].second * Image->pixmap().height();
+    double x0 = MyData()->XYPoints[0].first * Image->boundingRect().width();
+    double y0 = MyData()->XYPoints[0].second * Image->boundingRect().height();
 
     path.moveTo(x0, y0);
     for (int i = 1; i < handles.count(); i++)
     {
-        double x = MyData()->XYPoints[i].first * Image->pixmap().width();
-        double y = MyData()->XYPoints[i].second * Image->pixmap().height();
+        double x = MyData()->XYPoints[i].first * Image->boundingRect().width();
+        double y = MyData()->XYPoints[i].second * Image->boundingRect().height();
         path.lineTo(x, y);
     }
 

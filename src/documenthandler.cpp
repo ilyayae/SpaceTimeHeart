@@ -90,7 +90,7 @@ void DocumentHandler::saveFile() {
     {
         if(currentEditor == TEXT || currentEditor == MARKDOWN)
         {
-            if(currentNote != nullptr)
+            if(currentNote != nullptr && textEdit != nullptr)
             {
                 currentNote->setContent(textEdit->toPlainText());
                 currentNote->setLinkedUuids(textEdit->getUuids());
@@ -126,17 +126,17 @@ void DocumentHandler::saveAsFile() {
     {
         currentNote->setContent(textEdit->toPlainText());
         currentNote->saveAs(filePath);
-        registry->writeEntry(currentNote->getUuid(), currentNote->getPath());
+        registry->writeEntry(currentNote->getUuid(), currentNote->getPath(), currentNote->GetMyLinks());
     }
     else if (currentEditor == CALENDAR)
     {
         currentCalendar->save(filePath, *currentCalendar);
-        registry->writeEntry(currentCalendar->GetUuid(), currentCalendar->GetPath());
+        registry->writeEntry(currentCalendar->GetUuid(), currentCalendar->GetPath(), currentCalendar->GetMyLinks());
     }
     else if (currentEditor == IMAGEANNOTATION)
     {
         currentImageAnnotation->save(filePath, *currentImageAnnotation);
-        registry->writeEntry(currentImageAnnotation->GetUuid(), currentImageAnnotation->GetPath());
+        registry->writeEntry(currentImageAnnotation->GetUuid(), currentImageAnnotation->GetPath(), currentImageAnnotation->GetMyLinks());
     }
 }
 
