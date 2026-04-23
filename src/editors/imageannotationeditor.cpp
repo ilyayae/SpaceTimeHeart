@@ -347,10 +347,6 @@ ShapeData ImageAnnotationEditor::EditShape(ShapeData *pregenData)
         QDialog dialog(this);
         dialog.setWindowTitle("Edit Shape");
         QVBoxLayout *layout = new QVBoxLayout(&dialog);
-
-
-        // --- --- --- --- --- --- --- --- --- --- ---
-
         layout->addWidget(new QLabel("Line Style:", &dialog));
         QColor chosenLineColor("#FFFFFF");
         chosenLineColor = pregenData->StyleOfLine.lineColor;
@@ -393,8 +389,6 @@ ShapeData ImageAnnotationEditor::EditShape(ShapeData *pregenData)
 
         layout->addWidget(new QLabel("Width:", &dialog));
         layout->addWidget(lineWidthSpin);
-
-        // --- --- --- --- --- --- --- --- --- --- ---
         QFrame *separator1 = new QFrame(&dialog);
         separator1->setFrameShape(QFrame::HLine);
         separator1->setFrameShadow(QFrame::Sunken);
@@ -434,7 +428,6 @@ ShapeData ImageAnnotationEditor::EditShape(ShapeData *pregenData)
         layout->addWidget(new QLabel("Style:", &dialog));
         layout->addWidget(fillStyleCombo);
 
-        // --- --- --- --- --- --- --- --- --- --- ---
         QFrame *separator2 = new QFrame(&dialog);
         separator2->setFrameShape(QFrame::HLine);
         separator2->setFrameShadow(QFrame::Sunken);
@@ -447,7 +440,6 @@ ShapeData ImageAnnotationEditor::EditShape(ShapeData *pregenData)
             pregenData->Closed ? closedCheck->setCheckState(Qt::Checked) : closedCheck->setCheckState(Qt::Unchecked);
         layout->addWidget(closedCheck);
 
-        // --- --- --- --- --- --- --- --- --- --- ---
         QFrame *separator3 = new QFrame(&dialog);
         separator3->setFrameShape(QFrame::HLine);
         separator3->setFrameShadow(QFrame::Sunken);

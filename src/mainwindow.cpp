@@ -25,15 +25,9 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
-
 }
 
 //SLOTS
-// New file functionality
-void MainWindow::on_actionNew_File_triggered()
-{
-
-}
 // Open file functionality
 void MainWindow::on_actionOpen_File_triggered()
 {

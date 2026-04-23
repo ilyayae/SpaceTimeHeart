@@ -9,7 +9,7 @@ LinkInDay::LinkInDay(QWidget *parent, const DayLink &link, QString destinationNa
     myLink = link;
     ui->Description->setText(myLink.displayLabel);
     ui->frame->setAutoFillBackground(true);
-    ui->frame->setStyleSheet("border: 1px solid black; border-radius: 15px; background-color: " + myLink.colorHex + ";");
+    ui->frame->setStyleSheet("border: 1px solid transparent; border-radius: 10px; background-color: " + myLink.colorHex + ";");
     ui->NoteLinkButton->setText(destinationName);
     ui->NoteLinkButton->setStyleSheet("color: #0066CC; text-decoration: underline; border: none; background: transparent;");
     ui->NoteLinkButton->setCursor(Qt::PointingHandCursor);

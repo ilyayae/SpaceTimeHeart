@@ -35,7 +35,7 @@
    <item>
     <widget class="QFrame" name="HolderOfAll">
      <property name="styleSheet">
-      <string notr="true">border: 1px solid black; border-radius: 10px; background: solid white;</string>
+      <string notr="true">border: 1px solid #F8C9C9; border-radius: 10px;</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::Shape::StyledPanel</enum>

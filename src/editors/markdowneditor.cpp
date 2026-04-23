@@ -39,6 +39,7 @@ CustomTextBrowser* MarkdownEditor::GetQTextEdit()
         myTextEdit = new CustomTextBrowser(ui->centralwidget);
         myTextEdit->setReadOnly(false);
         myTextEdit->registry = registry;
+        myTextView->registry = registry;
 
         connect(myTextEdit, &CustomTextBrowser::textChanged, this, &MarkdownEditor::hyperlinkTextEdit_textChanged);
         connect(myTextEdit, &CustomTextBrowser::uuidClicked, this, [this](QUuid uuid){

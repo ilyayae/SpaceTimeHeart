@@ -8,6 +8,7 @@
 #include <QRandomGenerator>
 #include <QQueue>
 #include <QFileInfo>
+#include <QWheelEvent>
 #include <include/mindMapObjects/mindmapnode.h>
 class MindMapView : public QGraphicsView
 {
@@ -19,6 +20,7 @@ public:
     QList<QString> Paths;
     QList<QList<QUuid>> Connections;
     QMap<QUuid, MindMapNode*> Nodes;
+    void wheelEvent(QWheelEvent *event) override;
     QTimer *simTimer;
     int simStep = 0;
 

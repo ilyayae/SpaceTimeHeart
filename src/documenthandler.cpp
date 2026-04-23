@@ -20,13 +20,6 @@ DocumentHandler::DocumentHandler(QWidget *parent, QSettings *settings, QGridLayo
 }
 DocumentHandler::~DocumentHandler()
 {
-    if (textEdit) textEdit->deleteLater();
-    if (emptyEditor) emptyEditor->deleteLater();
-    if (textEditor) textEditor->deleteLater();
-    if (markdownEditor) markdownEditor->deleteLater();
-    if (calendarEditor) calendarEditor->deleteLater();
-    if (imageAnnotationEditor) imageAnnotationEditor->deleteLater();
-    if (htmlEditor) htmlEditor->deleteLater();
 }
 
 void DocumentHandler::loadFile(QString fileName) {

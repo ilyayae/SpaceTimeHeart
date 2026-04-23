@@ -16,6 +16,117 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget {
+    font-family: &quot;Segoe UI&quot;, &quot;Helvetica Neue&quot;, sans-serif;
+    
+    background-color: #FFF0F0;
+    color: #4A3B3C;
+}
+
+QTextEdit, QPlainTextEdit, CustomTextBrowser, MindMapView, CustomGraphicsView {
+    background-color: #FFF4F4; 
+    color: #4A3B3C;
+    border: none; 
+    border-radius: 10px; 
+    padding: 5px; 
+}
+
+QPushButton, QToolButton {
+	background-color: transparent; 
+    color: #4A3B3C;
+    border: 1px solid #F0E0E0;
+    border-radius: 4px;
+}
+
+QPushButton:hover, QToolButton:hover {
+    background-color: #FFC2C2; 
+}
+
+QPushButton:pressed, QToolButton:pressed {
+    background-color: #F29D9D; 
+    padding-top: 2px; 
+}
+
+QToolBar {
+    background-color: #FFF0F0;
+    border: none;
+    border-bottom: 1px solid #E8C9C9; 
+    spacing: 2px; 
+    padding: 2px;
+}
+
+QTreeView {
+    background-color: #FDE2E2;
+    border: none;
+    border-radius: 10px;
+    outline: none; 
+}
+
+QScrollBar:vertical {
+    background-color: transparent;
+    width: 14px;
+    margin: 2px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #F8C9C9;
+    min-height: 30px;
+    border-radius: 5px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #FCAEAE;
+}
+
+QScrollBar::handle:vertical:pressed {
+    background-color: #F29D9D;
+}
+
+QScrollBar::sub-line:vertical,
+QScrollBar::add-line:vertical {
+    height: 0px; 
+    border: none;
+    background: none;
+}
+
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+QScrollBar:horizontal {
+    background-color: transparent;
+    height: 14px;
+    margin: 2px;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: #F8C9C9;
+    min-width: 30px;
+    border-radius: 5px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: #FCAEAE;
+}
+
+QScrollBar::handle:horizontal:pressed {
+    background-color: #F29D9D;
+}
+
+QScrollBar::sub-line:horizontal,
+QScrollBar::add-line:horizontal {
+    width: 0px; 
+    border: none;
+    background: none;
+}
+
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal {
+    background: none;
+}</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <property name="layoutDirection">
     <enum>Qt::LayoutDirection::LeftToRight</enum>
@@ -25,7 +136,7 @@
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1">
     <property name="spacing">
-     <number>0</number>
+     <number>2</number>
     </property>
     <property name="leftMargin">
      <number>0</number>
@@ -61,8 +172,6 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionNew"/>
-    <addaction name="actionNew_File"/>
     <addaction name="actionOpen_File"/>
     <addaction name="actionSave_File"/>
     <addaction name="actionPreferences"/>
@@ -70,19 +179,9 @@
    <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionNew">
-   <property name="text">
-    <string>New</string>
-   </property>
-  </action>
   <action name="actionOpen_File">
    <property name="text">
     <string>Open File</string>
-   </property>
-  </action>
-  <action name="actionNew_File">
-   <property name="text">
-    <string>New File</string>
    </property>
   </action>
   <action name="actionSave_File">

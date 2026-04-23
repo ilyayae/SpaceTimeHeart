@@ -27,6 +27,7 @@ void MindMap::setUp()
         connections.append(myRegistry->getConnectedUuids(pair.first));
     }
     myView = new MindMapView(this, uuids, paths, connections);
+    myView->setDragMode(QGraphicsView::ScrollHandDrag);
     connect(myView, &MindMapView::Clicked, this, [this](QUuid uuid){
         emit uuidClicked(uuid);
     });

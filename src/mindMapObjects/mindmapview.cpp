@@ -129,6 +129,26 @@ MindMapView::MindMapView(QWidget *parent, QList<QUuid> uuids, QList<QString> pat
     simTimer = new QTimer(this);
     connect(simTimer, &QTimer::timeout, this, &MindMapView::nodeForceLayout);
     simTimer->start(16);
+
+
+    setDragMode(QGraphicsView::NoDrag);
+    setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+}
+
+void MindMapView::wheelEvent(QWheelEvent *event)
+{
+    const double factor = 1.15;
+    if (event->angleDelta().y() > 0)
+    {
+        if (transform().m11() < 10.0)
+            scale(factor, factor);
+    }
+    else
+    {
+        if (transform().m11() > 0.1)
+            scale(1.0 / factor, 1.0 / factor);
+    }
+    event->accept();
 }
 
 void MindMapView::nodeForceLayout()

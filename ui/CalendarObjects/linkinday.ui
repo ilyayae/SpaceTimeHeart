@@ -47,7 +47,7 @@
       <enum>Qt::LayoutDirection::RightToLeft</enum>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: 1px solid black; border-radius: 15px;</string>
+      <string notr="true">border: 1px solid #F8C9C9; border-radius: 10px;</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::Shape::StyledPanel</enum>
@@ -80,7 +80,24 @@
          </size>
         </property>
         <property name="styleSheet">
-         <string notr="true">border: 1px solid black; border-radius: 5px; background: white;</string>
+         <string notr="true">QToolButton
+{
+    border-radius: 6px; 
+    border: 1px solid rgba(0, 0, 0, 0.5);
+	background-color: transparent;
+    color: rgba(74, 59, 60, 0.6); 
+    border-radius: 10px; /* Exactly half of the 20x20 size to make a perfect circle */
+    font-family: &quot;Segoe UI&quot;, sans-serif;
+    font-weight: bold;
+}
+QToolButton:hover {
+    background-color: rgba(255, 255, 255, 0.5); 
+    color: #4A3B3C;
+}
+
+QToolButton:pressed  {
+    background-color: rgba(0, 0, 0, 0.1); 
+}</string>
         </property>
         <property name="text">
          <string>X</string>

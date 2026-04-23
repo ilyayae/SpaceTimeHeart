@@ -43,17 +43,17 @@ public:
     void switchEditor(CurrentEditor SwitchTo);
     void parseUuid(QUuid uuid);
     void emitUpdate();
-    UuidRegistry *registry;
+    UuidRegistry *registry = nullptr;
 
 private:
     QString filePath;
     bool saveable = true;
-    QSettings *Settings;
-    QGridLayout *EditorPlace;
+    QSettings *Settings = nullptr;
+    QGridLayout *EditorPlace = nullptr;
 
-    Note *currentNote;
-    CalendarData *currentCalendar;
-    ImageAnnotationData *currentImageAnnotation;
+    Note *currentNote = nullptr;
+    CalendarData *currentCalendar = nullptr;
+    ImageAnnotationData *currentImageAnnotation = nullptr;
     int currZoom = 0;
 
     //Editors

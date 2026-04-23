@@ -50,7 +50,10 @@ void DaySlot::mousePressEvent(QMouseEvent *event)
 
 void DaySlot::ColorMe(QString color)
 {
-    ui->HolderOfAll->setStyleSheet("border: 1px solid black; border-radius: 10px; background: " + color + ";");
+    ui->HolderOfAll->setStyleSheet(
+        "border: 1px solid #E8C9C9; "
+        "border-radius: 10px; "
+        "background-color: " + color + ";");
 }
 
 void DaySlot::UpdateEventTracker()
@@ -58,7 +61,12 @@ void DaySlot::UpdateEventTracker()
     if(thisDaysLinks != 0)
     {
         ui->eventsLabel->setText("(" + QString::number(thisDaysLinks) + ")");
-        ui->eventsLabel->setStyleSheet("color: black; border-radius: 5px; background: #ffc800;");
+        ui->eventsLabel->setStyleSheet(
+            "color: #4A3B3C; "
+            "font-weight: bold; "
+            "border-radius: 6px; "
+            "padding: 1px 4px; "
+            "background-color: #FFD4A3;");
     }
     else
     {
