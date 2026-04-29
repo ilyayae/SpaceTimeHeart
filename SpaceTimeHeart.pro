@@ -3,6 +3,7 @@ QT += sql
 QT += core gui widgets svg
 QT += concurrent
 QT += svgwidgets
+QT += core testlib
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -47,7 +48,8 @@ SOURCES += \
     src/listEntries/moonentry.cpp \
     src/calendarObjects/dayslot.cpp \
     src/calendarObjects/linkinday.cpp \
-    src/calendarObjects/moonvisualiser.cpp
+    src/calendarObjects/moonvisualiser.cpp \
+    test/tests.cpp
 
 HEADERS += \
     include/calendarconfig.h \
@@ -83,7 +85,8 @@ HEADERS += \
     include/editors/mindmap.h \
     include/mindMapObjects/mindmapedge.h \
     include/mindMapObjects/mindmapnode.h \
-    include/mindMapObjects/mindmapview.h
+    include/mindMapObjects/mindmapview.h \
+    test/tests.h
 
 FORMS += \
     ui/editors/mindmap.ui \

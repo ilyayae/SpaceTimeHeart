@@ -34,7 +34,7 @@ public:
     int currZoom = 0;
     UuidRegistry *registry;
 
-private slots:
+public slots:
     void updateZoom(int zoom);
     void myTextEdit_scrolled(int value);
     void myTextView_scrolled(int value);

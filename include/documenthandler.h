@@ -40,10 +40,11 @@ public:
     void loadFile(QString fileName);
     void saveFile();
     void saveAsFile();
-    void switchEditor(CurrentEditor SwitchTo);
+    void switchEditor(CurrentEditor SwitchTo = EMPTY);
     void parseUuid(QUuid uuid);
     void emitUpdate();
     UuidRegistry *registry = nullptr;
+    CurrentEditor getCurrentEditor() const { return currentEditor; }
 
 private:
     QString filePath;

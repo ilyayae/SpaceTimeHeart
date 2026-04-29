@@ -1,4 +1,5 @@
 #include "include/mainwindow.h"
+#include "test/tests.h"
 
 #include <QApplication>
 #include <QLocale>
@@ -9,9 +10,16 @@
 Q_LOGGING_CATEGORY(SOLID_BACKEND, "kf.solid.backends.udisks2")
 int main(int argc, char *argv[])
 {
+    QApplication a(argc, argv);
+    QStringList args = QCoreApplication::arguments();
+    if (args.contains("--test")) {
+        Tests testObject;
+        int testArgc = 1;
+        char *testArgv[] = { argv[0] };
+        return QTest::qExec(&testObject, testArgc, testArgv);
+    }
 
     QLoggingCategory::setFilterRules("kf.solid.backends.udisks2.debug=false\nkf.solid.backends.udisks2.warning=false");
-    QApplication a(argc, argv);
 
     a.setOrganizationName("zhopets");
     a.setApplicationName("SpaceTimeHeart");
@@ -25,6 +33,7 @@ int main(int argc, char *argv[])
             break;
         }
     }
+
     MainWindow w;
     w.setWindowTitle("Space-Time-Heart");
     w.show();

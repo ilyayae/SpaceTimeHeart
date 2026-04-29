@@ -38,7 +38,7 @@ public:
     DaySlot *selectedDay;
     void DestroyLink(DayLink link);
 
-private slots:
+public slots:
     void SelectDay(DaySlot *day);
 
     void on_NextMonth_clicked();

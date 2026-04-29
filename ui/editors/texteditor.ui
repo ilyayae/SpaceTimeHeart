@@ -64,7 +64,8 @@
   </widget>
   <action name="actionCut">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditCut"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/content_cut.svg</normaloff>:/new/ui/AppIcons/content_cut.svg</iconset>
    </property>
    <property name="text">
     <string>Cut</string>
@@ -78,7 +79,8 @@
   </action>
   <action name="actionCopy">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditCopy"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/content_copy.svg</normaloff>:/new/ui/AppIcons/content_copy.svg</iconset>
    </property>
    <property name="text">
     <string>Copy</string>
@@ -92,7 +94,8 @@
   </action>
   <action name="actionPaste">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditPaste"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/content_paste.svg</normaloff>:/new/ui/AppIcons/content_paste.svg</iconset>
    </property>
    <property name="text">
     <string>Paste</string>
@@ -106,7 +109,8 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::DocumentSave"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/save.svg</normaloff>:/new/ui/AppIcons/save.svg</iconset>
    </property>
    <property name="text">
     <string>Save</string>
@@ -120,7 +124,8 @@
   </action>
   <action name="actionSaveAs">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::DocumentSaveAs"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/save_as.svg</normaloff>:/new/ui/AppIcons/save_as.svg</iconset>
    </property>
    <property name="text">
     <string>SaveAs</string>
@@ -134,7 +139,8 @@
   </action>
   <action name="actionUndo">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditUndo"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/undo_24dp.svg</normaloff>:/new/ui/AppIcons/undo_24dp.svg</iconset>
    </property>
    <property name="text">
     <string>Undo</string>
@@ -148,7 +154,8 @@
   </action>
   <action name="actionRedo">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditRedo"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/redo.svg</normaloff>:/new/ui/AppIcons/redo.svg</iconset>
    </property>
    <property name="text">
     <string>Redo</string>
@@ -165,7 +172,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditFind"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/search.svg</normaloff>:/new/ui/AppIcons/search.svg</iconset>
    </property>
    <property name="text">
     <string>Find</string>
@@ -180,7 +188,7 @@
   <action name="actionInsertLink">
    <property name="icon">
     <iconset resource="../../resources/resources.qrc">
-     <normaloff>:/icons/markers/D8.svg</normaloff>:/icons/markers/D8.svg</iconset>
+     <normaloff>:/new/ui/AppIcons/add_link.svg</normaloff>:/new/ui/AppIcons/add_link.svg</iconset>
    </property>
    <property name="text">
     <string>InsertLink</string>

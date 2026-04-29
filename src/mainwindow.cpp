@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    dochandl->saveFile();
     delete ui;
 }
 
@@ -71,6 +72,10 @@ void MainWindow::initEverything()
     connect(browser, &filebrowser::fileSelected, this, &MainWindow::openFromBrowser);
     connect(browser, &filebrowser::openMindMap, this, [this](){
         dochandl->switchEditor(MINDMAP);
+    });
+    connect(browser, &filebrowser::goToEmpty, dochandl, &DocumentHandler::switchEditor);
+    connect(browser, &filebrowser::goToEmpty, this, [this](){
+        dochandl->registry->removeEntry(dochandl->registry->getUuid(browser->currentFilePath()));
     });
     connect(dochandl, &DocumentHandler::fileUpdated, this, &MainWindow::StartSaveProcess);
     connect(dochandl, &DocumentHandler::linkFollowed, this, &MainWindow::updateBrowser);

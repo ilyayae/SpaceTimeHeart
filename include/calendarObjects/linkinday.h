@@ -13,7 +13,7 @@ class LinkInDay : public QWidget
     Q_OBJECT
 
 public:
-    explicit LinkInDay(QWidget *parent = nullptr, const DayLink &link = DayLink(), QString destinationName = "");
+    explicit LinkInDay(QWidget *parent = nullptr, const DayLink &link = DayLink(), QString destinationName = "", bool showX = true);
     ~LinkInDay();
     DayLink myLink;
 

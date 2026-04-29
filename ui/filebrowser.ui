@@ -60,7 +60,8 @@
   </widget>
   <action name="actionNewFolder">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::FolderNew"/>
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/create_new_folder.svg</normaloff>:/new/ui/AppIcons/create_new_folder.svg</iconset>
    </property>
    <property name="text">
     <string>NewFolder</string>
@@ -71,7 +72,8 @@
   </action>
   <action name="actionNewPlainNote">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::DocumentNew"/>
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/text_ad.svg</normaloff>:/new/ui/AppIcons/text_ad.svg</iconset>
    </property>
    <property name="text">
     <string>NewPlainNote</string>
@@ -82,7 +84,8 @@
   </action>
   <action name="actionNewMarkdownNote">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::DocumentPrintPreview"/>
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/markdown.svg</normaloff>:/new/ui/AppIcons/markdown.svg</iconset>
    </property>
    <property name="text">
     <string>NewMarkdownNote</string>
@@ -93,7 +96,8 @@
   </action>
   <action name="actionNewCallendar">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::DocumentOpenRecent"/>
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/calendar_month.svg</normaloff>:/new/ui/AppIcons/calendar_month.svg</iconset>
    </property>
    <property name="text">
     <string>NewCallendar</string>
@@ -104,7 +108,8 @@
   </action>
   <action name="actionNewImageAnnotation">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::CameraWeb"/>
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/image.svg</normaloff>:/new/ui/AppIcons/image.svg</iconset>
    </property>
    <property name="text">
     <string>NewImageAnnotation</string>
@@ -115,7 +120,8 @@
   </action>
   <action name="actionDelete">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditDelete"/>
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/delete.svg</normaloff>:/new/ui/AppIcons/delete.svg</iconset>
    </property>
    <property name="text">
     <string>Delete</string>
@@ -126,7 +132,8 @@
   </action>
   <action name="actionMindMap">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditSelectAll"/>
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/network_node.svg</normaloff>:/new/ui/AppIcons/network_node.svg</iconset>
    </property>
    <property name="text">
     <string>MindMap</string>
@@ -136,6 +143,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

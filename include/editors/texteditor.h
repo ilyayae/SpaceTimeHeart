@@ -32,7 +32,7 @@ public:
     int currZoom = 0;
     UuidRegistry *registry;
 
-private slots:
+public slots:
     void on_actionUndo_triggered();
 
     void on_actionRedo_triggered();

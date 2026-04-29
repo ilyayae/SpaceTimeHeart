@@ -15,6 +15,7 @@
 #include "include/calendarconfig.h"
 #include "include/noteTypes/calendardata.h"
 #include "include/noteTypes/imageannotationdata.h"
+#include "include/documenthandler.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -32,7 +33,6 @@ public:
     QTreeView *view;
 
 public slots:
-    void createFolder();
     void deleteSelected();
     void createCalendar();
 
@@ -45,6 +45,7 @@ private:
 signals:
     void fileSelected(const QString &path);
     void openMindMap();
+    void goToEmpty(CurrentEditor type);
 private slots:
     void on_actionNewPlainNote_triggered();
     void on_actionNewMarkdownNote_triggered();

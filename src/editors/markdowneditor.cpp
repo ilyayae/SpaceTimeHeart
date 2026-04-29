@@ -20,7 +20,7 @@ CustomTextBrowser* MarkdownEditor::GetQTextEdit()
     {
         QToolBar *toolbar = ui->toolBar;
         QLabel* iconLabel = new QLabel();
-        QIcon icon = QIcon::fromTheme("zoom-in");
+        QIcon icon(":/new/ui/AppIcons/zoom_in.svg");
         iconLabel->setPixmap(icon.pixmap(toolbar->iconSize()));
         QSlider *slider = new QSlider(Qt::Horizontal);
         QAction *separator = new QAction();

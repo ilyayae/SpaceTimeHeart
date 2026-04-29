@@ -1,7 +1,7 @@
 #include "include/calendarObjects/linkinday.h"
 #include "ui_linkinday.h"
 
-LinkInDay::LinkInDay(QWidget *parent, const DayLink &link, QString destinationName)
+LinkInDay::LinkInDay(QWidget *parent, const DayLink &link, QString destinationName, bool showX)
     : QWidget(parent)
     , ui(new Ui::LinkInDay)
 {
@@ -13,6 +13,7 @@ LinkInDay::LinkInDay(QWidget *parent, const DayLink &link, QString destinationNa
     ui->NoteLinkButton->setText(destinationName);
     ui->NoteLinkButton->setStyleSheet("color: #0066CC; text-decoration: underline; border: none; background: transparent;");
     ui->NoteLinkButton->setCursor(Qt::PointingHandCursor);
+    ui->DestroyButton->setVisible(showX);
 }
 
 

@@ -115,7 +115,8 @@
   </widget>
   <action name="actionUndo">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditUndo"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/undo_24dp.svg</normaloff>:/new/ui/AppIcons/undo_24dp.svg</iconset>
    </property>
    <property name="text">
     <string>Undo</string>
@@ -126,7 +127,8 @@
   </action>
   <action name="actionRedo">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditRedo"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/redo.svg</normaloff>:/new/ui/AppIcons/redo.svg</iconset>
    </property>
    <property name="text">
     <string>Redo</string>
@@ -137,7 +139,8 @@
   </action>
   <action name="actionBold">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::FormatTextBold"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/format_bold.svg</normaloff>:/new/ui/AppIcons/format_bold.svg</iconset>
    </property>
    <property name="text">
     <string>Bold</string>
@@ -148,7 +151,8 @@
   </action>
   <action name="actionItalic">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::FormatTextItalic"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/format_italic.svg</normaloff>:/new/ui/AppIcons/format_italic.svg</iconset>
    </property>
    <property name="text">
     <string>Italic</string>
@@ -159,7 +163,8 @@
   </action>
   <action name="actionStrikethrough">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::FormatTextStrikethrough"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/strikethrough_s.svg</normaloff>:/new/ui/AppIcons/strikethrough_s.svg</iconset>
    </property>
    <property name="text">
     <string>Strikethrough</string>
@@ -170,7 +175,8 @@
   </action>
   <action name="actionUnderline">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::FormatTextUnderline"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/format_underlined.svg</normaloff>:/new/ui/AppIcons/format_underlined.svg</iconset>
    </property>
    <property name="text">
     <string>Underline</string>
@@ -180,6 +186,10 @@
    </property>
   </action>
   <action name="actionDotList">
+   <property name="icon">
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/format_list_bulleted.svg</normaloff>:/new/ui/AppIcons/format_list_bulleted.svg</iconset>
+   </property>
    <property name="text">
     <string>DotList</string>
    </property>
@@ -188,6 +198,10 @@
    </property>
   </action>
   <action name="actionNumberedList">
+   <property name="icon">
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/format_list_numbered.svg</normaloff>:/new/ui/AppIcons/format_list_numbered.svg</iconset>
+   </property>
    <property name="text">
     <string>NumberedList</string>
    </property>
@@ -196,6 +210,10 @@
    </property>
   </action>
   <action name="actionMarkList">
+   <property name="icon">
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/checklist.svg</normaloff>:/new/ui/AppIcons/checklist.svg</iconset>
+   </property>
    <property name="text">
     <string>MarkList</string>
    </property>
@@ -205,7 +223,8 @@
   </action>
   <action name="actionHeader">
    <property name="icon">
-    <iconset theme="preferences-desktop-font"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/h_mobiledata.svg</normaloff>:/new/ui/AppIcons/h_mobiledata.svg</iconset>
    </property>
    <property name="text">
     <string>Header</string>
@@ -216,7 +235,8 @@
   </action>
   <action name="actionLine">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::ListRemove"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/check_indeterminate.svg</normaloff>:/new/ui/AppIcons/check_indeterminate.svg</iconset>
    </property>
    <property name="text">
     <string>Line</string>
@@ -226,6 +246,10 @@
    </property>
   </action>
   <action name="actionQuote">
+   <property name="icon">
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/format_quote.svg</normaloff>:/new/ui/AppIcons/format_quote.svg</iconset>
+   </property>
    <property name="text">
     <string>Quote</string>
    </property>
@@ -234,6 +258,10 @@
    </property>
   </action>
   <action name="actionCodeBlock">
+   <property name="icon">
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/code.svg</normaloff>:/new/ui/AppIcons/code.svg</iconset>
+   </property>
    <property name="text">
     <string>CodeBlock</string>
    </property>
@@ -243,7 +271,8 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::DocumentSave"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/save.svg</normaloff>:/new/ui/AppIcons/save.svg</iconset>
    </property>
    <property name="text">
     <string>Save</string>
@@ -254,7 +283,8 @@
   </action>
   <action name="actionSaveAs">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::DocumentSaveAs"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/save_as.svg</normaloff>:/new/ui/AppIcons/save_as.svg</iconset>
    </property>
    <property name="text">
     <string>SaveAs</string>
@@ -265,7 +295,8 @@
   </action>
   <action name="actionCut">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditCut"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/content_cut.svg</normaloff>:/new/ui/AppIcons/content_cut.svg</iconset>
    </property>
    <property name="text">
     <string>Cut</string>
@@ -276,7 +307,8 @@
   </action>
   <action name="actionCopy">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditCopy"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/content_copy.svg</normaloff>:/new/ui/AppIcons/content_copy.svg</iconset>
    </property>
    <property name="text">
     <string>Copy</string>
@@ -287,7 +319,8 @@
   </action>
   <action name="actionPaste">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditPaste"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/content_paste.svg</normaloff>:/new/ui/AppIcons/content_paste.svg</iconset>
    </property>
    <property name="text">
     <string>Paste</string>
@@ -301,7 +334,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditFind"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/search.svg</normaloff>:/new/ui/AppIcons/search.svg</iconset>
    </property>
    <property name="text">
     <string>Find</string>
@@ -312,7 +346,8 @@
   </action>
   <action name="actionInsertLink">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::InsertLink"/>
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/add_link.svg</normaloff>:/new/ui/AppIcons/add_link.svg</iconset>
    </property>
    <property name="text">
     <string>InsertLink</string>
@@ -322,6 +357,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

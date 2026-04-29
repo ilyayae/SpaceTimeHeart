@@ -1,6 +1,46 @@
 <RCC>
     <qresource prefix="/icons/markers">
-        <file>D8.svg</file>
         <file>Circle.svg</file>
+        <file>Banner.svg</file>
+        <file>Castle.svg</file>
+        <file>Home.svg</file>
+        <file>Square.svg</file>
+        <file>Star.svg</file>
+    </qresource>
+    <qresource prefix="/new/ui">
+        <file>AppIcons/add_location_alt.svg</file>
+        <file>AppIcons/brush.svg</file>
+        <file>AppIcons/calendar_month.svg</file>
+        <file>AppIcons/calendar_today.svg</file>
+        <file>AppIcons/check_indeterminate.svg</file>
+        <file>AppIcons/checklist.svg</file>
+        <file>AppIcons/code.svg</file>
+        <file>AppIcons/content_copy.svg</file>
+        <file>AppIcons/content_cut.svg</file>
+        <file>AppIcons/content_paste.svg</file>
+        <file>AppIcons/create_new_folder.svg</file>
+        <file>AppIcons/delete.svg</file>
+        <file>AppIcons/edit_location.svg</file>
+        <file>AppIcons/format_bold.svg</file>
+        <file>AppIcons/format_italic.svg</file>
+        <file>AppIcons/format_list_bulleted.svg</file>
+        <file>AppIcons/format_list_numbered.svg</file>
+        <file>AppIcons/format_quote.svg</file>
+        <file>AppIcons/format_underlined.svg</file>
+        <file>AppIcons/h_mobiledata.svg</file>
+        <file>AppIcons/image.svg</file>
+        <file>AppIcons/ink_selection.svg</file>
+        <file>AppIcons/markdown.svg</file>
+        <file>AppIcons/network_node.svg</file>
+        <file>AppIcons/redo.svg</file>
+        <file>AppIcons/save.svg</file>
+        <file>AppIcons/save_as.svg</file>
+        <file>AppIcons/search.svg</file>
+        <file>AppIcons/strikethrough_s.svg</file>
+        <file>AppIcons/text_ad.svg</file>
+        <file>AppIcons/undo_24dp.svg</file>
+        <file>AppIcons/wrong_location.svg</file>
+        <file>AppIcons/zoom_in.svg</file>
+        <file>AppIcons/add_link.svg</file>
     </qresource>
 </RCC>

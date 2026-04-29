@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="400"
+   height="400"
+   viewBox="0 0 400 400"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   sodipodi:docname="Banner.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     inkscape:zoom="2.0175"
+     inkscape:cx="199.50434"
+     inkscape:cy="166.79058"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g12" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g9-8"
+       inkscape:label="Black"
+       transform="translate(0,-1)">
+      <rect
+         style="fill:#000000;stroke-width:1.14402"
+         id="rect2-2"
+         width="300"
+         height="270"
+         x="50"
+         y="21" />
+      <rect
+         style="fill:#000000;stroke-width:2.16165"
+         id="rect4-5"
+         width="70"
+         height="400"
+         x="165"
+         y="1" />
+      <path
+         style="fill:#000000;stroke-width:1.1547"
+         d="M 50,290 H 200 L 125,390 Z"
+         id="path7-1"
+         sodipodi:nodetypes="cccc"
+         inkscape:label="path7-1" />
+      <path
+         style="fill:#000000;stroke-width:1.1547"
+         d="M 200,290 H 350 L 275,390 Z"
+         id="path10"
+         sodipodi:nodetypes="cccc"
+         inkscape:label="path7-1" />
+    </g>
+    <g
+       id="g12"
+       inkscape:label="White"
+       style="fill:#ffffff"
+       transform="matrix(0.93333333,0,0,0.94850949,13.333337,8.5298103)">
+      <rect
+         style="fill:#ffffff;stroke-width:1.14402"
+         id="rect10"
+         width="300"
+         height="270"
+         x="50"
+         y="21"
+         transform="translate(0,-1)" />
+      <path
+         style="fill:#ffffff;stroke-width:1.08387"
+         d="m 211.15242,288.31571 h 139.28571 l -69.64285,94.88571 z"
+         id="path12"
+         sodipodi:nodetypes="cccc"
+         inkscape:label="path7-1" />
+      <path
+         style="fill:#ffffff;stroke-width:1.08387"
+         d="M 50.437992,288.31571 H 189.72363 l -69.64285,94.88571 z"
+         id="path13"
+         sodipodi:nodetypes="cccc"
+         inkscape:label="path7-1" />
+    </g>
+  </g>
+</svg>

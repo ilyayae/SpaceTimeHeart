@@ -157,6 +157,7 @@ void ImageAnnotationEditor::Initialize(ImageAnnotationData *data)
 
 void ImageAnnotationEditor::UpdateMarkers()
 {
+    selectedMarkers->clear();
     for(int i = 0; i < myMarkers->count(); i++)
     {
         (*myMarkers)[i]->deleteLater();
@@ -240,7 +241,7 @@ MarkerData ImageAnnotationEditor::CreateMarker(double x, double y, MarkerData *p
     layout->addWidget(new QLabel("Size:", &dialog));
     layout->addWidget(sizeEdit);
 
-    QStringList iconIds = { "Circle", "D8" };
+    QStringList iconIds = { "Circle", "Square", "Star", "Castle", "Home", "Banner" };
     QString chosenIconId = iconIds.first();
     if(pregenData != nullptr)
         chosenIconId = pregenData->IconId;

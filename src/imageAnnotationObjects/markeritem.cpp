@@ -87,6 +87,7 @@ void MarkerItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void MarkerItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
+    if (!myData) return;
     if (cachedPixmap.isNull())
     {
         cachedPixmap = QPixmap(ICON_SIZE, ICON_SIZE);
@@ -133,12 +134,12 @@ void MarkerItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 
 QRectF MarkerItem::boundingRect() const
 {
+    if (!myData) return QRectF();
     return QRectF(-myData->size/2, -myData->size/2, myData->size, myData->size);
 }
 
 void MarkerItem::SelectMe(bool selected)
 {
     isSelected = selected;
-    if (scene() && !scene()->views().isEmpty())
-        scene()->views().first()->viewport()->update();
+    update();
 }

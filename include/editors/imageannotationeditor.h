@@ -73,7 +73,7 @@ public:
     ShapeInProgress *shapeInProgress = nullptr;
     ShapeGraphicsObject *hoveredShape = nullptr;
 
-private slots:
+public slots:
     void on_actionShapesEditMode_toggled(bool arg1);
     void on_actionMoveMarkers_toggled(bool arg1);
     void on_actionAddMarker_triggered();

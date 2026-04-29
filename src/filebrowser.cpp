@@ -54,10 +54,6 @@ QString filebrowser::currentFilePath() const
     return model->filePath(index);
 }
 
-void filebrowser::createFolder()
-{
-}
-
 void filebrowser::deleteSelected()
 {
     QString path = currentFilePath();
@@ -178,7 +174,16 @@ void filebrowser::createCalendar()
 
 void filebrowser::on_actionDelete_triggered()
 {
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Delete this?",
+                                  "Are you sure you want to delete this object?",
+                                  QMessageBox::Yes | QMessageBox::No);
 
+    if (reply == QMessageBox::Yes) {
+        emit goToEmpty(EMPTY);
+        deleteSelected();
+        view->clearSelection();
+    }
 }
 
 
