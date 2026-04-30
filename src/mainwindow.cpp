@@ -24,7 +24,10 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    dochandl->saveFile();
+    if(dochandl->getCurrentEditor() != EMPTY && dochandl->getCurrentEditor() != NUL)
+    {
+        dochandl->saveFile();
+    }
     delete ui;
 }
 

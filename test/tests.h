@@ -29,6 +29,26 @@
 #include "include/noteTypes/imageannotationdata.h"
 #include "include/subclasses/customtextbrowser.h"
 #include "include/subclasses/findreplacewidget.h"
+#include "include/mindMapObjects/mindmapnode.h"
+#include "include/mindMapObjects/mindmapedge.h"
+#include "include/mindMapObjects/mindmapview.h"
+#include <QGraphicsSceneMouseEvent>
+#include "include/listEntries/monthinyearentry.h"
+#include "include/listEntries/moonentry.h"
+#include "include/listEntries/dayinweekentry.h"
+#include "include/calendarObjects/dayslot.h"
+#include "include/calendarObjects/linkinday.h"
+#include "include/calendarObjects/moonvisualiser.h"
+#include <QMouseEvent>
+#include "include/imageAnnotationObjects/customgraphicsview.h"
+#include "include/imageAnnotationObjects/markeritem.h"
+#include "include/imageAnnotationObjects/shapegraphicsobject.h"
+#include "include/imageAnnotationObjects/shapeinprogress.h"
+#include "include/imageAnnotationObjects/vectorpaintercommands.h"
+#include "include/imageAnnotationObjects/pointhandle.h"
+#include <QUndoStack>
+#include <QGraphicsRectItem>
+#include <QScrollBar>
 
 class Tests : public QObject
 {
@@ -37,38 +57,37 @@ public:
     explicit Tests(QObject *parent = nullptr);
 
 private slots:
-    // These special names run BEFORE and AFTER all tests
     void init();
     void cleanupTestCase();
-
-    // Document Handler Tests
     void testInitialState();
     void testSwitchEditor();
     void testFileExtensionParsing();
-
-    // Config Menu Tests
     void testConfigMenu();
-
-    // Calendar Config Tests
     void testCalendarConfig();
-
-    // Editor Tests
     void testEmptyEditor();
     void testImageAnnotationEditor();
     void testMarkdownEditor();
     void testMindMap();
     void testTextEditor();
     void testCalendarEditor();
-
-    // Subclasses Tests
     void testCustomTextBrowser();
     void testFindReplaceWidget();
-
-    // Note Data and Structs Tests
     void testNote();
     void testImageAnnotationData();
     void testCalendarData();
     void testUuidRegistry();
+    void testMindMapNode();
+    void testMindMapEdge();
+    void testMindMapView();
+    void testMonthInYearEntry();
+    void testMoonEntry();
+    void testDayInWeekEntry();
+    void testDaySlot();
+    void testLinkInDay();
+    void testMoonVisualiser();
+    void testCustomGraphicsView();
+    void testMarkerItem();
+    void testVectorPainterCommands();
 
 private:
     QTemporaryDir *tempDir;

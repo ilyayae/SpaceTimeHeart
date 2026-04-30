@@ -1,5 +1,5 @@
 #include "tests.h"
-#include <QAbstractButton> // Added for safer button casting
+#include <QAbstractButton>
 
 Tests::Tests(QObject *parent)
     : QObject{parent}
@@ -77,7 +77,6 @@ void Tests::testFileExtensionParsing() {
 void Tests::testConfigMenu() {
     ConfigMenu menu(nullptr, testSettings);
 
-    // Find UI elements
     QLineEdit *lineEdit = menu.findChild<QLineEdit*>("PTWD_LineEdit");
     QPushButton *saveBtn = menu.findChild<QPushButton*>("pButton_Save");
     QPushButton *cancelBtn = menu.findChild<QPushButton*>("pButton_Cancel");
@@ -86,10 +85,8 @@ void Tests::testConfigMenu() {
     QVERIFY(saveBtn != nullptr);
     QVERIFY(cancelBtn != nullptr);
 
-    // Verify UI matches settings initially
     QCOMPARE(lineEdit->text(), tempDir->path());
 
-    // Test saving settings
     lineEdit->setText("/dummy/test/path");
     QSignalSpy spy(&menu, &ConfigMenu::savedSettings);
 
@@ -113,7 +110,6 @@ void Tests::testCalendarConfig() {
     QVERIFY(addDay != nullptr);
     QVERIFY(confirm != nullptr);
 
-    // Add elements
     addMonth->click();
     addMonth->click();
     addMoon->click();
@@ -121,7 +117,6 @@ void Tests::testCalendarConfig() {
     addDay->click();
     addDay->click();
 
-    // Verify the data generation
     CalendarConfigData data = config.toConfigData();
     QCOMPARE(data.months.size(), 2);
     QCOMPARE(data.moons.size(), 1);
@@ -129,7 +124,6 @@ void Tests::testCalendarConfig() {
     QCOMPARE(data.weekLength, 3);
     QCOMPARE(data.calendarName, QString("Custom Calendar"));
 
-    // Verify emission of savedData signal
     QSignalSpy spy(&config, &CalendarConfig::savedData);
     confirm->click();
     QCOMPARE(spy.count(), 1);
@@ -145,17 +139,13 @@ void Tests::testEmptyEditor() {
 void Tests::testImageAnnotationEditor() {
     ImageAnnotationEditor editor;
 
-    // We verify the dynamic UI objects created in the constructor:
     QList<QToolButton*> toolButtons = editor.findChildren<QToolButton*>();
-    // We expect at least the "Line Color" and "Fill Color" tool buttons
     QVERIFY(toolButtons.size() >= 2);
 
     QList<QComboBox*> comboBoxes = editor.findChildren<QComboBox*>();
-    // We expect at least the "Line Style" and "Fill Style" combo boxes
     QVERIFY(comboBoxes.size() >= 2);
 
     QList<QSpinBox*> spinBoxes = editor.findChildren<QSpinBox*>();
-    // We expect at least the Width and Rounding spinboxes
     QVERIFY(spinBoxes.size() >= 2);
 }
 
@@ -164,25 +154,20 @@ void Tests::testMarkdownEditor() {
     auto *textEdit = editor.GetQTextEdit();
     QVERIFY(textEdit != nullptr);
 
-    // Test text population
     textEdit->setPlainText("testing");
     QCOMPARE(textEdit->toPlainText(), QString("testing"));
 
-    // Test Text Formatting (Bold)
     QTextCursor cursor = textEdit->textCursor();
     cursor.select(QTextCursor::Document);
     textEdit->setTextCursor(cursor);
     editor.on_actionBold_triggered();
 
-    // Should have surrounded testing with at least '*' depending on exact state logic
     QVERIFY(textEdit->toPlainText().contains("testing") && textEdit->toPlainText().length() > 7);
 
-    // Test signals
     QSignalSpy spyUpdate(&editor, &MarkdownEditor::Updated);
-    editor.hyperlinkTextEdit_textChanged(); // Call directly as mock doesn't simulate full text stream
+    editor.hyperlinkTextEdit_textChanged();
     QCOMPARE(spyUpdate.count(), 1);
 
-    // Test zoom features
     QSignalSpy spyZoom(&editor, &MarkdownEditor::zoomChanged);
     editor.updateZoom(4);
     QCOMPARE(spyZoom.count(), 1);
@@ -203,7 +188,6 @@ void Tests::testTextEditor() {
     auto *textEdit = editor.getQTextEdit();
     QVERIFY(textEdit != nullptr);
 
-    // Verify basic signal forwarding
     QSignalSpy spySave(&editor, &TextEditor::saveButton);
     editor.on_actionSave_triggered();
     QCOMPARE(spySave.count(), 1);
@@ -212,7 +196,6 @@ void Tests::testTextEditor() {
     editor.hyperlinkTextEdit_textChanged();
     QCOMPARE(spyUpdated.count(), 1);
 
-    // Test zoom
     QSignalSpy spyZoom(&editor, &TextEditor::zoomChanged);
     editor.updateZoom(-2);
     QCOMPARE(spyZoom.count(), 1);
@@ -222,12 +205,10 @@ void Tests::testTextEditor() {
 void Tests::testCalendarEditor() {
     CalendarEditor editor(nullptr, dummyRegistry);
 
-    // Verify structural safety of the container
     QVERIFY(editor.centralWidget() != nullptr);
     QVERIFY(editor.findChild<QWidget*>("DayHolder") != nullptr);
     QVERIFY(editor.findChild<QWidget*>("DayLinksHolder") != nullptr);
 
-    // Verify standard UI components are accessible.
     QVERIFY(editor.findChild<QWidget*>("NextMonth") != nullptr);
     QVERIFY(editor.findChild<QWidget*>("NextYear") != nullptr);
     QVERIFY(editor.findChild<QWidget*>("PrevYear") != nullptr);
@@ -236,16 +217,14 @@ void Tests::testCalendarEditor() {
 
 void Tests::testCustomTextBrowser() {
     CustomTextBrowser browser(nullptr);
-    browser.registry = dummyRegistry; // Prevent null crash in paintEvent UUID lookup
+    browser.registry = dummyRegistry;
 
-    // 1. Test Markdown checkbox parsing
     browser.setMarkdown("-[] Checkbox text");
-    QVERIFY(browser.toPlainText().contains(QChar(0x2610))); // ☐ (empty checkbox)
+    QVERIFY(browser.toPlainText().contains(QChar(0x2610)));
 
     browser.setMarkdown("-[x] Checkbox text done");
-    QVERIFY(browser.toPlainText().contains(QChar(0x2611))); // ☑ (checked box)
+    QVERIFY(browser.toPlainText().contains(QChar(0x2611)));
 
-    // 2. Test auto-list continuation (Enter Key)
     browser.clear();
     browser.setPlainText("- Task item 1");
     QTextCursor cursor = browser.textCursor();
@@ -255,10 +234,8 @@ void Tests::testCustomTextBrowser() {
     QKeyEvent enterEvent(QEvent::KeyPress, Qt::Key_Enter, Qt::NoModifier);
     browser.keyPressEvent(&enterEvent);
 
-    // Auto-indent rule should insert "\n- "
     QVERIFY(browser.toPlainText().contains("- Task item 1\n-"));
 
-    // 3. Test list auto-numbering continuation (Enter Key)
     browser.clear();
     browser.setPlainText("1. First item");
     cursor = browser.textCursor();
@@ -267,10 +244,8 @@ void Tests::testCustomTextBrowser() {
 
     browser.keyPressEvent(&enterEvent);
 
-    // Should increment to "2. "
     QVERIFY(browser.toPlainText().contains("1. First item\n2."));
 
-    // 4. Test Tab indentation for numbered lists
     browser.clear();
     browser.setPlainText("2. Sub item");
     cursor = browser.textCursor();
@@ -280,22 +255,17 @@ void Tests::testCustomTextBrowser() {
     QKeyEvent tabEvent(QEvent::KeyPress, Qt::Key_Tab, Qt::NoModifier);
     browser.keyPressEvent(&tabEvent);
 
-    // Converts "2." to "   1. " on tab
     QVERIFY(browser.toPlainText().contains("   1. Sub item"));
 
-    // 5. Test Mouse Click Checkbox Toggle
     browser.setMarkdown("-[] Toggle box");
     browser.show();
     QCoreApplication::processEvents();
     QSignalSpy spyCheckbox(&browser, &CustomTextBrowser::mdCheckboxChanged);
 
-    // Send a click near the top-left to toggle the first block containing the checkbox
     QTest::mouseClick(browser.viewport(), Qt::LeftButton, Qt::NoModifier, QPoint(10, 10));
 
-    // It should have emitted the mdCheckboxChanged signal
     if (spyCheckbox.count() > 0) {
         QString updatedMd = spyCheckbox.takeFirst().at(0).toString();
-        // The -[] should have changed to -[x]
         QVERIFY(updatedMd.contains("-[x]"));
     }
 }
@@ -323,70 +293,56 @@ void Tests::testFindReplaceWidget() {
     QVERIFY(replaceBtn);
     QVERIFY(statusLabel);
 
-    // Verify custom show(bool) clears the lines
     findEdit->setText("dummy data");
     frw.show(true);
     QVERIFY(findEdit->text().isEmpty());
 
-    // Prepare content: text contains "apple" 3 times
     browser.setPlainText("apple banana apple cherry apple");
 
-    // 1. Initial Search
     findEdit->setText("apple");
     QSignalSpy spyFind(&frw, &FindReplaceWidget::findReplaceChanged);
     findBtn->click();
 
-    // Wait for the singleShot timer inside selectText() to emit the signal
     QCoreApplication::processEvents();
 
-    // The widget updates the label to "current/total"
     QCOMPARE(statusLabel->text(), QString("1/3"));
     QCOMPARE(spyFind.count(), 1);
 
-    // 2. Navigating Next
     nextBtn->click();
     QCoreApplication::processEvents();
     QCOMPARE(statusLabel->text(), QString("2/3"));
 
-    // 3. Navigating Prev
     prevBtn->click();
     QCoreApplication::processEvents();
     QCOMPARE(statusLabel->text(), QString("1/3"));
 
-    // Navigate to the 2nd one again
     nextBtn->click();
     QCoreApplication::processEvents();
 
-    // 4. Test Replacing Text
     replaceEdit->setText("orange");
     replaceBtn->click();
     QCoreApplication::processEvents();
 
-    // The document should now be "apple banana orange cherry apple"
     QVERIFY(browser.toPlainText().contains("orange"));
 
-    // After replace, it triggers next search automatically or recalculates.
     QCOMPARE(statusLabel->text(), QString("2/2"));
 }
 
 void Tests::testNote() {
     QString path = tempDir->path() + "/test_note.txt";
 
-    // Pre-create an empty file so the constructor's load() doesn't throw a QMessageBox
     QFile dummy(path);
     dummy.open(QIODevice::WriteOnly);
     dummy.close();
 
     QUuid linkUuid = QUuid::createUuid();
 
-    // 1. Create and populate Note
     Note note1(path);
     note1.setContent("Testing the Note Content.\nLine 2.");
     note1.setLinkedUuids({linkUuid});
     note1.save();
     QUuid noteUuid = note1.getUuid();
 
-    // 2. Load the Note and verify
     Note note2(path);
     QCOMPARE(note2.getUuid(), noteUuid);
     QCOMPARE(note2.getContent(), QString("Testing the Note Content.\nLine 2."));
@@ -400,7 +356,6 @@ void Tests::testImageAnnotationData() {
     QString path = tempDir->path() + "/test_image.iman";
     QUuid link1 = QUuid::createUuid();
 
-    // 1. Setup Data
     ImageAnnotationData data1;
     data1.addMarker(15.0, 25.0, 10, link1, "#FFFFFF", "Sample Marker", "icon1");
     data1.addShape({{1.0, 1.0}, {5.0, 5.0}}, true, "#000000", "#111111", 3, "solid", "solid", 0.0);
@@ -408,18 +363,15 @@ void Tests::testImageAnnotationData() {
     QVERIFY(data1.save(path, data1));
     QUuid savedUuid = data1.GetUuid();
 
-    // 2. Load Data
     ImageAnnotationData data2;
     QVERIFY(data1.load(path, data2));
 
-    // Verify basic properties
     QCOMPARE(data2.GetUuid(), savedUuid);
 
     QList<QUuid> links = data2.GetMyLinks();
     QCOMPARE(links.size(), 1);
     QCOMPARE(links.first(), link1);
 
-    // Verify structures restored
     QCOMPARE(data2.markers.size(), 1);
     QCOMPARE(data2.shapes.size(), 1);
     QCOMPARE(data2.markers.first().Label, QString("Sample Marker"));
@@ -430,7 +382,6 @@ void Tests::testCalendarData() {
     QString path = tempDir->path() + "/test_cal.ccal";
     QUuid targetNote = QUuid::createUuid();
 
-    // 1. Setup Calendar Setup
     CalendarData data1;
     data1.config.calendarName = "Epic Test Calendar";
     data1.config.weekLength = 7;
@@ -446,18 +397,15 @@ void Tests::testCalendarData() {
     QVERIFY(data1.save(path, data1));
     QUuid savedUuid = data1.GetUuid();
 
-    // 2. Load Data
     CalendarData data2;
     QVERIFY(data1.load(path, data2));
 
     QCOMPARE(data2.GetUuid(), savedUuid);
     QCOMPARE(data2.config.calendarName, QString("Epic Test Calendar"));
 
-    // Check specific and recurring dates
     QCOMPARE(data2.linksForDay(2025, 6, 15).size(), 1);
     QCOMPARE(data2.linksForDay(2025, 1, 1).size(), 1);
 
-    // 3. Check Removals
     data2.removeLinksToNote(targetNote.toString(QUuid::WithoutBraces));
     QCOMPARE(data2.linksForDay(2025, 6, 15).size(), 0);
     QCOMPARE(data2.linksForDay(2025, 1, 1).size(), 0);
@@ -471,26 +419,401 @@ void Tests::testUuidRegistry() {
     QUuid linkUuid = QUuid::createUuid();
     QString relativePath = "some/nested/test/file.txt";
 
-    // 1. Write Entry
     QVERIFY(registry.writeEntry(testUuid, relativePath, {linkUuid}));
 
-    // 2. Read Entry
     QVERIFY(registry.contains(testUuid));
     QCOMPARE(registry.getUuid(relativePath), testUuid);
 
-    // Note: getPath() parses Settings for general/WorkDirectory, which normally defaults to /home
     QString workDirPath = QSettings("zhopets", "SpaceTimeHeart").value("general/WorkDirectory", "/home").toString();
     QDir workDir(workDirPath);
     QString expectedAbsolutePath = workDir.absoluteFilePath(relativePath);
 
     QCOMPARE(registry.getPath(testUuid), expectedAbsolutePath);
 
-    // Verify Links
     QList<QUuid> connectedLinks = registry.getConnectedUuids(testUuid);
     QCOMPARE(connectedLinks.size(), 1);
     QCOMPARE(connectedLinks.first(), linkUuid);
 
-    // 3. Remove Entry
     QVERIFY(registry.removeEntry(testUuid));
     QVERIFY(!registry.contains(testUuid));
+}
+void Tests::testMindMapNode() {
+    QGraphicsScene scene;
+    QUuid nodeUuid1 = QUuid::createUuid();
+    QUuid nodeUuid2 = QUuid::createUuid();
+
+    MindMapNode *node1 = new MindMapNode(nullptr, nodeUuid1, "Root Node", {nodeUuid2});
+    MindMapNode *node2 = new MindMapNode(nullptr, nodeUuid2, "Child Node", {});
+
+    scene.addItem(node1);
+    scene.addItem(node2);
+
+    QCOMPARE(node1->MyUuid, nodeUuid1);
+    QCOMPARE(node1->MyName, QString("Root Node"));
+    QCOMPARE(node1->MyConnections.size(), 1);
+
+    QVERIFY(!node1->boundingRect().isEmpty());
+
+    QMap<QUuid, MindMapNode*> nodesMap;
+    nodesMap[nodeUuid1] = node1;
+    nodesMap[nodeUuid2] = node2;
+
+    node1->Connect(&nodesMap);
+
+    QCOMPARE(scene.items().count(), 3);
+
+    QSignalSpy spyClick(node1, &MindMapNode::Clicked);
+
+    QGraphicsSceneMouseEvent pressEvent(QEvent::GraphicsSceneMousePress);
+    pressEvent.setButton(Qt::LeftButton);
+    node1->mousePressEvent(&pressEvent);
+
+    QCOMPARE(spyClick.count(), 1);
+    QCOMPARE(spyClick.takeFirst().at(0).toUuid(), nodeUuid1);
+
+    node1->setHighlightEdges(true);
+}
+
+void Tests::testMindMapEdge() {
+    QUuid u1 = QUuid::createUuid();
+    QUuid u2 = QUuid::createUuid();
+
+    MindMapNode n1(nullptr, u1, "Node 1", {});
+    MindMapNode n2(nullptr, u2, "Node 2", {});
+
+    n1.setPos(0, 0);
+    n2.setPos(100, 100);
+
+    MindMapEdge edge(&n1, &n2);
+
+    QCOMPARE(edge.From, &n1);
+    QCOMPARE(edge.To, &n2);
+
+    QVERIFY(!edge.boundingRect().isEmpty());
+    QVERIFY(edge.boundingRect().width() >= 100);
+    QVERIFY(edge.boundingRect().height() >= 100);
+}
+
+void Tests::testMindMapView() {
+    QUuid id1 = QUuid::createUuid();
+    QUuid id2 = QUuid::createUuid();
+    QUuid id3 = QUuid::createUuid();
+
+    QList<QUuid> uuids = {id1, id2, id3};
+    QList<QString> paths = {"/fake/path/file1.md", "/fake/path/file2.md", "/fake/path/file3.md"};
+
+    QList<QList<QUuid>> connections = {{id2, id3}, {}, {}};
+
+    MindMapView view(nullptr, uuids, paths, connections);
+
+    QVERIFY(view.scene() != nullptr);
+
+    QCOMPARE(view.scene()->items().count(), 5);
+
+    QTest::qWait(100);
+
+    QSignalSpy spyViewClick(&view, &MindMapView::Clicked);
+
+    MindMapNode* firstNode = nullptr;
+    for(auto item : view.scene()->items()) {
+        if((firstNode = qgraphicsitem_cast<MindMapNode*>(item))) {
+            break;
+        }
+    }
+    QVERIFY(firstNode != nullptr);
+
+    emit firstNode->Clicked(id1);
+    QCOMPARE(spyViewClick.count(), 1);
+    QCOMPARE(spyViewClick.takeFirst().at(0).toUuid(), id1);
+
+    qreal initialScale = view.transform().m11();
+
+    QWheelEvent zoomInEvent(QPointF(0, 0), QPointF(0, 0), QPoint(0, 120), QPoint(0, 120),
+                            Qt::NoButton, Qt::NoModifier, Qt::NoScrollPhase, false);
+    view.wheelEvent(&zoomInEvent);
+
+    QVERIFY(view.transform().m11() > initialScale);
+
+    qreal zoomedScale = view.transform().m11();
+    QWheelEvent zoomOutEvent(QPointF(0, 0), QPointF(0, 0), QPoint(0, -120), QPoint(0, -120),
+                             Qt::NoButton, Qt::NoModifier, Qt::NoScrollPhase, false);
+    view.wheelEvent(&zoomOutEvent);
+
+    QVERIFY(view.transform().m11() < zoomedScale);
+}
+void Tests::testMonthInYearEntry() {
+    MonthInYearEntry entry;
+
+    QLineEdit *lineName = entry.findChild<QLineEdit*>("LineName");
+    QLineEdit *lineDays = entry.findChild<QLineEdit*>("LineDays");
+    QPushButton *removeBtn = entry.findChild<QPushButton*>("pushButton");
+
+    QVERIFY(lineName != nullptr);
+    QVERIFY(lineDays != nullptr);
+    QVERIFY(removeBtn != nullptr);
+
+    lineName->setText("January");
+    QCOMPARE(entry.name, QString("January"));
+
+    lineDays->setText("31");
+    QCOMPARE(entry.days, 31);
+
+    QSignalSpy spyDestroy(&entry, &MonthInYearEntry::destroyMe);
+    removeBtn->click();
+
+    QCOMPARE(spyDestroy.count(), 1);
+    MonthInYearEntry* emittedPtr = qvariant_cast<MonthInYearEntry*>(spyDestroy.takeFirst().at(0));
+    QCOMPARE(emittedPtr, &entry);
+}
+
+void Tests::testMoonEntry() {
+    MoonEntry entry;
+
+    QLineEdit *lineName = entry.findChild<QLineEdit*>("LineName");
+    QLineEdit *lineCycle = entry.findChild<QLineEdit*>("LineCycle");
+    QLineEdit *lineOffset = entry.findChild<QLineEdit*>("LineOffset");
+    QPushButton *removeBtn = entry.findChild<QPushButton*>("RemoveButton");
+    QPushButton *colorBtn = entry.findChild<QPushButton*>("ColorButton");
+
+    QVERIFY(lineName != nullptr);
+    QVERIFY(lineCycle != nullptr);
+    QVERIFY(lineOffset != nullptr);
+    QVERIFY(removeBtn != nullptr);
+    QVERIFY(colorBtn != nullptr);
+
+    QCOMPARE(entry.colorHex, QString("#C0C0C0"));
+
+    lineName->setText("Luna");
+    QCOMPARE(entry.name, QString("Luna"));
+
+    lineCycle->setText("29.5");
+    QVERIFY(qFuzzyCompare(entry.cycle, 29.5f));
+
+    lineOffset->setText("12.25");
+    QVERIFY(qFuzzyCompare(entry.offset, 12.25f));
+
+    QSignalSpy spyDestroy(&entry, &MoonEntry::destroyMe);
+    removeBtn->click();
+
+    QCOMPARE(spyDestroy.count(), 1);
+    MoonEntry* emittedPtr = qvariant_cast<MoonEntry*>(spyDestroy.takeFirst().at(0));
+    QCOMPARE(emittedPtr, &entry);
+}
+
+void Tests::testDayInWeekEntry() {
+    DayInWeekEntry entry;
+
+    QLineEdit *lineName = entry.findChild<QLineEdit*>("LineName");
+    QPushButton *removeBtn = entry.findChild<QPushButton*>("pushButton");
+
+    QVERIFY(lineName != nullptr);
+    QVERIFY(removeBtn != nullptr);
+
+    lineName->setText("Monday");
+    QCOMPARE(entry.name, QString("Monday"));
+
+    QSignalSpy spyDestroy(&entry, &DayInWeekEntry::destroyMe);
+    removeBtn->click();
+
+    QCOMPARE(spyDestroy.count(), 1);
+    DayInWeekEntry* emittedPtr = qvariant_cast<DayInWeekEntry*>(spyDestroy.takeFirst().at(0));
+    QCOMPARE(emittedPtr, &entry);
+}
+
+void Tests::testLinkInDay() {
+    DayLink dummyLink;
+    dummyLink.displayLabel = "Meeting";
+    dummyLink.colorHex = "#ABCDEF";
+    dummyLink.targetNoteId = "test-uuid-1234";
+
+    LinkInDay widgetWithX(nullptr, dummyLink, "Destination Note", true);
+
+    widgetWithX.show();
+
+    QLabel *desc = widgetWithX.findChild<QLabel*>("Description");
+    QAbstractButton *noteBtn = widgetWithX.findChild<QAbstractButton*>("NoteLinkButton");
+    QAbstractButton *destroyBtn = widgetWithX.findChild<QAbstractButton*>("DestroyButton");
+
+    QVERIFY(desc != nullptr);
+    QVERIFY(noteBtn != nullptr);
+    QVERIFY(destroyBtn != nullptr);
+
+    QCOMPARE(desc->text(), QString("Meeting"));
+    QCOMPARE(noteBtn->text(), QString("Destination Note"));
+    QVERIFY(destroyBtn->isVisible() == true);
+
+    QSignalSpy spyGo(&widgetWithX, &LinkInDay::GoToNote);
+    noteBtn->click();
+    QCOMPARE(spyGo.count(), 1);
+    QCOMPARE(spyGo.takeFirst().at(0).toString(), QString("test-uuid-1234"));
+
+    QSignalSpy spyDestroy(&widgetWithX, &LinkInDay::DestroyLink);
+    destroyBtn->click();
+    QCOMPARE(spyDestroy.count(), 1);
+
+    LinkInDay widgetNoX(nullptr, dummyLink, "Destination Note", false);
+    widgetNoX.show();
+
+    QAbstractButton *hiddenBtn = widgetNoX.findChild<QAbstractButton*>("DestroyButton");
+    QVERIFY(hiddenBtn != nullptr);
+    QVERIFY(hiddenBtn->isVisible() == false);
+}
+
+void Tests::testMoonVisualiser() {
+    MoonPhase phases[] = {
+        MoonPhase::New, MoonPhase::WaxCrescent, MoonPhase::Waxing,
+        MoonPhase::WaxGibbous, MoonPhase::Full, MoonPhase::WanGibbous,
+        MoonPhase::Waning, MoonPhase::WanCrescent, MoonPhase::None
+    };
+    for (MoonPhase phase : phases) {
+        MoonVisualiser mv(nullptr, phase, "#FFFFFF");
+
+        QCOMPARE(mv.width(), 16);
+        QCOMPARE(mv.height(), 16);
+
+        QPixmap pixmap(16, 16);
+        mv.render(&pixmap);
+
+        QVERIFY(!pixmap.isNull());
+    }
+}
+void Tests::testDaySlot() {
+    QList<double> moonPhases = {0.0, 0.5, 0.99};
+    QList<QString> moonColors = {"#FFFFFF", "#CCCCCC", "#FF0000"};
+
+    DaySlot slot(nullptr, 15, 3, 2, &moonPhases, &moonColors);
+
+    QLabel *dayLabel = slot.findChild<QLabel*>("label");
+    QLabel *eventsLabel = slot.findChild<QLabel*>("eventsLabel");
+
+    QVERIFY(dayLabel != nullptr);
+    QVERIFY(eventsLabel != nullptr);
+    QCOMPARE(dayLabel->text(), QString("15"));
+    QCOMPARE(eventsLabel->text(), QString("(2)"));
+
+    QList<MoonVisualiser*> moons = slot.findChildren<MoonVisualiser*>();
+    QCOMPARE(moons.size(), 3);
+
+    QWidget *holder = slot.findChild<QWidget*>("HolderOfAll");
+    QVERIFY(holder != nullptr);
+    slot.ColorMe("#123456");
+    QVERIFY(holder->styleSheet().contains("#123456"));
+
+    QSignalSpy spyClick(&slot, &DaySlot::clicked);
+
+    QMouseEvent pressEvent(QEvent::MouseButtonPress, QPointF(5, 5), QPointF(5, 5), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    slot.mousePressEvent(&pressEvent);
+
+    QCOMPARE(spyClick.count(), 1);
+
+    DaySlot* emittedSlot = qvariant_cast<DaySlot*>(spyClick.takeFirst().at(0));
+    QCOMPARE(emittedSlot, &slot);
+}
+void Tests::testCustomGraphicsView() {
+    CustomGraphicsView view(nullptr);
+
+    view.setSceneRect(0, 0, 2000, 2000);
+    view.resize(500, 500);
+    view.show();
+
+    QTest::qWait(50);
+
+    qreal initialScale = view.transform().m11();
+
+    QWheelEvent zoomInEvent(QPointF(0, 0), QPointF(0, 0), QPoint(0, 120), QPoint(0, 120),
+                            Qt::NoButton, Qt::NoModifier, Qt::NoScrollPhase, false);
+    view.wheelEvent(&zoomInEvent);
+    QVERIFY(view.transform().m11() > initialScale);
+
+    qreal zoomedScale = view.transform().m11();
+    QWheelEvent zoomOutEvent(QPointF(0, 0), QPointF(0, 0), QPoint(0, -120), QPoint(0, -120),
+                             Qt::NoButton, Qt::NoModifier, Qt::NoScrollPhase, false);
+    view.wheelEvent(&zoomOutEvent);
+    QVERIFY(view.transform().m11() < zoomedScale);
+
+    QSignalSpy spyClick(&view, &CustomGraphicsView::clicked);
+
+    QMouseEvent pressLeft(QEvent::MouseButtonPress, QPointF(10, 10), QPointF(10, 10), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    view.mousePressEvent(&pressLeft);
+
+    QMouseEvent releaseLeft(QEvent::MouseButtonRelease, QPointF(11, 11), QPointF(11, 11), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    view.mouseReleaseEvent(&releaseLeft);
+
+    QCOMPARE(spyClick.count(), 1);
+
+    QSignalSpy spyRClick(&view, &CustomGraphicsView::rClicked);
+
+    QMouseEvent pressRight(QEvent::MouseButtonPress, QPointF(50, 50), QPointF(50, 50), Qt::RightButton, Qt::RightButton, Qt::NoModifier);
+    view.mousePressEvent(&pressRight);
+
+    QCOMPARE(spyRClick.count(), 1);
+
+    view.horizontalScrollBar()->setValue(500);
+    int initialScroll = view.horizontalScrollBar()->value();
+
+    QMouseEvent pressLeftPan(QEvent::MouseButtonPress, QPointF(100, 100), QPointF(100, 100), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    view.mousePressEvent(&pressLeftPan);
+
+    QMouseEvent moveLeft(QEvent::MouseMove, QPointF(150, 100), QPointF(150, 100), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    view.mouseMoveEvent(&moveLeft);
+
+    QVERIFY(view.horizontalScrollBar()->value() != initialScroll);
+}
+
+void Tests::testMarkerItem() {
+    MarkerData data;
+    data.size = 32;
+    data.IconId = "unknown_icon";
+    data.Label = "Test Marker";
+    data.Color = "#FF0000";
+
+    MarkerItem item(&data);
+
+    item.SelectMe(true);
+    QVERIFY(item.isSelected == true);
+
+    QRectF bounds = item.boundingRect();
+    QCOMPARE(bounds.width(), 32.0);
+    QCOMPARE(bounds.height(), 32.0);
+
+    QPixmap pixmap(64, 64);
+    QPainter painter(&pixmap);
+
+    item.paint(&painter, nullptr, nullptr);
+
+    QVERIFY(!pixmap.isNull());
+}
+
+void Tests::testVectorPainterCommands() {
+    ImageAnnotationData data;
+    ShapeData shape;
+    shape.Closed = true;
+    shape.XYPoints = {{0.0, 0.0}, {1.0, 1.0}};
+    data.shapes.append(shape);
+
+    QUndoStack stack;
+
+    MovePointCommand *moveCmd = new MovePointCommand(&data, 0, 0, {0.5, 0.5});
+    stack.push(moveCmd);
+    QCOMPARE(data.shapes[0].XYPoints[0].first, 0.5);
+
+    stack.undo();
+    QCOMPARE(data.shapes[0].XYPoints[0].first, 0.0);
+
+    ShapeData newData = shape;
+    newData.StyleOfLine.width = 10;
+
+    ChangeStyleCommand *styleCmd = new ChangeStyleCommand(&data.shapes[0], newData);
+    stack.push(styleCmd);
+    QCOMPARE(data.shapes[0].StyleOfLine.width, 10);
+
+    stack.undo();
+    QCOMPARE(data.shapes[0].StyleOfLine.width, shape.StyleOfLine.width);
+
+    DeleteShapeCommand *delCmd = new DeleteShapeCommand(&data, data.shapes[0]);
+    stack.push(delCmd);
+    QCOMPARE(data.shapes.count(), 0);
+
+    stack.undo();
+    QCOMPARE(data.shapes.count(), 1);
 }
