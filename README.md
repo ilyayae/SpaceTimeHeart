@@ -52,20 +52,20 @@ sudo apt update
 sudo apt install build-essential cmake g++ 
 ```
 ```
-sudo apt install qt6-base-dev qt6-declarative-dev libgl1-mesa-dev
+sudo apt install qt6-base-dev qt6-declarative-dev libgl1-mesa-dev qt6-svg-dev
 ```
 
 
 #### Fedora / Red Hat
 
 ```
-sudo dnf groupinstall "Development Tools"
+sudo dnf group install development-tools
 ```
 ```
 sudo dnf install cmake gcc-c++ 
 ```
 ```
-sudo dnf install qt6-qtbase-devel qt6-qtdeclarative-devel mesa-libGL-devel
+sudo dnf install qt6-qtbase-devel qt6-qtdeclarative-devel mesa-libGL-devel qt6-qtsvg-devel
 ```
 
 
@@ -75,7 +75,7 @@ sudo dnf install qt6-qtbase-devel qt6-qtdeclarative-devel mesa-libGL-devel
 sudo pacman -S base-devel cmake
 ```
 ```
-sudo pacman -S qt6-base qt6-declarative
+sudo pacman -S qt6-base qt6-declarative qt6-svg
 ```
 
 Then make the application. Replace <build> with the folder where SpaceTimeHeart.pro is located:
