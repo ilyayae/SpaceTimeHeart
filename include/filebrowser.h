@@ -31,6 +31,8 @@ public:
     ~filebrowser();
     QString currentFilePath() const;
     QTreeView *view;
+    QString getUniquePath(const QString &baseName, const QString &extension);
+    bool eventFilter(QObject *obj, QEvent *event);
 
 public slots:
     void deleteSelected();
@@ -50,7 +52,7 @@ private slots:
     void on_actionNewPlainNote_triggered();
     void on_actionNewMarkdownNote_triggered();
     void on_actionNewCallendar_triggered();
-    void on_actionNewImageAnnotation_triggered();\
+    void on_actionNewImageAnnotation_triggered();
     void on_actionNewFolder_triggered();
     void on_actionDelete_triggered();
     void on_actionMindMap_triggered();

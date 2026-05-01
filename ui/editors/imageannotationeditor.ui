@@ -97,6 +97,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionPaint_Edit"/>
+   <addaction name="actionDeleteShpe"/>
   </widget>
   <action name="actionAddMarker">
    <property name="icon">
@@ -210,6 +211,24 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+Z</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionDeleteShpe">
+   <property name="icon">
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/delete.svg</normaloff>:/new/ui/AppIcons/delete.svg</iconset>
+   </property>
+   <property name="text">
+    <string>DeleteShpe</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete Hovered Shape</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>

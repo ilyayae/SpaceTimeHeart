@@ -25,6 +25,7 @@ public:
     void DestroyMoon(MoonEntry *moon);
     void DestroyDay(DayInWeekEntry *day);
     CalendarConfigData toConfigData() const;
+    void setupEarthStandard();
 
 private slots:
     void on_AddMonth_clicked();

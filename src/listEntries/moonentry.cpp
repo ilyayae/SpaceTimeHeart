@@ -10,6 +10,9 @@ MoonEntry::MoonEntry(QWidget *parent)
     ui->LineCycle->setValidator(new QDoubleValidator(0.0, 9999.0, 4, this));
     ui->LineOffset->setValidator(new QDoubleValidator(0.0, 9999.0, 4, this));
     ui->ColorButton->setStyleSheet("background-color: " + colorHex + ";");
+    ui->LineCycle->setText("14");
+    ui->LineOffset->setText("2");
+    ui->LineName->setText("Moon");
 }
 
 MoonEntry::~MoonEntry()
@@ -22,6 +25,17 @@ void MoonEntry::on_RemoveButton_clicked()
     emit destroyMe(this);
 }
 
+void MoonEntry::setMe(QString Name, float Cycle, float Offset, QString Color)
+{
+    name = Name;
+    cycle = Cycle;
+    offset = Offset;
+    colorHex = Color;
+    ui->ColorButton->setStyleSheet("background-color: " + Color + ";");
+    ui->LineName->setText(name);
+    ui->LineCycle->setText(QString::number(Cycle));
+    ui->LineOffset->setText(QString::number(Offset));
+}
 
 void MoonEntry::on_LineName_textChanged(const QString &arg1)
 {

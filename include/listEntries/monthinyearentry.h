@@ -17,6 +17,7 @@ public:
     ~MonthInYearEntry();
     QString name;
     int days;
+    void setMe(QString Name, int Days);
 
 private slots:
     void on_pushButton_clicked();

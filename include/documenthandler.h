@@ -47,7 +47,7 @@ public:
     CurrentEditor getCurrentEditor() const { return currentEditor; }
 
 private:
-    QString filePath;
+    QString filePath = "";
     bool saveable = true;
     QSettings *Settings = nullptr;
     QGridLayout *EditorPlace = nullptr;
@@ -58,7 +58,7 @@ private:
     int currZoom = 0;
 
     //Editors
-    CurrentEditor currentEditor;
+    CurrentEditor currentEditor = NUL;
     CustomTextBrowser *textEdit = nullptr;
     EmptyEditor *emptyEditor = nullptr;
     TextEditor *textEditor = nullptr;

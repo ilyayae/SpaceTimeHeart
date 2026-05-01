@@ -58,13 +58,25 @@ CustomTextBrowser* MarkdownEditor::GetQTextEdit()
         connect(myTextView->verticalScrollBar(), &QScrollBar::valueChanged,
                 this, &MarkdownEditor::myTextView_scrolled);
 
-
         myFRWidget = new FindReplaceWidget(this, myTextEdit);
         QLayout *l = ui->centralwidget->layout();
         QHBoxLayout *hbox = (QHBoxLayout*)l;
         hbox->insertWidget(0, myFRWidget);
-        ui->HolderOfText->layout()->addWidget(myTextView);
-        ui->HolderOfText->layout()->addWidget(myTextEdit);
+        QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
+        splitter->setStyleSheet(
+            "QSplitter::handle {"
+            "   background-color: #cccccc;"
+            "}"
+            "QSplitter::handle:horizontal {"
+            "   width: 2px;"
+            "}"
+            "QSplitter::handle:vertical {"
+            "   height: 2px;"
+            "}"
+            );
+        splitter->addWidget(myTextView);
+        splitter->addWidget(myTextEdit);
+        ui->HolderOfText->layout()->addWidget(splitter);
         myFRWidget->show(false);
 
         markdownUpdateTimer = new QTimer(this);

@@ -295,7 +295,7 @@ void CustomTextBrowser::keyPressEvent(QKeyEvent *event)
 QList<QUuid> CustomTextBrowser::getUuids()
 {
     QList<QUuid> result;
-        QRegularExpressionMatchIterator it = uuidFindRegex.globalMatch(originalText);
+        QRegularExpressionMatchIterator it = uuidFindRegex.globalMatch(toPlainText());
         while (it.hasNext())
         {
             QRegularExpressionMatch match = it.next();

@@ -17,6 +17,10 @@ DocumentHandler::DocumentHandler(QWidget *parent, QSettings *settings, QGridLayo
     QString appDataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir().mkpath(appDataPath);
     registry = new UuidRegistry(appDataPath + "/notes_registry.db", this);
+
+    textEdit = nullptr;
+    currentCalendar = nullptr;
+    currentImageAnnotation = nullptr;
 }
 DocumentHandler::~DocumentHandler()
 {
@@ -85,6 +89,7 @@ void DocumentHandler::saveFile() {
         {
             if(currentNote != nullptr && textEdit != nullptr)
             {
+                currentNote->myLinks = textEdit->getUuids();
                 currentNote->setContent(textEdit->toPlainText());
                 currentNote->setLinkedUuids(textEdit->getUuids());
                 currentNote->save();
@@ -112,14 +117,18 @@ void DocumentHandler::saveFile() {
 
 void DocumentHandler::saveAsFile() {
 
+    if(currentEditor == MINDMAP) return;
     filePath = QFileDialog::getSaveFileName(nullptr, tr("Save File As"), Settings->value("general/WorkDirectory", "/home").toString(), tr("Text Files (*.txt);;All Files (*)"));
     if (filePath.isEmpty()) return;
-
     if(currentEditor == TEXT || currentEditor == MARKDOWN)
     {
+        if(currentNote != nullptr && textEdit != nullptr)
+        {
+        currentNote->myLinks = textEdit->getUuids();
         currentNote->setContent(textEdit->toPlainText());
         currentNote->saveAs(filePath);
         registry->writeEntry(currentNote->getUuid(), currentNote->getPath(), currentNote->GetMyLinks());
+        }
     }
     else if (currentEditor == CALENDAR)
     {
@@ -135,7 +144,7 @@ void DocumentHandler::saveAsFile() {
 
 void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
 {
-    if(textEdit != nullptr || currentCalendar != nullptr || currentImageAnnotation != nullptr)
+    if(textEdit != nullptr || currentCalendar != nullptr || currentImageAnnotation != nullptr )
     {
         saveFile();
     }
@@ -172,6 +181,11 @@ void DocumentHandler::switchEditor(CurrentEditor SwitchTo)
     default:
         break;
     }
+
+    textEdit = nullptr;
+    currentCalendar = nullptr;
+    currentImageAnnotation = nullptr;
+
 
     switch (SwitchTo) {
     case EMPTY:

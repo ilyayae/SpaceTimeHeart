@@ -804,8 +804,10 @@ void ImageAnnotationEditor::on_actionRedo_triggered()
 }
 
 
-void ImageAnnotationEditor::on_actionDeleteShape_triggered()
+
+void ImageAnnotationEditor::on_actionDeleteShpe_triggered()
 {
+
     if (isChangingShapes && hoveredShape != nullptr)
     {
         undoStack.push(new DeleteShapeCommand(myData, *hoveredShape->MyData()));

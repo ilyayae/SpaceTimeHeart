@@ -93,11 +93,14 @@ public slots:
 
     void on_actionRedo_triggered();
 
-    void on_actionDeleteShape_triggered();
 
 signals:
     void Updated();
     void uuidClicked(QUuid uuid);
+
+private slots:
+
+    void on_actionDeleteShpe_triggered();
 
 private:
     Ui::ImageAnnotationEditor *ui;

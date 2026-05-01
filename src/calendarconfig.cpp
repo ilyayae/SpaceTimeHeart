@@ -6,11 +6,40 @@ CalendarConfig::CalendarConfig(QWidget *parent)
     , ui(new Ui::CalendarConfig)
 {
     ui->setupUi(this);
+    setupEarthStandard();
 }
 
 CalendarConfig::~CalendarConfig()
 {
     delete ui;
+}
+
+void CalendarConfig::setupEarthStandard()
+{
+    while(!listMonth.isEmpty()) DestroyMonth(listMonth.first());
+    while(!listDay.isEmpty())   DestroyDay(listDay.first());
+    while(!listMoon.isEmpty())  DestroyMoon(listMoon.first());
+
+    QStringList weekDays = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+    for(const QString &dayName : weekDays) {
+        on_AddDay_clicked();
+        listDay.last()->setMe(dayName);
+    }
+
+    struct MonthData { QString name; int days; };
+    QList<MonthData> yearMonths = {
+        {"January", 31}, {"February", 28}, {"March", 31}, {"April", 30},
+        {"May", 31},     {"June", 30},     {"July", 31},  {"August", 31},
+        {"September", 30}, {"October", 31}, {"November", 30}, {"December", 31}
+    };
+
+    for(const auto &m : yearMonths) {
+        on_AddMonth_clicked();
+        listMonth.last()->setMe(m.name, m.days);
+    }
+
+    on_AddMoon_clicked();
+    listMoon.last()->setMe("Moon", 29.53f, 0.0f, "#FFFFFF");
 }
 
 void CalendarConfig::on_AddMonth_clicked()
@@ -41,20 +70,29 @@ void CalendarConfig::on_AddDay_clicked()
 
 void CalendarConfig::DestroyMonth(MonthInYearEntry *month)
 {
-    listMonth.removeOne(month);
-    month->deleteLater();
+    if(listMonth.count() > 1)
+    {
+        listMonth.removeOne(month);
+        month->deleteLater();
+    }
 }
 
 void CalendarConfig::DestroyMoon(MoonEntry *moon)
 {
+    if(listMoon.count() > 1)
+    {
     listMoon.removeOne(moon);
     moon->deleteLater();
+    }
 }
 
 void CalendarConfig::DestroyDay(DayInWeekEntry *day)
 {
+    if(listDay.count() > 1)
+    {
     listDay.removeOne(day);
     day->deleteLater();
+    }
 }
 
 void CalendarConfig::on_ConfirmCreation_clicked()

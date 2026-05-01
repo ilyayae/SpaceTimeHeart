@@ -7,6 +7,10 @@ MonthInYearEntry::MonthInYearEntry(QWidget *parent)
 {
     ui->setupUi(this);
     ui->LineDays->setValidator(new QIntValidator(0, 9999, this));
+    ui->LineName->setText("Month");
+    ui->LineDays->setText("30");
+    name = "Month";
+    days = 30;
 }
 
 MonthInYearEntry::~MonthInYearEntry()
@@ -19,6 +23,13 @@ void MonthInYearEntry::on_pushButton_clicked()
     emit destroyMe(this);
 }
 
+void MonthInYearEntry::setMe(QString Name, int Days)
+{
+    name = Name;
+    days = Days;
+    ui->LineName->setText(name);
+    ui->LineDays->setText(QString::number(days));
+}
 
 void MonthInYearEntry::on_LineDays_textChanged(const QString &arg1)
 {

@@ -381,7 +381,7 @@
     <string>HideEditor</string>
    </property>
    <property name="toolTip">
-    <string>Hide Editor</string>
+    <string>Show/Hide Editor</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>

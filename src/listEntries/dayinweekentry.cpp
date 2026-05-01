@@ -6,6 +6,7 @@ DayInWeekEntry::DayInWeekEntry(QWidget *parent)
     , ui(new Ui::DayInWeekEntry)
 {
     ui->setupUi(this);
+    ui->LineName->setText("Weekday");
 }
 
 DayInWeekEntry::~DayInWeekEntry()
@@ -18,6 +19,11 @@ void DayInWeekEntry::on_pushButton_clicked()
     emit destroyMe(this);
 }
 
+void DayInWeekEntry::setMe(QString Name)
+{
+    name = Name;
+    ui->LineName->setText(name);
+}
 
 void DayInWeekEntry::on_LineName_textChanged(const QString &arg1)
 {

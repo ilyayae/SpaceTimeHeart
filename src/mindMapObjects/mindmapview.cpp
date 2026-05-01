@@ -115,7 +115,7 @@ MindMapView::MindMapView(QWidget *parent, QList<QUuid> uuids, QList<QString> pat
                 MindMapNode *nb = unplacedNeighbors[i];
                 if (placed.contains(nb)) continue;
 
-                qreal angle = (2.0 * M_PI * i) / qMax(total, 1);
+                qreal angle = (2.0 * M_PI * i) / qMax(total, 1)  + (QRandomGenerator::global()->generateDouble() - 0.5) * 4;
                 qreal spread = 80.0 + total * 15.0;
                 QPointF offset(qCos(angle) * spread, qSin(angle) * spread);
                 nb->setPos(current->pos() + offset);

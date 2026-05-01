@@ -58,15 +58,36 @@ void MainWindow::on_actionPreferences_triggered()
     configMenu->show();
 }
 
+void MainWindow::purgeEditorPlace()
+{
+    QLayoutItem *item;
+    while ((item = ui->EditorPlace->layout()->takeAt(0)) != nullptr) {
+        if (item->widget()) {
+            delete item->widget();
+        }
+        delete item;
+    }
+}
+
 // Function to start the application and init all of the needed objects
 void MainWindow::initEverything()
 {
     //Instantiate objects
-    if(dochandl != nullptr)
+    if(dochandl) {
         dochandl->deleteLater();
-    dochandl = new DocumentHandler(this, settings, ui->EditorPlace);
-    if(browser != nullptr)
+        dochandl = nullptr;
+    }
+    purgeEditorPlace();
+    if(browser) {
         browser->deleteLater();
+        browser = nullptr;
+    }
+    if(timer) {
+        timer->stop();
+        timer->deleteLater();
+        timer = nullptr;
+    }
+    dochandl = new DocumentHandler(this, settings, ui->EditorPlace);
     browser = new filebrowser(settings->value("general/WorkDirectory", "/home").toString(), ui->centralwidget);
     browser->setWindowFlags(Qt::Widget);
     qobject_cast<QHBoxLayout*>(ui->centralwidget->layout())->insertWidget(0, browser);

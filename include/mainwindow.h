@@ -24,6 +24,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     Ui::MainWindow *ui;
+    void purgeEditorPlace();
 
 private slots:
     void on_actionOpen_File_triggered();

@@ -20,6 +20,7 @@ public:
     float cycle;
     float offset;
     QString colorHex;
+    void setMe(QString Name, float Cycle, float Offset, QString Color);
 
 private slots:
     void on_RemoveButton_clicked();

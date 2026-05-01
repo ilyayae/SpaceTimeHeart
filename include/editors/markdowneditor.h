@@ -10,6 +10,7 @@
 #include <QListWidget>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QSplitter>
 
 #include "include/subclasses/customtextbrowser.h"
 #include "include/subclasses/findreplacewidget.h"

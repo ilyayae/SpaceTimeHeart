@@ -15,6 +15,7 @@ public:
     explicit DayInWeekEntry(QWidget *parent = nullptr);
     ~DayInWeekEntry();
     QString name;
+    void setMe(QString Name);
 
 private slots:
     void on_pushButton_clicked();

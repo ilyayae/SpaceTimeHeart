@@ -48,6 +48,16 @@ QPushButton:pressed, QToolButton:pressed {
     padding-top: 2px; 
 }
 
+QPushButton:checked, QToolButton:checked {
+    background-color: #F29D9D;
+    border: 1px solid #4A3B3C;
+    font-weight: bold;
+}
+
+QPushButton:checked:hover, QToolButton:checked:hover {
+    background-color: #E88B8B; 
+}
+
 QToolBar {
     background-color: #FFF0F0;
     border: none;
