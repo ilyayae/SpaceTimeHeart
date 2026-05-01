@@ -1,71 +1,34 @@
-#&$UUID:ffb096a2-b0dc-4367-aaf7-d7bd566764e9
-#&$LINKEDUUIDS:
-#&$NOTE:Please do not touch this or above lines of text, these hold information for proper work of the SpaceTimeHeart application with this file 
 # SpaceTimeHeart
-
-
 
 ## What is SpaceTimeHeart?
 
-SpaceTimeHeart is a note taking application that is designed for creative writing where the user can interconnect various notes together. The application is planned to support plain-text, Markdown and HTML edditing. Additionally, special types of notes for calendar days and immage annotation are planed for development. 
+SpaceTimeHeart is a note taking application that is designed for creative writing where the user can interconnect various notes together. The application supports plain-text and markdown edditing, as well as special types of notes for custom calendar editing and image annotation. All notes support linking to other notes and there is a special mind-map view for you to see all note connections in a big network. The application aims to streamline creation of complex worlds where any text can be attached to a place or a specific date. Hope you enjoy using this application!
 
-## Plans:
+## Features:
 
-* Plain-text editor - Completed
-* Markdown editor - Planned
-* HTML editor - Planned
-* Calendar editor - Planned
-* Image-Annotation editor - Planned
-* Config menu - In-Development
-* Good Interface - Planned
-* Cookies - Eaten
-
-
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+* Plain-text editor - the user can write in a .txt file, with linking being supported both to web links and to other notes. Any .txt file can be placed in the working directory to be accesible to the application, when first encountered, a new file will be slightly modified to add specific application data to ensure note linking works correctly.
+* Markdown editor - this editor is basically the same as .txt editor, but the text is shown as markdown with appropriate styling. To edit the file, the user can open the text editor to the right and use it along with buttons to ease markdown writing. 
+* Calendar editor - this editor allows the user to create a custom calendar with any number of months, days, weeks or moons. Each day can have a note with some text and even a link to another note, so that the user can track events that happen throughout the days and connect the events to in depth descriptions in the plain-text editor or markdown editor. 
+* Image-Annotation editor - this editor allows the user to upload any png, jpg, webp or svg image as a background image, then add markers or custom shapes on top of the background. The markers can link to other notes. This can be used to annotate a map with markers for key locations, country borders, or other information. 
+* Mind-map view - when opened, the view will showcase all notes recognized by the application in a mind map, if a note has a link to another note it will have a connection to it. Clicking on nodes in the mind map will open the related note.
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+Windows and Linux releases are available pre-deployed. Download the zip file and run the SpaceTimeHeart.exe file for windows, download and run the SpaceTimeHeart.Appimage for linux. You can also deploy the aplication yourself using the following guides:
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### Windows
+```
+Before starting, ensure the following are installed and added to your System Path:
+    Qt Framework: (e.g., Qt 6.x) installed via the Qt Online Installer.
+    Compiler: MinGW (usually bundled with Qt) or MSVC.
+    Build Tool: make (for MinGW) or nmake (for MSVC).
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+Open the QT Comand Prompt (Usually named Qt 6.x.x (MinGW 13.x.x 64-bit)) and open the directory where the source code is downloaded (cd C:/Directory/to/source/code). Ensure the path consists only of valid, ASCII-compatible characters (no cyrillic characters for example). Then one by one use the following commands:
+    qmake SpaceTimeHeart.pro
+    mingw32-make
+    windeployqt ./bin/SpaceTimeHeart.exe
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+The ./bin directory will hold the resulting application in it's entirety.
+```
 
 ## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+GNU General Public License v3.0. Developed using QT Creator.
