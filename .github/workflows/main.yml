@@ -57,14 +57,14 @@ jobs:
           ls FinalBuild/Desktop-Release/
 
       - name: Qt to AppImage
-        uses: Kidev/qt-appimage@v1
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: 1
+        uses: Kidev/Qt-AppImage@v1
         with:
-          # USE A RELATIVE PATH SO DOCKER CAN FIND IT
-          install_folder: 'FinalBuild/Desktop-Release'
-          
+          install_folder: '${{ github.workspace }}/FinalBuild/Desktop-Release'
           app_name: 'SpaceTimeHeart'
           binary: 'SpaceTimeHeart'
-          comment: 'Note-Taking-App' 
+          comment: 'Note-Taking-App'
           category: 'Utility'
 
       - name: Upload AppImage
