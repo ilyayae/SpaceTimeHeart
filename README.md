@@ -40,5 +40,54 @@ Open the QT Comand Prompt (Usually named Qt 6.x.x (MinGW 13.x.x 64-bit)) and ope
 
 The ./bin directory will hold the resulting application in it's entirety.
 
+### Linux
+First, ensure you have C++ compiler, Qt development libraries and build tools installed:
+
+#### Ubuntu / Debian / Linux Mint
+
+```
+sudo apt update
+```
+```
+sudo apt install build-essential cmake g++ 
+```
+```
+sudo apt install qt6-base-dev qt6-declarative-dev libgl1-mesa-dev
+```
+
+
+#### Fedora / Red Hat
+
+```
+sudo dnf groupinstall "Development Tools"
+```
+```
+sudo dnf install cmake gcc-c++ 
+```
+```
+sudo dnf install qt6-qtbase-devel qt6-qtdeclarative-devel mesa-libGL-devel
+```
+
+
+#### Arch Linux
+
+```
+sudo pacman -S base-devel cmake
+```
+```
+sudo pacman -S qt6-base qt6-declarative
+```
+
+Then make the application. Replace <build> with the folder where SpaceTimeHeart.pro is located:
+```
+cd <build>
+```
+```
+qmake ../SpaceTimeHeart.pro
+```
+```
+make -j$(nproc)
+```
+
 ## License
 GNU General Public License v3.0. Developed using QT Creator.
