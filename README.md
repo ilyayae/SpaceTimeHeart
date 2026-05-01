@@ -78,7 +78,7 @@ sudo pacman -S base-devel cmake
 sudo pacman -S qt6-base qt6-declarative qt6-svg
 ```
 
-Then make the application. Replace <build> with the folder where SpaceTimeHeart.pro is located:
+Then make the application. Replace \<build\> with the folder where SpaceTimeHeart.pro is located:
 ```
 cd <build>
 ```
