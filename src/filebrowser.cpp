@@ -1,4 +1,4 @@
-#include "include\filebrowser.h"
+#include "include/filebrowser.h"
 #include "ui_filebrowser.h"
 
 #include <QFile>

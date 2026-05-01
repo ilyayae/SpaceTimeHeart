@@ -39,17 +39,17 @@ SOURCES += \
     src/subclasses/customtextbrowser.cpp \
     src/subclasses/findreplacewidget.cpp \
     src/noteTypes/uuidregistry.cpp \
-    src\configmenu.cpp \
-    src\documenthandler.cpp \
-    src\editors\emptyeditor.cpp \
-    src\filebrowser.cpp \
-    src\editors\htmleditor.cpp \
-    src\main.cpp \
-    src\mainwindow.cpp \
-    src\editors\markdowneditor.cpp \
+    src/configmenu.cpp \
+    src/documenthandler.cpp \
+    src/editors/emptyeditor.cpp \
+    src/filebrowser.cpp \
+    src/editors/htmleditor.cpp \
+    src/main.cpp \
+    src/mainwindow.cpp \
+    src/editors/markdowneditor.cpp \
     src/subclasses/searchhighlighter.cpp \
-    src\editors\texteditor.cpp \
-    src\noteTypes\note.cpp \
+    src/editors/texteditor.cpp \
+    src/noteTypes/note.cpp \
     src/listEntries/dayinweekentry.cpp \
     src/listEntries/monthinyearentry.cpp \
     src/listEntries/moonentry.cpp \
@@ -66,16 +66,16 @@ HEADERS += \
     include/subclasses/findreplacewidget.h \
     include/noteTypes/uuidregistry.h \
     include/imageAnnotationObjects/markeritem.h \
-    include\configmenu.h \
-    include\documenthandler.h \
-    include\editors\emptyeditor.h \
-    include\filebrowser.h \
-    include\editors\htmleditor.h \
-    include\mainwindow.h \
-    include\editors\markdowneditor.h \
+    include/configmenu.h \
+    include/documenthandler.h \
+    include/editors/emptyeditor.h \
+    include/filebrowser.h \
+    include/editors/htmleditor.h \
+    include/mainwindow.h \
+    include/editors/markdowneditor.h \
     include/subclasses/searchhighlighter.h \
-    include\editors\texteditor.h \
-    include\noteTypes\note.h \
+    include/editors/texteditor.h \
+    include/noteTypes/note.h \
     include/subclasses/customtextbrowser.h \
     include/noteTypes/calendardata.h \
     include/listEntries/dayinweekentry.h \
@@ -107,17 +107,17 @@ FORMS += \
     ui/listEntries/dayinweekentry.ui \
     ui/listEntries/monthinyearentry.ui \
     ui/listEntries/moonentry.ui \
-    ui\findreplacewidget.ui \
-    ui\configmenu.ui \
-    ui\editors\emptyeditor.ui \
-    ui\editors\htmleditor.ui \
-    ui\mainwindow.ui \
-    ui\editors\markdowneditor.ui \
-    ui\editors\texteditor.ui \
+    ui/findreplacewidget.ui \
+    ui/configmenu.ui \
+    ui/editors/emptyeditor.ui \
+    ui/editors/htmleditor.ui \
+    ui/mainwindow.ui \
+    ui/editors/markdowneditor.ui \
+    ui/editors/texteditor.ui \
 
-TRANSLATIONS +=
-CONFIG += lrelease
-CONFIG += embed_translations
+# TRANSLATIONS +=
+# CONFIG += lrelease
+# CONFIG += embed_translations
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
