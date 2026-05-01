@@ -1,4 +1,4 @@
-name: Build AppImage
+name: Build AppImage (Qt 6.10.2)
 
 on:
   push:
@@ -8,6 +8,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04 
+    
+    # 1. Задаем FUSE-переменную глобально как строку, чтобы 
+    # она 100% пробросилась в Docker-контейнер экшена Kidev
+    env:
+      APPIMAGE_EXTRACT_AND_RUN: "1"
 
     steps:
       - name: Checkout Code
@@ -16,43 +21,51 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          # Basic dependencies for Qt6 and AppImage tools
-          sudo apt-get install -y libfuse2 libglu1-mesa-dev libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-xinerama0 libxcb-xinput0 libxcb-render-util0 libxcb-image0
+          sudo apt-get install -y libfuse2 libglu1-mesa-dev libxkbcommon-x11-0 libxcb-cursor0
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: '6.8.1'
+          version: '6.10.2' # Your chosen Qt version
 
-      - name: Build Application
+      - name: Build Application (QMake)
         run: |
+          # 1. Clean and Build
           qmake .
           make -j$(nproc)
-          # We check if 'bin/SpaceTimeHeart' exists
-          ls -lh bin/SpaceTimeHeart
+          
+          # 2. Get the Qt installation path dynamically from the runner
+          QT_BIN_DIR=$(dirname $(which qmake))
+          QT_INSTALL_DIR=$(dirname $QT_BIN_DIR)
+          
+          # 3. Create the directory structure the AppImage Action requires
+          mkdir -p FinalBuild/Desktop-Release/bin
+          mkdir -p FinalBuild/Desktop-Release/lib
+          mkdir -p FinalBuild/Desktop-Release/plugins
+          
+          # 4. Copy the binary (according to previous logs it's in the 'bin' folder)
+          cp bin/SpaceTimeHeart FinalBuild/Desktop-Release/bin/
+          chmod +x FinalBuild/Desktop-Release/bin/SpaceTimeHeart
+          
+          # 5. Copy the Qt libraries and plugins into your folder
+          # ИСПРАВЛЕНИЕ: добавлено '|| true' (логическое ИЛИ)
+          cp -r $QT_INSTALL_DIR/lib/. FinalBuild/Desktop-Release/lib/ || true
+          cp -r $QT_INSTALL_DIR/plugins/. FinalBuild/Desktop-Release/plugins/ || true
+          
+          # 6. Verify paths in logs
+          echo "VERIFYING PATHS:"
+          ls FinalBuild/Desktop-Release/
 
-      - name: Create AppImage (Native Tooling)
-        env:
-          # Tell the tool where Qt is
-          QT_DPATH: ${{ env.Qt6_DIR }}
-          # Bypass FUSE
-          APPIMAGE_EXTRACT_AND_RUN: 1
-          # Ensure SVG plugins are included
-          EXTRA_QT_PLUGINS: "svg;iconengines;imageformats"
-        run: |
-          # 1. Download linuxdeploy and the Qt plugin
-          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-          wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
-          chmod +x linuxdeploy*.AppImage
-
-          # 2. Run linuxdeploy
-          # -e: your binary
-          # --plugin qt: bundles all Qt dependencies automatically
-          # --output appimage: creates the final file
-          ./linuxdeploy-x86_64.AppImage --appdir AppDir \
-            -e bin/SpaceTimeHeart \
-            --plugin qt \
-            --output appimage
+      - name: Qt to AppImage
+        uses: Kidev/qt-appimage@v1
+        with:
+          # USE A RELATIVE PATH SO DOCKER CAN FIND IT
+          install_folder: 'FinalBuild/Desktop-Release'
+          
+          app_name: 'SpaceTimeHeart'
+          binary: 'SpaceTimeHeart'
+          comment: 'Note-Taking-App' 
+          category: 'Utility'
 
       - name: Upload AppImage
         uses: actions/upload-artifact@v4
