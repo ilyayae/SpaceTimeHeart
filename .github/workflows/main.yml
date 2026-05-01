@@ -31,22 +31,36 @@ jobs:
 
       - name: Build Application (QMake)
         run: |
+          # 1. Clean and Build
           qmake .
           make -j$(nproc)
-          mkdir -p FinalBuild/Desktop-Release
-          cp -r bin FinalBuild/Desktop-Release/
-          echo "Checking folder structure:"
-          ls -R FinalBuild
+          
+          # 2. Create a very specific directory structure
+          # We use $GITHUB_WORKSPACE to ensure we are using absolute paths
+          mkdir -p ${{ github.workspace }}/FinalBuild/Desktop-Release
+          
+          # 3. Copy the bin folder into the Release folder
+          # Your logs show the binary is created in a folder named 'bin'
+          cp -r bin ${{ github.workspace }}/FinalBuild/Desktop-Release/
+          
+          # 4. Verify exactly where the file is (Check logs for this output!)
+          echo "VERIFYING PATHS:"
+          ls -R ${{ github.workspace }}/FinalBuild
 
       - name: Qt to AppImage
         env:
           APPIMAGE_EXTRACT_AND_RUN: 1
         uses: Kidev/Qt-AppImage@v1
         with:
-          install_folder: 'FinalBuild/Desktop-Release'
+          # Use the absolute path here
+          install_folder: '${{ github.workspace }}/FinalBuild/Desktop-Release'
+          
+          # Use single words for now to prevent the 'splitting' bug
           app_name: 'SpaceTimeHeart'
           binary: 'SpaceTimeHeart'
-          comment: 'Application for interconnected note taking'
+          
+          # We will add the comment back once we know the path works
+          comment: 'Note-Taking-App' 
           category: 'Utility'
 
       - name: Qt to AppImage
