@@ -19,7 +19,7 @@ jobs:
         with:
           # Note: Provide the folder CONTAINING the bin/ directory, not the bin/ folder itself.
           # The action expects to find ./bin, ./lib, and ./plugins inside this folder.
-          install_folder: './FinalBuild/Desktop-Release' 
+          install_folder: 'FinalBuild/Desktop-Release' 
           app_name: 'SpaceTimeHeart'
           comment: 'Application for interconnected note taking'
           category: 'Utility'
