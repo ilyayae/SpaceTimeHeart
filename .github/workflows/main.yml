@@ -1,4 +1,4 @@
-name: Build AppImage
+name: Build AppImage (Qt 6.10.2)
 
 on:
   push:
@@ -7,47 +7,44 @@ on:
 
 jobs:
   build:
-    # We use Ubuntu 20.04 because it has better compatibility for AppImages
-    runs-on: ubuntu-20.04 
+    # Ubuntu 22.04 is recommended for modern Qt 6.x
+    runs-on: ubuntu-22.04 
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # FIX 1: Install FUSE and Qt dependencies
-      - name: Install Dependencies
+      - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libfuse2 libglu1-mesa-dev
+          # libfuse2 is for the AppImage tool
+          # libxcb-cursor0 and libxkbcommon are mandatory for Qt6 apps
+          sudo apt-get install -y libfuse2 libglu1-mesa-dev libxkbcommon-x11-0 libxcb-cursor0
 
-      # FIX 2: Install Qt (Change version to match your local setup)
-      - name: Install Qt
+      - name: Install Qt 6.10.2
         uses: jurplel/install-qt-action@v3
         with:
-          version: '6.5.0' 
+          version: '6.10.2'
+          modules: 'qtsvg'
+          # Host is usually determined automatically, but ensures Linux
+          host: 'linux'
+          target: 'desktop'
 
-      # FIX 3: You MUST compile the app here so the folder exists
-      - name: Compile Application
+      - name: Build Application
         run: |
-          mkdir build
-          cd build
-          qmake ..
+          qmake
           make -j$(nproc)
-          # Now create the specific structure you wanted
-          mkdir -p ../FinalBuild/Desktop-Release/bin
-          cp ./SpaceTimeHeart ../FinalBuild/Desktop-Release/bin/
-
-      # Debug: This will print the file structure so you can see if it worked
-      - name: Verify Build Path
-        run: ls -R FinalBuild/
+          mkdir -p FinalBuild/Desktop-Release/bin
+          cp SpaceTimeHeart FinalBuild/Desktop-Release/bin/
+          chmod +x FinalBuild/Desktop-Release/bin/SpaceTimeHeart
 
       - name: Qt to AppImage
-        # Bypass FUSE mounting requirement
         env:
+          # This fixes the "Failed to load FUSE" error
           APPIMAGE_EXTRACT_AND_RUN: 1
         uses: Kidev/Qt-AppImage@v1
         with:
-          # Point to the folder containing the /bin folder
+          # Path to the folder containing the /bin folder
           install_folder: './FinalBuild/Desktop-Release'
           app_name: 'SpaceTimeHeart'
           executable: 'SpaceTimeHeart'
@@ -57,5 +54,5 @@ jobs:
       - name: Upload AppImage
         uses: actions/upload-artifact@v4
         with:
-          name: SpaceTimeHeart-Binary
+          name: SpaceTimeHeart-AppImage
           path: ./*.AppImage
