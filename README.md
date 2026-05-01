@@ -16,19 +16,29 @@ SpaceTimeHeart is a note taking application that is designed for creative writin
 Windows and Linux releases are available pre-deployed. Download the zip file and run the SpaceTimeHeart.exe file for windows, download and run the SpaceTimeHeart.Appimage for linux. You can also deploy the aplication yourself using the following guides:
 
 ### Windows
-```
 Before starting, ensure the following are installed and added to your System Path:
+```
     Qt Framework: (e.g., Qt 6.x) installed via the Qt Online Installer.
+```
+```
     Compiler: MinGW (usually bundled with Qt) or MSVC.
+```
+```
     Build Tool: make (for MinGW) or nmake (for MSVC).
-
+```
 Open the QT Comand Prompt (Usually named Qt 6.x.x (MinGW 13.x.x 64-bit)) and open the directory where the source code is downloaded (cd C:/Directory/to/source/code). Ensure the path consists only of valid, ASCII-compatible characters (no cyrillic characters for example). Then one by one use the following commands:
+
+```
     qmake SpaceTimeHeart.pro
+```
+```
     mingw32-make
+```
+```
     windeployqt ./bin/SpaceTimeHeart.exe
+```
 
 The ./bin directory will hold the resulting application in it's entirety.
-```
 
 ## License
 GNU General Public License v3.0. Developed using QT Creator.
