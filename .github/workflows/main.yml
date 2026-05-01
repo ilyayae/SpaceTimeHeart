@@ -35,17 +35,17 @@ jobs:
           make -j$(nproc)
           mkdir -p FinalBuild/Desktop-Release
           cp -r bin FinalBuild/Desktop-Release/
-          chmod +x FinalBuild/Desktop-Release/bin/SpaceTimeHeart
+          echo "Checking folder structure:"
+          ls -R FinalBuild
 
       - name: Qt to AppImage
         env:
           APPIMAGE_EXTRACT_AND_RUN: 1
         uses: Kidev/Qt-AppImage@v1
         with:
-          # Point to the folder that CONTAINS the bin folder
-          install_folder: './FinalBuild/Desktop-Release'
+          install_folder: 'FinalBuild/Desktop-Release'
           app_name: 'SpaceTimeHeart'
-          executable: 'SpaceTimeHeart'
+          binary: 'SpaceTimeHeart'
           comment: 'Application for interconnected note taking'
           category: 'Utility'
 
