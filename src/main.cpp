@@ -7,12 +7,22 @@
 
 #include <QLoggingCategory>
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
 Q_LOGGING_CATEGORY(SOLID_BACKEND, "kf.solid.backends.udisks2")
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     QStringList args = QCoreApplication::arguments();
     if (args.contains("--test")) {
+#ifdef Q_OS_WIN
+        if (AttachConsole(ATTACH_PARENT_PROCESS)) {
+            freopen("CONOUT$", "w", stdout);
+            freopen("CONOUT$", "w", stderr);
+        }
+#endif
         Tests testObject;
         int testArgc = 1;
         char *testArgv[] = { argv[0] };

@@ -130,6 +130,9 @@
    <property name="text">
     <string>SaveAs</string>
    </property>
+   <property name="toolTip">
+    <string>Save As</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
    </property>
@@ -194,7 +197,7 @@
     <string>InsertLink</string>
    </property>
    <property name="toolTip">
-    <string>InsertLink</string>
+    <string>Insert Link</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>

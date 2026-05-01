@@ -82,6 +82,7 @@
    <addaction name="separator"/>
    <addaction name="actionInsertLink"/>
    <addaction name="separator"/>
+   <addaction name="actionHideEditor"/>
   </widget>
   <widget class="QToolBar" name="toolBar_2">
    <property name="windowTitle">
@@ -193,6 +194,9 @@
    <property name="text">
     <string>DotList</string>
    </property>
+   <property name="toolTip">
+    <string>Dot List</string>
+   </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>
    </property>
@@ -205,6 +209,9 @@
    <property name="text">
     <string>NumberedList</string>
    </property>
+   <property name="toolTip">
+    <string>Numbered List</string>
+   </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>
    </property>
@@ -216,6 +223,9 @@
    </property>
    <property name="text">
     <string>MarkList</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark List</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>
@@ -351,6 +361,27 @@
    </property>
    <property name="text">
     <string>InsertLink</string>
+   </property>
+   <property name="toolTip">
+    <string>Insert Link</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionHideEditor">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../resources/resources.qrc">
+     <normaloff>:/new/ui/AppIcons/hide.svg</normaloff>:/new/ui/AppIcons/hide.svg</iconset>
+   </property>
+   <property name="text">
+    <string>HideEditor</string>
+   </property>
+   <property name="toolTip">
+    <string>Hide Editor</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>

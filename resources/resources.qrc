@@ -42,5 +42,6 @@
         <file>AppIcons/wrong_location.svg</file>
         <file>AppIcons/zoom_in.svg</file>
         <file>AppIcons/add_link.svg</file>
+        <file>AppIcons/hide.svg</file>
     </qresource>
 </RCC>

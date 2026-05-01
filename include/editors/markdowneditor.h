@@ -96,6 +96,8 @@ signals:
     void Updated();
     void zoomChanged(int zoom);
     void uuidClicked(QUuid uuid);
+private slots:
+    void on_actionHideEditor_toggled(bool arg1);
 };
 
 #endif // MARKDOWNEDITOR_H

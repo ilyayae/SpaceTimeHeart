@@ -77,6 +77,7 @@ CustomTextBrowser* MarkdownEditor::GetQTextEdit()
         updateZoom(startZoom);
         slider->setValue(currZoom);
     }
+    myTextEdit->setVisible(false);
     return myTextEdit;
 }
 
@@ -892,5 +893,12 @@ void MarkdownEditor::on_actionInsertLink_triggered()
     cursor.insertText("[[" + chosenUuid.toString(QUuid::WithoutBraces) + "]]");
     myTextEdit->setTextCursor(cursor);
     myTextEdit->setFocus();
+}
+
+
+void MarkdownEditor::on_actionHideEditor_toggled(bool arg1)
+{
+    myTextEdit->setReadOnly(!arg1);
+    myTextEdit->setVisible(arg1);
 }
 
