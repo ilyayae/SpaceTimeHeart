@@ -25,7 +25,6 @@ jobs:
         uses: jurplel/install-qt-action@v3
         with:
           version: '6.10.2'
-          modules: 'qtsvg'
           # Host is usually determined automatically, but ensures Linux
           host: 'linux'
           target: 'desktop'
