@@ -1,0 +1,25 @@
+name: Build AppImage
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: # Allows you to run it manually
+
+jobs:
+  build-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # ... (Add your steps here to compile the app if not already done in this job) ...
+
+      - name: Qt to AppImage
+        uses: Kidev/Qt-AppImage@v1  # Updated to v1 as recommended by the marketplace
+        with:
+          # Note: Provide the folder CONTAINING the bin/ directory, not the bin/ folder itself.
+          # The action expects to find ./bin, ./lib, and ./plugins inside this folder.
+          install_folder: './FinalBuild/Desktop-Release' 
+          app_name: 'SpaceTimeHeart'
+          comment: 'Application for interconnected note taking'
+          category: 'Utility'
