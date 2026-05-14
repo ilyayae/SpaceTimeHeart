@@ -62,6 +62,8 @@ CustomTextBrowser* MarkdownEditor::GetQTextEdit()
         QLayout *l = ui->centralwidget->layout();
         QHBoxLayout *hbox = (QHBoxLayout*)l;
         hbox->insertWidget(0, myFRWidget);
+        hbox->setStretch(0, 0);
+        hbox->setStretch(1, 1);
         QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
         splitter->setStyleSheet(
             "QSplitter::handle {"

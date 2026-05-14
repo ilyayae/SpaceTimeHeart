@@ -2,7 +2,7 @@
 #include "qgraphicsscene.h"
 #include "qgraphicsview.h"
 
-MarkerItem::MarkerItem(MarkerData *data, QGraphicsItem *parent)
+MarkerItem::MarkerItem(MarkerData data, QGraphicsItem *parent)
     : QGraphicsObject(parent)
 {
     myData = data;
@@ -87,13 +87,12 @@ void MarkerItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void MarkerItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    if (!myData) return;
     if (cachedPixmap.isNull())
     {
         cachedPixmap = QPixmap(ICON_SIZE, ICON_SIZE);
         cachedPixmap.fill(Qt::transparent);
         QPainter p(&cachedPixmap);
-        QSvgRenderer renderer(QString(":/icons/markers/") + myData->IconId + ".svg");
+        QSvgRenderer renderer(QString(":/icons/markers/") + myData.IconId + ".svg");
         renderer.render(&p);
         p.end();
 
@@ -102,14 +101,14 @@ void MarkerItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         QPainter tp(&tinted);
         tp.drawPixmap(0, 0, cachedPixmap);
         tp.setCompositionMode(QPainter::CompositionMode_Multiply);
-        tp.fillRect(tinted.rect(), QColor(myData->Color));
+        tp.fillRect(tinted.rect(), QColor(myData.Color));
         tp.setCompositionMode(QPainter::CompositionMode_DestinationIn);
         tp.drawPixmap(0, 0, cachedPixmap);
         tp.end();
         cachedPixmap = tinted;
     }
 
-    painter->drawPixmap(QRect(-myData->size/2, -myData->size/2, myData->size, myData->size), cachedPixmap);
+    painter->drawPixmap(QRect(-myData.size/2, -myData.size/2, myData.size, myData.size), cachedPixmap);
 
     if (isSelected)
         painter->fillRect(boundingRect(), QColor(255, 255, 0, 60));
@@ -119,23 +118,22 @@ void MarkerItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
         font.setPointSize(14);
         painter->setFont(font);
         QFontMetrics fm(font);
-        int textWidth = fm.horizontalAdvance(myData->Label);
+        int textWidth = fm.horizontalAdvance(myData.Label);
         int textX = -textWidth / 2;
-        int textY = myData->size/2 + fm.ascent() + 4;
+        int textY = myData.size/2 + fm.ascent() + 4;
         QPen pen(Qt::black);
         QPainterPath outline;
-        outline.addText(textX, textY, font, myData->Label);
+        outline.addText(textX, textY, font, myData.Label);
         pen.setWidth(2);
         painter->strokePath(outline, pen);
         painter->setPen(Qt::white);
-        painter->drawText(textX, textY, myData->Label);
+        painter->drawText(textX, textY, myData.Label);
     }
 }
 
 QRectF MarkerItem::boundingRect() const
 {
-    if (!myData) return QRectF();
-    return QRectF(-myData->size/2, -myData->size/2, myData->size, myData->size);
+    return QRectF(-myData.size/2, -myData.size/2, myData.size, myData.size);
 }
 
 void MarkerItem::SelectMe(bool selected)

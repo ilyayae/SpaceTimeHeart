@@ -15,8 +15,8 @@ class MarkerItem : public QGraphicsObject
 {
     Q_OBJECT
 public:
-    MarkerItem(MarkerData *data = nullptr, QGraphicsItem *parent = nullptr);
-    MarkerData *myData;
+    MarkerItem(MarkerData data, QGraphicsItem *parent = nullptr);
+    MarkerData myData;
     QRectF boundingRect() const override;
     void paint(QPainter *painter = nullptr, const QStyleOptionGraphicsItem *option = nullptr, QWidget *widget = nullptr) override;
     bool isHovered = false;

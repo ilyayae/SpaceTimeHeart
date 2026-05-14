@@ -9,7 +9,7 @@ filebrowser::filebrowser(const QString &rootPath, QWidget *parent)
     ui->setupUi(this);
     root = rootPath;
 
-    model = new QFileSystemModel(this);
+    model = new AdvancedFileSystemModel(this);
     model->setRootPath(root);
     model->setFilter(QDir::AllDirs | QDir::Files | QDir::NoDotAndDotDot);
     model->setNameFilters({"*.txt", "*.md", "*.ccal", "*.iman"});
@@ -30,6 +30,14 @@ filebrowser::filebrowser(const QString &rootPath, QWidget *parent)
     view->setAcceptDrops(true);
     view->setDropIndicatorShown(true);
     view->setDragDropMode(QAbstractItemView::InternalMove);
+
+    connect(model, &AdvancedFileSystemModel::aboutToMoveOrRename, this, [this](const QString &path){
+        emit aboutToMoveOrRename(path);
+    });
+
+    connect(model, &AdvancedFileSystemModel::finishedMovingOrRenaming, this, [this](const QString &path){
+        emit finishedMovingOrRenaming(path);
+    });
 
 
     ui->centralwidget->layout()->addWidget(view);

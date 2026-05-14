@@ -28,7 +28,7 @@ QString CustomTextBrowser::preprocessMarkdown(const QString &text)
     for (int i = 0; i < lines.size(); i++) {
         lines[i].replace(QRegularExpression(R"(-\s?\[x\])"), QString::fromUtf8("- ☑"));
         lines[i].replace(QRegularExpression(R"(-\s?\[\s?\])"), QString::fromUtf8("- ☐"));
-        lines[i] = lines[i].trimmed() + "  ";
+        lines[i] = lines[i] + "  ";
     }
 
     return lines.join("\n");

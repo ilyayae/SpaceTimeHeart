@@ -45,9 +45,12 @@ public:
     void emitUpdate();
     UuidRegistry *registry = nullptr;
     CurrentEditor getCurrentEditor() const { return currentEditor; }
+    void beforeFileMove(QString path);
+    void afterFileMove(QString path);
 
 private:
     QString filePath = "";
+    bool doWeRemember = false;
     bool saveable = true;
     QSettings *Settings = nullptr;
     QGridLayout *EditorPlace = nullptr;

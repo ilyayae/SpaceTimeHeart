@@ -14,7 +14,7 @@ void Tests::init() {
     QVERIFY(tempDir->isValid());
 
     testSettings = new QSettings(tempDir->path() + "/test_settings.ini", QSettings::IniFormat);
-    testSettings->setValue("general/WorkDirectory", tempDir->path());
+    testSettings->setValue("General/WorkDirectory", tempDir->path());
 
     dummyWidget = new QWidget();
     dummyLayout = new QGridLayout(dummyWidget);
@@ -93,8 +93,8 @@ void Tests::testConfigMenu() {
     saveBtn->click();
 
     QCOMPARE(spy.count(), 1);
-    QCOMPARE(testSettings->value("general/WorkDirectory").toString(), QString("/dummy/test/path"));
-    QCOMPARE(testSettings->value("general/FirstLaunch").toBool(), false);
+    QCOMPARE(testSettings->value("General/WorkDirectory").toString(), QString("/dummy/test/path"));
+    QCOMPARE(testSettings->value("General/FirstLaunch").toBool(), false);
 }
 
 void Tests::testCalendarConfig() {
@@ -424,7 +424,7 @@ void Tests::testUuidRegistry() {
     QVERIFY(registry.contains(testUuid));
     QCOMPARE(registry.getUuid(relativePath), testUuid);
 
-    QString workDirPath = QSettings("zhopets", "SpaceTimeHeart").value("general/WorkDirectory", "/home").toString();
+    QString workDirPath = QSettings("zhopets", "SpaceTimeHeart").value("General/WorkDirectory", "/home").toString();
     QDir workDir(workDirPath);
     QString expectedAbsolutePath = workDir.absoluteFilePath(relativePath);
 
@@ -767,7 +767,7 @@ void Tests::testMarkerItem() {
     data.Label = "Test Marker";
     data.Color = "#FF0000";
 
-    MarkerItem item(&data);
+    MarkerItem item(data);
 
     item.SelectMe(true);
     QVERIFY(item.isSelected == true);
@@ -803,7 +803,7 @@ void Tests::testVectorPainterCommands() {
     ShapeData newData = shape;
     newData.StyleOfLine.width = 10;
 
-    ChangeStyleCommand *styleCmd = new ChangeStyleCommand(&data.shapes[0], newData);
+    ChangeStyleCommand *styleCmd = new ChangeStyleCommand(data.shapes[0], newData, &data.shapes);
     stack.push(styleCmd);
     QCOMPARE(data.shapes[0].StyleOfLine.width, 10);
 

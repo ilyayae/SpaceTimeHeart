@@ -36,6 +36,7 @@ SOURCES += \
     src/calendarconfig.cpp \
     src/noteTypes/calendardata.cpp \
     src/imageAnnotationObjects/customgraphicsview.cpp \
+    src/subclasses/advancedfilesystemmodel.cpp \
     src/subclasses/customtextbrowser.cpp \
     src/subclasses/findreplacewidget.cpp \
     src/noteTypes/uuidregistry.cpp \
@@ -93,6 +94,7 @@ HEADERS += \
     include/mindMapObjects/mindmapedge.h \
     include/mindMapObjects/mindmapnode.h \
     include/mindMapObjects/mindmapview.h \
+    include/subclasses/advancedfilesystemmodel.h \
     test/tests.h
 
 FORMS += \

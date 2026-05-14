@@ -16,6 +16,7 @@
 #include "include/noteTypes/calendardata.h"
 #include "include/noteTypes/imageannotationdata.h"
 #include "include/documenthandler.h"
+#include "include/subclasses/advancedfilesystemmodel.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -40,7 +41,7 @@ public slots:
 
 private:
     Ui::filebrowser *ui;
-    QFileSystemModel *model;
+    AdvancedFileSystemModel *model;
     QString root;
     CalendarConfig *calconfig;
 
@@ -48,6 +49,8 @@ signals:
     void fileSelected(const QString &path);
     void openMindMap();
     void goToEmpty(CurrentEditor type);
+    void aboutToMoveOrRename(QString path);
+    void finishedMovingOrRenaming(QString path);
 private slots:
     void on_actionNewPlainNote_triggered();
     void on_actionNewMarkdownNote_triggered();

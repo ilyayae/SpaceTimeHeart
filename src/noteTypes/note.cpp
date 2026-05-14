@@ -17,7 +17,13 @@ Note::Note(QString filepath, QObject *parent)
 
 QUuid Note::getUuid()
 {
-    return *uuid;
+    if(uuid != nullptr)
+        return *uuid;
+    else
+    {
+        qDebug() << "Returning empty uuid in Note::getUuid()";
+        return QUuid();
+    }
 }
 
 QString Note::getPath()

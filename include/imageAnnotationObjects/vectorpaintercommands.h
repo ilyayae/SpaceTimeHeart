@@ -94,11 +94,12 @@ private:
 class ChangeStyleCommand : public QUndoCommand
 {
 public:
-    ChangeStyleCommand(ShapeData *shape, ShapeData newData);
+    ChangeStyleCommand(ShapeData shape, ShapeData newData, QList<ShapeData> *shapesList);
     void redo() override;
     void undo() override;
 private:
-    ShapeData *Shape;
+    ShapeData Shape;
+    QList<ShapeData> *ShapesList;
     ShapeData OldData;
     ShapeData NewData;
 };

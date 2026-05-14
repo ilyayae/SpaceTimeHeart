@@ -8,7 +8,7 @@ ConfigMenu::ConfigMenu(QWidget *parent, QSettings *settings)
 {
     ui->setupUi(this);
     setts = settings;
-    ui->PTWD_LineEdit->setText(setts->value("general/WorkDirectory", "").toString());
+    ui->PTWD_LineEdit->setText(setts->value("General/WorkDirectory", "").toString());
 }
 
 ConfigMenu::~ConfigMenu()
@@ -18,12 +18,10 @@ ConfigMenu::~ConfigMenu()
 
 void ConfigMenu::on_pButton_Save_clicked()
 {
-    setts->setValue("general/WorkDirectory", ui->PTWD_LineEdit->text());
-    setts->setValue("general/FirstLaunch", false);
+    setts->setValue("General/WorkDirectory", ui->PTWD_LineEdit->text());
+    setts->setValue("General/FirstLaunch", false);
     setts->sync();
     emit savedSettings();
-    //Should the config window close when everyting is saved?
-
     this->close();
 }
 

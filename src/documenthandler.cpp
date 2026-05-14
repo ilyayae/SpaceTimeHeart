@@ -13,7 +13,6 @@ DocumentHandler::DocumentHandler(QWidget *parent, QSettings *settings, QGridLayo
     EditorPlace = editorPlace;
     currentEditor = NUL;
     switchEditor(EMPTY);
-    //Settings->value("general/WorkDirectory", "/home").toString()
     QString appDataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir().mkpath(appDataPath);
     registry = new UuidRegistry(appDataPath + "/notes_registry.db", this);
@@ -52,6 +51,7 @@ void DocumentHandler::loadFile(QString fileName) {
     {
         saveable = false;
 
+        delete currentNote;
         currentNote = new Note(fileName);
         textEdit->setPlainText(currentNote->getContent());
         filePath = fileName;
@@ -61,6 +61,7 @@ void DocumentHandler::loadFile(QString fileName) {
     else if (calendarEditor != nullptr)
     {
         saveable = false;
+        delete currentCalendar;
         currentCalendar = new CalendarData();
         currentCalendar->load(fileName, *currentCalendar);
         calendarEditor->Initialize(currentCalendar);
@@ -70,6 +71,7 @@ void DocumentHandler::loadFile(QString fileName) {
     else if (imageAnnotationEditor != nullptr)
     {
         saveable = false;
+        delete currentImageAnnotation;
         currentImageAnnotation = new ImageAnnotationData();
         currentImageAnnotation->load(fileName, *currentImageAnnotation);
         imageAnnotationEditor->Initialize(currentImageAnnotation);
@@ -118,7 +120,7 @@ void DocumentHandler::saveFile() {
 void DocumentHandler::saveAsFile() {
 
     if(currentEditor == MINDMAP) return;
-    filePath = QFileDialog::getSaveFileName(nullptr, tr("Save File As"), Settings->value("general/WorkDirectory", "/home").toString(), tr("Text Files (*.txt);;All Files (*)"));
+    filePath = QFileDialog::getSaveFileName(nullptr, tr("Save File As"), Settings->value("General/WorkDirectory", "/home").toString(), tr("Text Files (*.txt);;All Files (*)"));
     if (filePath.isEmpty()) return;
     if(currentEditor == TEXT || currentEditor == MARKDOWN)
     {
@@ -258,4 +260,53 @@ void DocumentHandler::parseUuid(QUuid uuid)
     QString string = registry->getPath(uuid);
     loadFile(string);
     emit linkFollowed(string);
+}
+
+void DocumentHandler::beforeFileMove(QString path)
+{
+    //
+    if(filePath == path)
+    {
+        doWeRemember = true;
+        switchEditor(EMPTY);
+    }
+}
+void DocumentHandler::afterFileMove(QString path)
+{
+    if (path.isEmpty()) return;
+    if(doWeRemember)
+    {
+        loadFile(path);
+        saveFile();
+    }
+    else
+    {
+        QFileInfo info(path);
+        QString suffix = info.completeSuffix();
+        if (suffix == "txt" || suffix == "md")
+        {
+            Note tempNote(path);
+            registry->writeEntry(tempNote.getUuid(), path, tempNote.GetMyLinks());
+            tempNote.save();
+        }
+        else if (suffix == "ccal")
+        {
+            CalendarData tempCalendar;
+            tempCalendar.load(path, tempCalendar);
+            if (tempCalendar.load(path, tempCalendar)) {
+                registry->writeEntry(tempCalendar.GetUuid(), path, tempCalendar.GetMyLinks());
+            }
+            tempCalendar.save(path, tempCalendar);
+        }
+        else if (suffix == "iman")
+        {
+            ImageAnnotationData tempImageAnno;
+            tempImageAnno.load(path, tempImageAnno);
+            if (tempImageAnno.load(path, tempImageAnno)) {
+                registry->writeEntry(tempImageAnno.GetUuid(), path, tempImageAnno.GetMyLinks());
+            }
+            tempImageAnno.save(path, tempImageAnno);
+        }
+    }
+    doWeRemember = false;
 }

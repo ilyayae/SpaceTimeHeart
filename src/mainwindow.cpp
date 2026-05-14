@@ -13,8 +13,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     QTimer::singleShot(0, this, [this]() {
-        settings = new QSettings("zhopets", "SpaceTimeHeart");
-        if (settings->value("general/FirstLaunch", true).toBool()) {
+        settings = new QSettings(QSettings::IniFormat, QSettings::UserScope, "zhopets", "SpaceTimeHeart");
+        if (settings->value("General/FirstLaunch", true).toBool()) {
             on_actionPreferences_triggered();
         } else {
             initEverything();
@@ -88,7 +88,7 @@ void MainWindow::initEverything()
         timer = nullptr;
     }
     dochandl = new DocumentHandler(this, settings, ui->EditorPlace);
-    browser = new filebrowser(settings->value("general/WorkDirectory", "/home").toString(), ui->centralwidget);
+    browser = new filebrowser(settings->value("General/WorkDirectory", "/home").toString(), ui->centralwidget);
     browser->setWindowFlags(Qt::Widget);
     qobject_cast<QHBoxLayout*>(ui->centralwidget->layout())->insertWidget(0, browser);
 
@@ -103,7 +103,8 @@ void MainWindow::initEverything()
     });
     connect(dochandl, &DocumentHandler::fileUpdated, this, &MainWindow::StartSaveProcess);
     connect(dochandl, &DocumentHandler::linkFollowed, this, &MainWindow::updateBrowser);
-
+    connect(browser, &filebrowser::aboutToMoveOrRename, dochandl, &DocumentHandler::beforeFileMove);
+    connect(browser, &filebrowser::finishedMovingOrRenaming, dochandl, &DocumentHandler::afterFileMove);
     //Autosave Functionality - Timer settings
     timer = new QTimer();
     timer->setSingleShot(true);

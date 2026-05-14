@@ -84,7 +84,7 @@ bool UuidRegistry::writeEntry(const QUuid &uuid, const QString &filePath, const 
         );
     query.bindValue(":uuid",  uuid.toString(QUuid::WithoutBraces));
     QSettings settings("zhopets", "SpaceTimeHeart");
-    QDir workDir(settings.value("general/WorkDirectory", "/home").toString());
+    QDir workDir(settings.value("General/WorkDirectory", "/home").toString());
     query.bindValue(":path",  workDir.relativeFilePath(filePath));
     query.bindValue(":links", parts.join(','));
 
@@ -118,7 +118,7 @@ QString UuidRegistry::getPath(const QUuid &uuid) const
 
     if (query.exec() && query.next()) {
         QSettings settings("zhopets", "SpaceTimeHeart");
-        QDir workDir(settings.value("general/WorkDirectory", "/home").toString());
+        QDir workDir(settings.value("General/WorkDirectory", "/home").toString());
         return workDir.absoluteFilePath(query.value(0).toString());
     }
     return QString();
@@ -130,7 +130,7 @@ QUuid UuidRegistry::getUuid(const QString &filePath) const
     QSqlQuery query(db);
     query.prepare("SELECT uuid FROM uuid_registry WHERE filepath = :path");
     QSettings settings("zhopets", "SpaceTimeHeart");
-    QDir workDir(settings.value("general/WorkDirectory", "/home").toString());
+    QDir workDir(settings.value("General/WorkDirectory", "/home").toString());
     query.bindValue(":path", workDir.relativeFilePath(filePath));
 
     if (query.exec() && query.next()) {
@@ -191,7 +191,7 @@ void UuidRegistry::validateEntries()
     auto future = QtConcurrent::run([connName, dbPath]()
                       {
                           QSettings settings("zhopets", "SpaceTimeHeart");
-                          QDir workDir(settings.value("general/WorkDirectory", "/home").toString());
+                          QDir workDir(settings.value("General/WorkDirectory", "/home").toString());
 
                           QString threadConnName = connName + "_validator";
                           {

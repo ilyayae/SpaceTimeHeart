@@ -165,9 +165,9 @@ void ImageAnnotationEditor::UpdateMarkers()
     myMarkers->clear();
     for(int i = 0; i < myData->markers.count(); i++)
     {
-        MarkerData *dat = &myData->markers[i];
+        MarkerData dat = myData->markers[i];
         MarkerItem *mark = new MarkerItem(dat);
-        mark->setPos(dat->X * imageItem->boundingRect().width(), dat->Y * imageItem->boundingRect().height());
+        mark->setPos(dat.X * imageItem->boundingRect().width(), dat.Y * imageItem->boundingRect().height());
         mark->setZValue(1);
         graphicsView->scene()->addItem(mark);
         myMarkers->append(mark);
@@ -436,7 +436,7 @@ ShapeData ImageAnnotationEditor::EditShape(ShapeData *pregenData)
 
 
         layout->addWidget(new QLabel("Is shape closed:", &dialog));
-        QCheckBox *closedCheck = new QCheckBox("Closed", this);
+        QCheckBox *closedCheck = new QCheckBox("Closed", &dialog);
         closedCheck->setToolTip("Enable closed shape");
             pregenData->Closed ? closedCheck->setCheckState(Qt::Checked) : closedCheck->setCheckState(Qt::Unchecked);
         layout->addWidget(closedCheck);
@@ -521,7 +521,7 @@ void ImageAnnotationEditor::ClickedMarker(MarkerItem *mark, bool shift)
     }
     else
     {
-        emitUuid(mark->myData->Link.toString());
+        emitUuid(mark->myData.Link.toString());
     }
 }
 
@@ -531,12 +531,12 @@ void ImageAnnotationEditor::RightClickedMarker(MarkerItem *mark)
         return;
     if(isEditingMarkers)
     {
-        MarkerData New = CreateMarker(mark->myData->X, mark->myData->Y, mark->myData);
+        MarkerData New = CreateMarker(mark->myData.X, mark->myData.Y, &mark->myData);
         if(New.IconId.isEmpty())
             return;
         for(int i = 0; i < myData->markers.count(); i++)
         {
-            if(myData->markers[i] == *mark->myData)
+            if(myData->markers[i] == mark->myData)
             {
                 myData->markers[i] = New;
             }
@@ -561,7 +561,7 @@ void ImageAnnotationEditor::RightClickedShape(ShapeGraphicsObject *shape)
             {
                 if(myData->shapes[i] == *shape->MyData())
                 {
-                    undoStack.push(new ChangeStyleCommand(&myData->shapes[i], New));
+                    undoStack.push(new ChangeStyleCommand(myData->shapes[i], New, &myData->shapes));
                     break;
                 }
             }
@@ -689,7 +689,7 @@ void ImageAnnotationEditor::dragMarkers(QPointF delta)
 {
     for(int i = 0; i < selectedMarkers->count(); i++)
     {
-        (*selectedMarkers)[i]->setPos(QPointF((*selectedMarkers)[i]->myData->X * imageItem->boundingRect().width(), (*selectedMarkers)[i]->myData->Y * imageItem->boundingRect().height()) + delta);
+        (*selectedMarkers)[i]->setPos(QPointF((*selectedMarkers)[i]->myData.X * imageItem->boundingRect().width(), (*selectedMarkers)[i]->myData.Y * imageItem->boundingRect().height()) + delta);
     }
     graphicsView->viewport()->update();
 }
@@ -699,9 +699,9 @@ void ImageAnnotationEditor::finishDragging(QPointF delta)
     graphicsView->panningLocked = false;
     for(int i = 0; i < selectedMarkers->count(); i++)
     {
-        (*selectedMarkers)[i]->setPos(QPointF((*selectedMarkers)[i]->myData->X * imageItem->boundingRect().width(), (*selectedMarkers)[i]->myData->Y * imageItem->boundingRect().height()) + delta);
-        (*selectedMarkers)[i]->myData->X = (*selectedMarkers)[i]->pos().x() / imageItem->boundingRect().width();
-        (*selectedMarkers)[i]->myData->Y = (*selectedMarkers)[i]->pos().y() / imageItem->boundingRect().height();
+        (*selectedMarkers)[i]->setPos(QPointF((*selectedMarkers)[i]->myData.X * imageItem->boundingRect().width(), (*selectedMarkers)[i]->myData.Y * imageItem->boundingRect().height()) + delta);
+        (*selectedMarkers)[i]->myData.X = (*selectedMarkers)[i]->pos().x() / imageItem->boundingRect().width();
+        (*selectedMarkers)[i]->myData.Y = (*selectedMarkers)[i]->pos().y() / imageItem->boundingRect().height();
     }
     graphicsView->viewport()->update();
 }
@@ -773,7 +773,7 @@ void ImageAnnotationEditor::on_actionRemoveMarker_triggered()
         {
             for(int o = myData->markers.count()-1; o >= 0; o--)
             {
-                if(myData->markers[o] == *(*selectedMarkers)[i]->myData)
+                if(myData->markers[o] == (*selectedMarkers)[i]->myData)
                 {
                     graphicsView->scene()->removeItem((*selectedMarkers)[i]);
                     (*selectedMarkers)[i]->deleteLater();

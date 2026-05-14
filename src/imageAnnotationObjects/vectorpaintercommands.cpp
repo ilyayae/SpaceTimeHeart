@@ -113,16 +113,37 @@ void DeleteShapeCommand::undo()
 }
 
 
-ChangeStyleCommand::ChangeStyleCommand(ShapeData *shape, ShapeData newData)
-    : Shape(shape), NewData(newData)
+ChangeStyleCommand::ChangeStyleCommand(ShapeData shape, ShapeData newData, QList<ShapeData> *shapesList)
+    : Shape(shape), ShapesList(shapesList), NewData(newData)
 {
-    OldData = *Shape;
+    OldData = Shape;
 }
 void ChangeStyleCommand::redo()
 {
-    *Shape = NewData;
+    bool found = false;
+    for(int i = 0; i < ShapesList->count(); i++)
+    {
+        if(ShapesList->at(i) == Shape)
+        {
+            ShapesList->replace(i, NewData);
+            found = true;
+            break;
+        }
+    }
+    if(!found) qDebug() << "Redo failed: Original shape state not found.";
 }
+
 void ChangeStyleCommand::undo()
 {
-    *Shape = OldData;
+    bool found = false;
+    for(int i = 0; i < ShapesList->count(); i++)
+    {
+        if(ShapesList->at(i) == NewData)
+        {
+            ShapesList->replace(i, OldData);
+            found = true;
+            break;
+        }
+    }
+    if(!found) qDebug() << "Undo failed: Changed shape state not found.";
 }
