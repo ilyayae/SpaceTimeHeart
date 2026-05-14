@@ -92,7 +92,7 @@ ImageAnnotationEditor::ImageAnnotationEditor(QWidget *parent)
     connect(&undoStack, &QUndoStack::indexChanged, this, [this]() {
         if (!isDraggingHandle)
             UpdateShapes();
-    });
+    }, Qt::QueuedConnection);
 }
 
 ImageAnnotationEditor::~ImageAnnotationEditor()
@@ -190,7 +190,7 @@ void ImageAnnotationEditor::UpdateShapes()
     for(int i = 0; i < myShapes->count(); i++)
     {
         graphicsView->scene()->removeItem((*myShapes)[i]);
-        delete (*myShapes)[i];
+        (*myShapes)[i]->deleteLater();
     }
     myShapes->clear();
     for(int i = 0; i < myData->shapes.count(); i++)
