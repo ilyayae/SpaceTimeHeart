@@ -40,5 +40,6 @@ void MonthInYearEntry::on_LineDays_textChanged(const QString &arg1)
 void MonthInYearEntry::on_LineName_textChanged(const QString &arg1)
 {
     name = arg1;
+    emit UpdatedName();
 }
 

@@ -35,7 +35,7 @@ MainWindow::~MainWindow()
 // Open file functionality
 void MainWindow::on_actionOpen_File_triggered()
 {
-    dochandl->loadFile(QFileDialog::getOpenFileName(nullptr, tr("Open File"), "/home", tr("Text Files (*.txt);;All Files (*)")));
+    dochandl->loadFile(QFileDialog::getOpenFileName(nullptr, tr("Open File"), "/home", tr("Notes (*.txt *.md *.ccal *.iman);;Text (*.txt);;Markdown (*.md);;Calendar (*.ccal);;Image Annotation (*.iman);;All Files (*)")));
 }
 // Save file functionality
 void MainWindow::on_actionSave_File_triggered()

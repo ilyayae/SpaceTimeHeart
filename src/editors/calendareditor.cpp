@@ -20,7 +20,6 @@ void CalendarEditor::Initialize(CalendarData *data)
     UpdateCalendar(myData->lastViewedYear, myData->lastViewedMonth);
     ui->DayLinksHolder->layout()->setAlignment(Qt::AlignLeft);
 }
-
 void CalendarEditor::UpdateCalendar(int year, int month)
 {
     currentYear = year;
@@ -38,7 +37,6 @@ void CalendarEditor::UpdateCalendar(int year, int month)
         }
         delete item;
     }
-
     for(int o = 0; o < myData->config.weekLength; o++)
     {
         QLabel *weekdayLabel = new QLabel(ui->DayHolder);
@@ -53,25 +51,33 @@ void CalendarEditor::UpdateCalendar(int year, int month)
         qobject_cast<QGridLayout*>(ui->DayHolder->layout())->addWidget(weekdayLabel, 0, o);
     }
 
-    int firstDayWeekday = myData->config.weekdayOf(myData->config.absoluteDay(currentYear, currentMonth, 1));
-    for(int o = 1; o < myData->config.months[currentMonth].dayCount+1; o++)
+    int daysInThisMonth = myData->config.daysInMonth(currentYear, currentMonth);
+    int firstDayAbs = myData->config.absoluteDay(currentYear, currentMonth, 1);
+    int firstDayWeekday = myData->config.weekdayOf(currentYear, currentMonth, 1);
+
+    for(int o = 1; o <= daysInThisMonth; o++)
     {
         QList<double> moonsphases;
         QList<QString> mooncolors;
+
+        int currentDayAbs = myData->config.absoluteDay(currentYear, currentMonth, o);
+
         for(int i = 0; i < myData->config.moons.count(); i++)
         {
-            double phase = std::fmod((myData->config.absoluteDay(currentYear, currentMonth, o) - myData->config.moons[i].epochDayOffset) / myData->config.moons[i].cycleLengthDays, 1.0);
+            double phase = std::fmod((currentDayAbs - myData->config.moons[i].epochDayOffset) / myData->config.moons[i].cycleLengthDays, 1.0);
             moonsphases.append(phase);
             mooncolors.append(myData->config.moons[i].color);
         }
-        DaySlot *day = new DaySlot(ui->DayHolder, o, myData->config.weekdayOf(myData->config.absoluteDay(currentYear, currentMonth, o)), myData->linksForDay(currentYear, currentMonth, o).count(), &moonsphases, &mooncolors);
-        int col = myData->config.weekdayOf(myData->config.absoluteDay(currentYear, currentMonth, o));
-        int adjustedIndex = (o - 1) + firstDayWeekday;
-        int row = adjustedIndex / myData->config.weekLength + 1;
+
+        int col = myData->config.weekdayOf(currentYear, currentMonth, o);
+
+        int daysSinceFirst = currentDayAbs - firstDayAbs;
+        int row = (firstDayWeekday + daysSinceFirst) / myData->config.weekLength + 1;
+
+        DaySlot *day = new DaySlot(ui->DayHolder, o, col, myData->linksForDay(currentYear, currentMonth, o).count(), &moonsphases, &mooncolors);
         qobject_cast<QGridLayout*>(ui->DayHolder->layout())->addWidget(day, row, col);
         connect(day, &DaySlot::clicked, this, &CalendarEditor::SelectDay);
     }
-
     QLayout *layout = ui->DayLinksHolder->layout();
     while (layout->count() > 1) {
         QLayoutItem *item = layout->takeAt(layout->count() - 1);
@@ -79,13 +85,15 @@ void CalendarEditor::UpdateCalendar(int year, int month)
             item->widget()->deleteLater();
         delete item;
     }
+
     ui->LinkFrame->setVisible(false);
-    for(int i = 0; i < myData->config.months[currentMonth].dayCount; i++)
+
+    for(int i = 1; i <= daysInThisMonth; i++)
     {
         QVector<DayLink> links = myData->linksForDay(currentYear, currentMonth, i);
-        for (int i = 0; i < links.count(); i++)
+        for (int j = 0; j < links.count(); j++)
         {
-            DayLink link = links[i];
+            DayLink link = links[j];
             QFileInfo info(myRegistry->getPath(QUuid::fromString(link.targetNoteId)));
             LinkInDay *linkInDay = new LinkInDay(ui->DayLinksHolder, link, info.baseName(), false);
             layout->addWidget(linkInDay);
@@ -94,7 +102,6 @@ void CalendarEditor::UpdateCalendar(int year, int month)
         }
     }
 }
-
 void CalendarEditor::on_Date_clicked()
 {
     QDialog dialog(this);
@@ -141,7 +148,7 @@ void CalendarEditor::SelectDay(DaySlot *day)
     }
 
     if(selectedDay != nullptr)
-        selectedDay->ColorMe("#FFF0F0");
+        selectedDay->ColorMe("#FFF4F4");
 
     selectedDay = day;
 

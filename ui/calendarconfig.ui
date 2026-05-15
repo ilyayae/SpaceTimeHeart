@@ -41,7 +41,7 @@
          <x>0</x>
          <y>0</y>
          <width>798</width>
-         <height>216</height>
+         <height>287</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -289,6 +289,72 @@
            </item>
            <item>
             <widget class="QWidget" name="EmptyWidget3" native="true"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line_3">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Leap days:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="LeapDaysEdit" native="true">
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QWidget" name="AddLeapDayButton" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QPushButton" name="AddLeapDay">
+                <property name="text">
+                 <string>Add Leap Day</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="EmptyWidget4" native="true"/>
            </item>
           </layout>
          </widget>

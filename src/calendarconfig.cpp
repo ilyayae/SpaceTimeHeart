@@ -40,6 +40,26 @@ void CalendarConfig::setupEarthStandard()
 
     on_AddMoon_clicked();
     listMoon.last()->setMe("Moon", 29.53f, 0.0f, "#FFFFFF");
+
+    on_AddLeapDay_clicked();
+
+    LeapDayException rule100;
+    rule100.priority = 1;
+    rule100.everyNYears = 100;
+    rule100.offsetYears = 0;
+    rule100.happens = false;
+
+    LeapDayException rule400;
+    rule400.priority = 2;
+    rule400.everyNYears = 400;
+    rule400.offsetYears = 0;
+    rule400.happens = true;
+
+    QList<LeapDayException> exceptions;
+    exceptions.append(rule100);
+    exceptions.append(rule400);
+
+    listLeapDay.last()->setMe(1,4,0,1,true,false, false, exceptions);
 }
 
 void CalendarConfig::on_AddMonth_clicked()
@@ -47,7 +67,9 @@ void CalendarConfig::on_AddMonth_clicked()
     MonthInYearEntry *month = new MonthInYearEntry(ui->MonthsInYearEdit);
     qobject_cast<QVBoxLayout*>(ui->MonthsInYearEdit->layout())->insertWidget(listMonth.count(), month);
     connect(month, &MonthInYearEntry::destroyMe, this, &CalendarConfig::DestroyMonth);
+    connect(month, &MonthInYearEntry::UpdatedName, this, &CalendarConfig::updateAllLeapDays);
     listMonth.append(month);
+    updateAllLeapDays();
 }
 
 
@@ -66,6 +88,16 @@ void CalendarConfig::on_AddDay_clicked()
     qobject_cast<QVBoxLayout*>(ui->DaysInWeekEdit->layout())->insertWidget(listDay.count(), day);
     connect(day, &DayInWeekEntry::destroyMe, this, &CalendarConfig::DestroyDay);
     listDay.append(day);
+
+}
+
+void CalendarConfig::on_AddLeapDay_clicked()
+{
+    LeapDayEntry *leap = new LeapDayEntry(ui->LeapDaysEdit);
+    qobject_cast<QVBoxLayout*>(ui->LeapDaysEdit->layout())->insertWidget(listLeapDay.count(), leap);
+    connect(leap, &LeapDayEntry::destroyMe, this, &CalendarConfig::DestroyLeapDay);
+    listLeapDay.append(leap);
+    updateAllLeapDays();
 }
 
 void CalendarConfig::DestroyMonth(MonthInYearEntry *month)
@@ -95,6 +127,15 @@ void CalendarConfig::DestroyDay(DayInWeekEntry *day)
     }
 }
 
+void CalendarConfig::DestroyLeapDay(LeapDayEntry *day)
+{
+    if(listLeapDay.count() > 0)
+    {
+        listLeapDay.removeOne(day);
+        day->deleteLater();
+    }
+}
+
 void CalendarConfig::on_ConfirmCreation_clicked()
 {
     emit savedData();
@@ -103,6 +144,13 @@ void CalendarConfig::on_ConfirmCreation_clicked()
 void CalendarConfig::on_Cancel_clicked()
 {
     this->close();
+}
+
+void CalendarConfig::updateAllLeapDays()
+{
+    for (LeapDayEntry *entry : listLeapDay) {
+            entry->setMonthSelection(listMonth);
+    }
 }
 
 CalendarConfigData CalendarConfig::toConfigData() const
@@ -136,5 +184,30 @@ CalendarConfigData CalendarConfig::toConfigData() const
         cfg.moons.append(moon);
     }
 
+    cfg.leapDays.clear();
+    cfg.leapDays.reserve(listLeapDay.size());
+    for (LeapDayEntry *entry : listLeapDay) {
+        LeapDayDefinition leapDay;
+        leapDay.affectsWeekDays = entry->affectsWeekDays;
+        leapDay.daysAdded = entry->daysAdded;
+        leapDay.happensEveryNYears = entry->everyNYears;
+        leapDay.offsetYears = entry->offsetYears;
+        leapDay.pickRandomDay = entry->randomizeDay;
+        leapDay.pickRandomMonth = entry->randomizeMonth;
+        leapDay.targetsMonth = entry->selectedMonth;
+        leapDay.uniqueToMeLinks = QList<DayLink>();
+        for(LeapDayExceptionEntry* exception : entry->exceptions)
+        {
+            LeapDayException exc;
+            exc.happens = exception->happens;
+            exc.priority = exception->priority;
+            exc.everyNYears = exception->everyNYears;
+            exc.offsetYears = exception->yearOffset;
+            leapDay.exceptions.append(exc);
+        }
+        cfg.leapDays.append(leapDay);
+    }
+
     return cfg;
 }
+

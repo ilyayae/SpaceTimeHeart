@@ -28,6 +28,7 @@ private slots:
 
 signals:
     void destroyMe(MonthInYearEntry *me);
+    void UpdatedName();
 
 private:
     Ui::MonthInYearEntry *ui;

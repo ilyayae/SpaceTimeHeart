@@ -4,6 +4,65 @@
 #include <QIODevice>
 #include <cmath>
 
+
+QDataStream &operator<<(QDataStream &out, const LeapDayException &e)
+{
+    out << static_cast<qint32>(e.priority)
+    << static_cast<qint32>(e.everyNYears)
+    << static_cast<qint32>(e.offsetYears)
+    << e.happens;
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, LeapDayException &e)
+{
+    qint32 p, n, o;
+    in >> p >> n >> o >> e.happens;
+    e.priority = p;
+    e.everyNYears = n;
+    e.offsetYears = o;
+    return in;
+}
+/*
+    QVector<DayLink> uniqueToMeLinks;
+    int targetsMonth;
+    int happensEveryNYears = 4;
+    int offsetYears = 0;
+    QVector<LeapDayException> exceptions;
+    int daysAdded = 1;
+    bool affectsWeekDays = true;
+    bool pickRandomDay = false;
+    bool pickRandomMonth = false;
+*/
+QDataStream &operator<<(QDataStream &out, const LeapDayDefinition &ld)
+{
+    out << ld.uniqueToMeLinks
+        << ld.targetsMonth
+        << ld.happensEveryNYears
+        << ld.offsetYears
+        << ld.exceptions
+        << ld.daysAdded
+        << ld.affectsWeekDays
+        << ld.pickRandomDay
+        << ld.pickRandomMonth;
+
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, LeapDayDefinition &ld)
+{
+    in >> ld.uniqueToMeLinks
+       >> ld.targetsMonth
+       >> ld.happensEveryNYears
+       >> ld.offsetYears
+       >> ld.exceptions
+       >> ld.daysAdded
+       >> ld.affectsWeekDays
+       >> ld.pickRandomDay
+       >> ld.pickRandomMonth;
+
+    return in;
+}
 QDataStream &operator<<(QDataStream &out, const MonthDefinition &m)
 {
     out << m.name << static_cast<qint32>(m.dayCount);
@@ -35,55 +94,157 @@ int CalendarConfigData::daysInYear() const
         total += m.dayCount;
     return total;
 }
+
+int CalendarConfigData::daysInYear(int year) const
+{
+    int total = daysInYear();
+    for (const auto &leapDef : leapDays) {
+        if (isLeapYear(year, leapDef)) {
+            total += leapDef.daysAdded;
+        }
+    }
+    return total;
+}
 qint64 CalendarConfigData::absoluteDay(int year, int month, int day) const
 {
-    qint64 abs = static_cast<qint64>(year) * daysInYear();
+    qint64 extraDays = 0;
+    for (int y = 0; y < year; ++y)
+    {
+        for(const auto &leapDef : leapDays)
+        {
+            if (isLeapYear(y, leapDef))
+            {
+                extraDays += leapDef.daysAdded;
+            }
+        }
+    }
+    qint64 abs = static_cast<qint64>(year) * daysInYear() + extraDays;
     for (int i = 0; i < month && i < months.size(); ++i)
+    {
         abs += months[i].dayCount;
+        for(const auto &leapDef : leapDays)
+        {
+            if (i == leapDef.targetsMonth && isLeapYear(year, leapDef))
+            {
+                abs += leapDef.daysAdded;
+            }
+        }
+    }
     abs += (day - 1);
     return abs;
 }
 int CalendarConfigData::weekdayOf(qint64 absoluteDay) const
 {
-    if (weekLength <= 0)
-        return 0;
-
-    int wd = static_cast<int>(absoluteDay % weekLength);
+    if (weekLength <= 0) return 0;
+    int wd = static_cast<int>((absoluteDay + weekOffset) % weekLength);
     if (wd < 0) wd += weekLength;
     return wd;
+}
+
+int CalendarConfigData::weekdayOf(int year, int month, int day) const
+{
+    if (weekLength <= 0) return 0;
+
+    qint64 cycleDays = static_cast<qint64>(year) * daysInYear();
+    for (int y = 0; y < year; ++y) {
+        for (const auto &leapDef : leapDays) {
+            if (isLeapYear(y, leapDef) && leapDef.affectsWeekDays) {
+                cycleDays += leapDef.daysAdded;
+            }
+        }
+    }
+
+    for (int i = 0; i < month && i < months.size(); ++i) {
+        cycleDays += months[i].dayCount;
+        for (const auto &leapDef : leapDays) {
+            if (leapDef.targetsMonth == i && isLeapYear(year, leapDef) && leapDef.affectsWeekDays) {
+                cycleDays += leapDef.daysAdded;
+            }
+        }
+    }
+    cycleDays += (day - 1);
+
+    int wd = static_cast<int>((cycleDays + weekOffset) % weekLength);
+    if (wd < 0) wd += weekLength;
+    return wd;
+}
+
+bool CalendarConfigData::isLeapYear(int year, const LeapDayDefinition &leapDef) const
+{
+    const LeapDayException* highestPriorityMatch = nullptr;
+    for (const LeapDayException &ex : leapDef.exceptions)
+    {
+        if (year % ex.everyNYears == ex.offsetYears)
+        {
+            if (!highestPriorityMatch || ex.priority > highestPriorityMatch->priority)
+            {
+                highestPriorityMatch = &ex;
+            }
+        }
+    }
+    if (highestPriorityMatch)
+    {
+        return highestPriorityMatch->happens;
+    }
+    return (year - leapDef.offsetYears) % leapDef.happensEveryNYears == 0;
+}
+int CalendarConfigData::daysInMonth(int year, int month) const
+{
+    int baseDays = months[month].dayCount;
+    int extraDays = 0;
+
+    for (const LeapDayDefinition &leap : leapDays) {
+        if (leap.targetsMonth == month && !leap.pickRandomMonth) {
+            int adjustedYear = year - leap.offsetYears;
+            if (adjustedYear % leap.happensEveryNYears == 0) {
+
+                bool applies = true;
+                if (applies) {
+                    extraDays += leap.daysAdded;
+                }
+            }
+        }
+    }
+    return baseDays + extraDays;
 }
 
 QDataStream &operator<<(QDataStream &out, const CalendarConfigData &c)
 {
     out << c.calendarName
         << static_cast<qint32>(c.weekLength)
+        << static_cast<qint32>(c.weekOffset)
         << c.dayNames
         << static_cast<qint32>(c.months.size());
 
-    for (const auto &m : c.months)
-        out << m;
+    for (const auto &m : c.months) out << m;
 
     out << static_cast<qint32>(c.moons.size());
-    for (const auto &moon : c.moons)
-        out << moon;
+    for (const auto &moon : c.moons) out << moon;
+
+    out << static_cast<qint32>(c.leapDays.size());
+    for (const auto &ld : c.leapDays) out << ld;
 
     return out;
 }
+
 QDataStream &operator>>(QDataStream &in, CalendarConfigData &c)
 {
-    qint32 wl, monthCount, moonCount;
+    qint32 wl, wo, monthCount, moonCount, leapCount;
 
-    in >> c.calendarName >> wl >> c.dayNames >> monthCount;
+    in >> c.calendarName >> wl >> wo >> c.dayNames >> monthCount;
     c.weekLength = wl;
+    c.weekOffset = wo;
 
     c.months.resize(monthCount);
-    for (int i = 0; i < monthCount; ++i)
-        in >> c.months[i];
+    for (int i = 0; i < monthCount; ++i) in >> c.months[i];
 
     in >> moonCount;
     c.moons.resize(moonCount);
-    for (int i = 0; i < moonCount; ++i)
-        in >> c.moons[i];
+    for (int i = 0; i < moonCount; ++i) in >> c.moons[i];
+
+    in >> leapCount;
+    c.leapDays.resize(leapCount);
+    for (int i = 0; i < leapCount; ++i) in >> c.leapDays[i];
 
     return in;
 }
@@ -148,6 +309,7 @@ QDataStream &operator>>(QDataStream &in, DayLink &l)
     in >> l.targetNoteId >> l.displayLabel >> l.colorHex;
     return in;
 }
+
 
 QVector<DayLink> CalendarData::linksForDay(int year, int month, int day) const
 {

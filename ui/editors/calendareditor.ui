@@ -19,6 +19,12 @@
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="minimumSize">
+    <size>
+     <width>800</width>
+     <height>0</height>
+    </size>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
      <number>0</number>
@@ -35,7 +41,7 @@
     <property name="bottomMargin">
      <number>0</number>
     </property>
-    <item alignment="Qt::AlignmentFlag::AlignHCenter">
+    <item alignment="Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignVCenter">
      <widget class="QWidget" name="DateNavigator" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -43,10 +49,22 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>16777215</height>
+       </size>
+      </property>
       <property name="layoutDirection">
        <enum>Qt::LayoutDirection::LeftToRight</enum>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
        <item>
         <widget class="QToolButton" name="PrevYear">
          <property name="text">
@@ -91,6 +109,219 @@
         <widget class="QToolButton" name="NextYear">
          <property name="text">
           <string>&gt;&gt;</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item alignment="Qt::AlignmentFlag::AlignHCenter|Qt::AlignmentFlag::AlignVCenter">
+     <widget class="QWidget" name="CurrentDateNavigator" native="true">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <property name="spacing">
+        <number>1</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QToolButton" name="minusYear">
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>-Y</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="minusMonth">
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>-Mo</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="minusWeek">
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>-W</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="minusDay">
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>-D</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="minusHour">
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>-H</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="minusMinute">
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>-M</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="minusSecond">
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>-S</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton">
+         <property name="text">
+          <string>Current time: 00:00:00 DD:MM:YY</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="plusSecond">
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>+S</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="plusMinute">
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>+M</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="plusHour">
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>+H</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="plusDay">
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>+D</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="plusWeek">
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>+W</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="plusMonth">
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>+Mo</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="plusYear">
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>+Y</string>
          </property>
         </widget>
        </item>

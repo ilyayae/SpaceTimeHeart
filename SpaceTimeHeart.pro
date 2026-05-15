@@ -27,6 +27,8 @@ SOURCES += \
     src/imageAnnotationObjects/shapeinprogress.cpp \
     src/imageAnnotationObjects/vectorpaintercommands.cpp \
     src/imageAnnotationObjects/markeritem.cpp \
+    src/listEntries/leapdayentry.cpp \
+    src/listEntries/leapdayexceptionentry.cpp \
     src/mindMapObjects/mindmapedge.cpp \
     src/mindMapObjects/mindmapnode.cpp \
     src/mindMapObjects/mindmapview.cpp \
@@ -95,9 +97,12 @@ HEADERS += \
     include/mindMapObjects/mindmapnode.h \
     include/mindMapObjects/mindmapview.h \
     include/subclasses/advancedfilesystemmodel.h \
+    include/listEntries/leapdayentry.h \
+    include/listEntries/leapdayexceptionentry.h \
     test/tests.h
 
 FORMS += \
+    ui/listEntries/leapdayexceptionentry.ui \
     ui/editors/mindmap.ui \
     ui/calendarObjects/moonvisualiser.ui \
     ui/calendarObjects/dayslot.ui \
@@ -116,6 +121,7 @@ FORMS += \
     ui/mainwindow.ui \
     ui/editors/markdowneditor.ui \
     ui/editors/texteditor.ui \
+    ui/listEntries/leapdayentry.ui \
 
 # TRANSLATIONS +=
 # CONFIG += lrelease

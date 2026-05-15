@@ -5,7 +5,9 @@
 #include "include/listEntries/dayinweekentry.h"
 #include "include/listEntries/monthinyearentry.h"
 #include "include/listEntries/moonentry.h"
+#include "include/listEntries/leapdayentry.h"
 #include "include/noteTypes/calendardata.h"
+#include "include/listEntries/leapdayexceptionentry.h"
 
 namespace Ui {
 class CalendarConfig;
@@ -21,11 +23,14 @@ public:
     QList<MonthInYearEntry*> listMonth;
     QList<MoonEntry*> listMoon;
     QList<DayInWeekEntry*> listDay;
+    QList<LeapDayEntry*> listLeapDay;
     void DestroyMonth(MonthInYearEntry *month);
     void DestroyMoon(MoonEntry *moon);
     void DestroyDay(DayInWeekEntry *day);
+    void DestroyLeapDay(LeapDayEntry *day);
     CalendarConfigData toConfigData() const;
     void setupEarthStandard();
+    void updateAllLeapDays();
 
 private slots:
     void on_AddMonth_clicked();
@@ -33,6 +38,7 @@ private slots:
     void on_AddDay_clicked();
     void on_ConfirmCreation_clicked();
     void on_Cancel_clicked();
+    void on_AddLeapDay_clicked();
 
 signals:
     void savedData();
