@@ -11,6 +11,7 @@
 #include <QColorDialog>
 #include <QListWidget>
 #include <QFileInfo>
+#include <QMap>
 
 #include <include/noteTypes/calendardata.h>
 #include <include/calendarObjects/dayslot.h>

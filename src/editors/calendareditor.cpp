@@ -20,6 +20,25 @@ void CalendarEditor::Initialize(CalendarData *data)
     UpdateCalendar(myData->lastViewedYear, myData->lastViewedMonth);
     ui->DayLinksHolder->layout()->setAlignment(Qt::AlignLeft);
 }
+
+int getRandomForMonth(int year, int month, unsigned int M) {
+    unsigned int N = (year * 100) + month;
+    unsigned int x = N;
+    x = ((x >> 16) ^ x) * 0x45d9f3b;
+    x = ((x >> 16) ^ x) * 0x45d9f3b;
+    x = (x >> 16) ^ x;
+    return (x % M);
+}
+
+int getRandomForYear(int year, unsigned int M) {
+    unsigned int N = year;
+    unsigned int x = N;
+    x = ((x >> 16) ^ x) * 0x45d9f3b;
+    x = ((x >> 16) ^ x) * 0x45d9f3b;
+    x = (x >> 16) ^ x;
+    return (x % M);
+}
+
 void CalendarEditor::UpdateCalendar(int year, int month)
 {
     currentYear = year;
@@ -54,6 +73,53 @@ void CalendarEditor::UpdateCalendar(int year, int month)
     int daysInThisMonth = myData->config.daysInMonth(currentYear, currentMonth);
     int firstDayAbs = myData->config.absoluteDay(currentYear, currentMonth, 1);
     int firstDayWeekday = myData->config.weekdayOf(currentYear, currentMonth, 1);
+
+    // Logic is simple - iterate over all leap days to find which fall onto this month. For each determine if the leap day falls randomly or at the end of the month
+    // If it affects leap days we note it down.
+    // Then aftern the QMap is finished we inject it into the code that generates each day, if there is a leap day to be generated we check how it ought to be generated and do that.
+    // We also give the day slot all day links inside the leap day
+    QMap<int, LeapDayDefinition*> dayID_To_LeapDay;
+    const int monthCount = myData->config.months.count();
+    const int daysInThisMonthBase = myData->config.months[month].dayCount;
+
+    for(const auto& leapDay : myData->config.leapDays)
+    {
+        if(myData->config.isLeapYear(year, leapDay))
+        {
+            if(leapDay.targetsMonth == month ||
+                (leapDay.pickRandomMonth && getRandomForYear(year, monthCount) == month))
+            {
+                if(leapDay.pickRandomDay)
+                {
+                    /*
+                    int dayID = getRandomForMonth(year, month, daysInThisMonthBase);
+                    dayID_To_LeapDay.insert(dayID, leapDay);
+                    daysInThisMonth++;
+                    */
+                    if(leapDay.affectsWeekDays)
+                    {
+                        daysInThisMonth++;
+                    }
+                }
+                else
+                {
+
+                    if(leapDay.affectsWeekDays)
+                    {
+                        daysInThisMonth++;
+                    }
+                    else
+                    {
+
+                    }
+                    /*
+                    dayID_To_LeapDay.insert(daysInThisMonth, leapDay);
+                    daysInThisMonth++;
+                    */
+                }
+            }
+        }
+    }
 
     for(int o = 1; o <= daysInThisMonth; o++)
     {
@@ -102,6 +168,7 @@ void CalendarEditor::UpdateCalendar(int year, int month)
         }
     }
 }
+
 void CalendarEditor::on_Date_clicked()
 {
     QDialog dialog(this);

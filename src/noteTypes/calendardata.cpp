@@ -23,17 +23,6 @@ QDataStream &operator>>(QDataStream &in, LeapDayException &e)
     e.offsetYears = o;
     return in;
 }
-/*
-    QVector<DayLink> uniqueToMeLinks;
-    int targetsMonth;
-    int happensEveryNYears = 4;
-    int offsetYears = 0;
-    QVector<LeapDayException> exceptions;
-    int daysAdded = 1;
-    bool affectsWeekDays = true;
-    bool pickRandomDay = false;
-    bool pickRandomMonth = false;
-*/
 QDataStream &operator<<(QDataStream &out, const LeapDayDefinition &ld)
 {
     out << ld.uniqueToMeLinks
