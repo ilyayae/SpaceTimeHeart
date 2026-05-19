@@ -1,4 +1,5 @@
 #include "include/noteTypes/calendardata.h"
+#include "qdebug.h"
 
 #include <QFile>
 #include <QIODevice>
@@ -183,7 +184,7 @@ int CalendarConfigData::daysInMonth(int year, int month) const
     int extraDays = 0;
 
     for (const LeapDayDefinition &leap : leapDays) {
-        if (leap.targetsMonth == month && !leap.pickRandomMonth) {
+        if (leap.targetsMonth == month && !leap.pickRandomMonth) { //fix here, does not account for leapday randomly being asigned here
             int adjustedYear = year - leap.offsetYears;
             if (adjustedYear % leap.happensEveryNYears == 0) {
 
@@ -300,17 +301,18 @@ QDataStream &operator>>(QDataStream &in, DayLink &l)
 }
 
 
-QVector<DayLink> CalendarData::linksForDay(int year, int month, int day) const
+QVector<DayLink> CalendarData::linksForDay(int year, int month, int day, const LeapDayDefinition* leapDef) const
 {
     QVector<DayLink> result;
 
     RecurringDateKey rk{month, day};
     if (recurringEvents.contains(rk))
         result.append(recurringEvents.value(rk));
-
     SpecificDateKey sk{year, month, day};
     if (specificEvents.contains(sk))
         result.append(specificEvents.value(sk));
+    if (leapDef != nullptr && !leapDef->uniqueToMeLinks.isEmpty())
+        result.append(leapDef->uniqueToMeLinks);
 
     return result;
 }

@@ -110,7 +110,7 @@ struct CalendarData {
     QString myPath;
     int lastViewedYear = 1;
     int lastViewedMonth = 0;
-    QVector<DayLink> linksForDay(int year, int month, int day) const;
+    QVector<DayLink> linksForDay(int year, int month, int day, const LeapDayDefinition* leapDef = nullptr) const;
     void addRecurringLink(int month, int day, const DayLink &link);
     void addSpecificLink(int year, int month, int day, const DayLink &link);
     void removeLinksToNote(const QString &noteId);

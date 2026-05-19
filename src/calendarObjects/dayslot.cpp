@@ -1,15 +1,16 @@
 #include "include/calendarObjects/dayslot.h"
 #include "ui_dayslot.h"
 
-DaySlot::DaySlot(QWidget *parent, int _dayNumber, int _weekday, int _thisDaysLinks, QList<double> *_moonsPhases, QList<QString> *_moonsColors)
+DaySlot::DaySlot(QWidget *parent, int _dayNumber, int _weekday, int _thisDaysLinks, QList<double> *_moonsPhases, QList<QString> *_moonsColors, const LeapDayDefinition* LeapDayDef)
     : QWidget(parent)
     , ui(new Ui::DaySlot)
 {
     dayNumber = _dayNumber;
-    weekday = _weekday; // unused
+    weekday = _weekday;
     thisDaysLinks = _thisDaysLinks;
     moonsPhases = *_moonsPhases;
     moonsColors = *_moonsColors;
+    leapDayDef = LeapDayDef;
     ui->setupUi(this);
     UpdateEventTracker();
     ui->label->setText(QString::number(dayNumber));

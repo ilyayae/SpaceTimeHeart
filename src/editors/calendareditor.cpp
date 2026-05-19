@@ -51,15 +51,118 @@ void CalendarEditor::UpdateCalendar(int year, int month)
 
     QLayoutItem* item;
     while ((item = ui->DayHolder->layout()->takeAt(0)) != nullptr) {
-        if (item->widget()) {
-            item->widget()->deleteLater();
-        }
+        if (item->widget()) item->widget()->deleteLater();
         delete item;
     }
-    for(int o = 0; o < myData->config.weekLength; o++)
-    {
+
+    const int monthCount = myData->config.months.count();
+    const int baseDaysInThisMonth = myData->config.months[month].dayCount;
+    int firstDayAbs = myData->config.absoluteDay(currentYear, currentMonth, 1);
+    int firstDayWeekday = myData->config.weekdayOf(currentYear, currentMonth, 1);
+
+    QMultiMap<int, const LeapDayDefinition*> leapDaysMap;
+
+    for(const auto& leapDay : myData->config.leapDays) {
+        if(myData->config.isLeapYear(year, leapDay)) {
+            if(leapDay.targetsMonth == month || (leapDay.pickRandomMonth && getRandomForYear(year, monthCount) == month)) {
+                int dayID = baseDaysInThisMonth;
+                if(leapDay.pickRandomDay) {
+                    dayID = getRandomForMonth(year, month, baseDaysInThisMonth);
+                }
+                leapDaysMap.insert(dayID, &leapDay);
+            }
+        }
+    }
+
+    struct RenderCell {
+        int displayDayNumber;
+        int absDay;
+        bool isLeapDay;
+        QString leapHex;
+        bool ignoresWeekdays;
+        int standardWeekday;
+        int gridRow;
+        int gridCol;
+        int leapColumnIndex;
+        const LeapDayDefinition* leapDef;
+    };
+
+    QList<RenderCell> simulatedCells;
+
+    QMap<int, int> maxExtraLeapColumnsAfter;
+
+    int currentDayAbs = firstDayAbs;
+    int currentWeekday = firstDayWeekday;
+    int currentRow = 1;
+    int displayDayNumber = 1;
+
+    for (int baseDay = 1; baseDay <= baseDaysInThisMonth; baseDay++) {
+        RenderCell normalCell = { displayDayNumber++, currentDayAbs++, false, "", false, currentWeekday, currentRow, 0, 0, nullptr };
+        simulatedCells.append(normalCell);
+
+        int dayJustProcessed = currentWeekday;
+        currentWeekday++;
+        if (currentWeekday >= myData->config.weekLength) {
+            currentWeekday = 0;
+            currentRow++;
+        }
+        int leapCountForThisDay = 0;
+
+        auto it = leapDaysMap.find(baseDay);
+        while (it != leapDaysMap.end() && it.key() == baseDay) {
+            const LeapDayDefinition* leapDef = it.value();
+
+            for(int k = 0; k < leapDef->daysAdded; k++) {
+                RenderCell leapCell;
+                leapCell.displayDayNumber = displayDayNumber++;
+                leapCell.absDay = currentDayAbs++;
+                leapCell.isLeapDay = true;
+                leapCell.leapHex = "#89CFF0";
+                leapCell.ignoresWeekdays = !leapDef->affectsWeekDays;
+                leapCell.leapColumnIndex = 0;
+                leapCell.leapDef = leapDef;
+                if (leapCell.ignoresWeekdays) {
+                    leapCell.gridRow = normalCell.gridRow;
+                    leapCell.standardWeekday = dayJustProcessed;
+                    leapCell.leapColumnIndex = leapCountForThisDay;
+                    leapCountForThisDay++;
+                    if (leapCountForThisDay > maxExtraLeapColumnsAfter.value(dayJustProcessed, 0)) {
+                        maxExtraLeapColumnsAfter[dayJustProcessed] = leapCountForThisDay;
+                    }
+                } else {
+                    leapCell.gridRow = currentRow;
+                    leapCell.standardWeekday = currentWeekday;
+
+                    currentWeekday++;
+                    if (currentWeekday >= myData->config.weekLength) {
+                        currentWeekday = 0;
+                        currentRow++;
+                    }
+                }
+                simulatedCells.append(leapCell);
+            }
+            it++;
+        }
+    }
+    QMap<int, int> standardToGridCol;
+    QMap<int, QList<int>> leapFollowToGridCol;
+    QList<QString> headerNames;
+
+    int currentColIndex = 0;
+    for (int i = 0; i < myData->config.weekLength; i++) {
+        standardToGridCol[i] = currentColIndex++;
+        headerNames.append(myData->config.dayNames[i]);
+
+        int extraCols = maxExtraLeapColumnsAfter.value(i, 0);
+        for(int j = 0; j < extraCols; j++) {
+            leapFollowToGridCol[i].append(currentColIndex++);
+            headerNames.append("Leap");
+        }
+    }
+
+    for(int i = 0; i < headerNames.count(); i++) {
         QLabel *weekdayLabel = new QLabel(ui->DayHolder);
-        QString fullName = myData->config.dayNames[o];
+        QString fullName = headerNames[i];
         QString display = fullName.length() > 3 ? fullName.left(3) : fullName;
         weekdayLabel->setText(display);
         weekdayLabel->setToolTip(fullName);
@@ -67,98 +170,45 @@ void CalendarEditor::UpdateCalendar(int year, int month)
         weekdayLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Maximum);
         weekdayLabel->setMinimumWidth(0);
         weekdayLabel->setWordWrap(false);
-        qobject_cast<QGridLayout*>(ui->DayHolder->layout())->addWidget(weekdayLabel, 0, o);
+        qobject_cast<QGridLayout*>(ui->DayHolder->layout())->addWidget(weekdayLabel, 0, i);
     }
-
-    int daysInThisMonth = myData->config.daysInMonth(currentYear, currentMonth);
-    int firstDayAbs = myData->config.absoluteDay(currentYear, currentMonth, 1);
-    int firstDayWeekday = myData->config.weekdayOf(currentYear, currentMonth, 1);
-
-    // Logic is simple - iterate over all leap days to find which fall onto this month. For each determine if the leap day falls randomly or at the end of the month
-    // If it affects leap days we note it down.
-    // Then aftern the QMap is finished we inject it into the code that generates each day, if there is a leap day to be generated we check how it ought to be generated and do that.
-    // We also give the day slot all day links inside the leap day
-    QMap<int, LeapDayDefinition*> dayID_To_LeapDay;
-    const int monthCount = myData->config.months.count();
-    const int daysInThisMonthBase = myData->config.months[month].dayCount;
-
-    for(const auto& leapDay : myData->config.leapDays)
-    {
-        if(myData->config.isLeapYear(year, leapDay))
-        {
-            if(leapDay.targetsMonth == month ||
-                (leapDay.pickRandomMonth && getRandomForYear(year, monthCount) == month))
-            {
-                if(leapDay.pickRandomDay)
-                {
-                    /*
-                    int dayID = getRandomForMonth(year, month, daysInThisMonthBase);
-                    dayID_To_LeapDay.insert(dayID, leapDay);
-                    daysInThisMonth++;
-                    */
-                    if(leapDay.affectsWeekDays)
-                    {
-                        daysInThisMonth++;
-                    }
-                }
-                else
-                {
-
-                    if(leapDay.affectsWeekDays)
-                    {
-                        daysInThisMonth++;
-                    }
-                    else
-                    {
-
-                    }
-                    /*
-                    dayID_To_LeapDay.insert(daysInThisMonth, leapDay);
-                    daysInThisMonth++;
-                    */
-                }
-            }
+    for (RenderCell& cell : simulatedCells) {
+        if (cell.isLeapDay && cell.ignoresWeekdays) {
+            cell.gridCol = leapFollowToGridCol[cell.standardWeekday][cell.leapColumnIndex];
+        } else {
+            cell.gridCol = standardToGridCol[cell.standardWeekday];
         }
-    }
 
-    for(int o = 1; o <= daysInThisMonth; o++)
-    {
         QList<double> moonsphases;
         QList<QString> mooncolors;
-
-        int currentDayAbs = myData->config.absoluteDay(currentYear, currentMonth, o);
-
-        for(int i = 0; i < myData->config.moons.count(); i++)
-        {
-            double phase = std::fmod((currentDayAbs - myData->config.moons[i].epochDayOffset) / myData->config.moons[i].cycleLengthDays, 1.0);
+        for(int i = 0; i < myData->config.moons.count(); i++) {
+            double phase = std::fmod((cell.absDay - myData->config.moons[i].epochDayOffset) / myData->config.moons[i].cycleLengthDays, 1.0);
             moonsphases.append(phase);
             mooncolors.append(myData->config.moons[i].color);
         }
+        //
+        int number = cell.leapDef != nullptr ? cell.displayDayNumber + cell.leapDef->uniqueToMeLinks.count() : cell.displayDayNumber;
+        DaySlot *day = new DaySlot(ui->DayHolder, number, cell.gridCol, myData->linksForDay(currentYear, currentMonth, cell.displayDayNumber, cell.leapDef).count(), &moonsphases, &mooncolors, cell.leapDef);
+        //
+        if (cell.isLeapDay) {
+            day->ColorMe(cell.leapHex);
+        }
 
-        int col = myData->config.weekdayOf(currentYear, currentMonth, o);
-
-        int daysSinceFirst = currentDayAbs - firstDayAbs;
-        int row = (firstDayWeekday + daysSinceFirst) / myData->config.weekLength + 1;
-
-        DaySlot *day = new DaySlot(ui->DayHolder, o, col, myData->linksForDay(currentYear, currentMonth, o).count(), &moonsphases, &mooncolors);
-        qobject_cast<QGridLayout*>(ui->DayHolder->layout())->addWidget(day, row, col);
+        qobject_cast<QGridLayout*>(ui->DayHolder->layout())->addWidget(day, cell.gridRow, cell.gridCol);
         connect(day, &DaySlot::clicked, this, &CalendarEditor::SelectDay);
     }
     QLayout *layout = ui->DayLinksHolder->layout();
     while (layout->count() > 1) {
         QLayoutItem *item = layout->takeAt(layout->count() - 1);
-        if (item->widget())
-            item->widget()->deleteLater();
+        if (item->widget()) item->widget()->deleteLater();
         delete item;
     }
-
     ui->LinkFrame->setVisible(false);
 
-    for(int i = 1; i <= daysInThisMonth; i++)
-    {
-        QVector<DayLink> links = myData->linksForDay(currentYear, currentMonth, i);
-        for (int j = 0; j < links.count(); j++)
-        {
+    for (const RenderCell& cell : simulatedCells) {
+        QVector<DayLink> links = myData->linksForDay(currentYear, currentMonth, cell.displayDayNumber, cell.leapDef);
+
+        for (int j = 0; j < links.count(); j++) {
             DayLink link = links[j];
             QFileInfo info(myRegistry->getPath(QUuid::fromString(link.targetNoteId)));
             LinkInDay *linkInDay = new LinkInDay(ui->DayLinksHolder, link, info.baseName(), false);
@@ -215,13 +265,21 @@ void CalendarEditor::SelectDay(DaySlot *day)
     }
 
     if(selectedDay != nullptr)
-        selectedDay->ColorMe("#FFF4F4");
+    {
+        if(selectedDay->leapDayDef == nullptr)
+            selectedDay->ColorMe("#FFF4F4");
+        else
+            selectedDay->ColorMe("#89CFF0");
+    }
 
     selectedDay = day;
 
-    selectedDay->ColorMe("#ffe6e6");
+    if(selectedDay->leapDayDef == nullptr)
+        selectedDay->ColorMe("#ffe6e6");
+    else
+        selectedDay->ColorMe("#99B8C7");
 
-    QVector<DayLink> links = myData->linksForDay(currentYear, currentMonth, day->dayNumber);
+    QVector<DayLink> links = myData->linksForDay(currentYear, currentMonth, day->dayNumber, day->leapDayDef);
     for (int i = 0; i < links.count(); i++)
     {
         DayLink link = links[i];
@@ -232,7 +290,6 @@ void CalendarEditor::SelectDay(DaySlot *day)
         connect(linkInDay, &LinkInDay::DestroyLink, this, &CalendarEditor::DestroyLink);
     }
 }
-
 void CalendarEditor::DestroyLink(DayLink link)
 {
     if(selectedDay != nullptr)
@@ -244,7 +301,8 @@ void CalendarEditor::DestroyLink(DayLink link)
             QList<DayLink> linksForKey = myData->recurringEvents[iteratorRec.key()];
             for(int i = linksForKey.size() - 1; i >= 0; i--)
             {
-                if(linksForKey[i].colorHex == link.colorHex && linksForKey[i].displayLabel == link.displayLabel && linksForKey[i].targetNoteId == link.targetNoteId) linksForKey.remove(i);
+                if(linksForKey[i].colorHex == link.colorHex && linksForKey[i].displayLabel == link.displayLabel && linksForKey[i].targetNoteId == link.targetNoteId)
+                    linksForKey.remove(i);
             }
             myData->recurringEvents.remove(iteratorRec.key());
             for(int i = 0; i < linksForKey.count(); i++)
@@ -252,7 +310,6 @@ void CalendarEditor::DestroyLink(DayLink link)
                 myData->recurringEvents.insert(iteratorRec.key(), linksForKey);
             }
         }
-
         QMapIterator<SpecificDateKey, QVector<DayLink>> iteratorSpe(myData->specificEvents);
         while(iteratorSpe.hasNext())
         {
@@ -260,7 +317,8 @@ void CalendarEditor::DestroyLink(DayLink link)
             QList<DayLink> linksForKey = myData->specificEvents[iteratorSpe.key()];
             for(int i = linksForKey.size() - 1; i >= 0; i--)
             {
-                if(linksForKey[i].colorHex == link.colorHex && linksForKey[i].displayLabel == link.displayLabel && linksForKey[i].targetNoteId == link.targetNoteId) linksForKey.remove(i);
+                if(linksForKey[i].colorHex == link.colorHex && linksForKey[i].displayLabel == link.displayLabel && linksForKey[i].targetNoteId == link.targetNoteId)
+                    linksForKey.remove(i);
             }
             myData->specificEvents.remove(iteratorSpe.key());
             for(int i = 0; i < linksForKey.count(); i++)
@@ -268,10 +326,31 @@ void CalendarEditor::DestroyLink(DayLink link)
                 myData->specificEvents.insert(iteratorSpe.key(), linksForKey);
             }
         }
-
+        for(int k = 0; k < myData->config.leapDays.size(); k++)
+        {
+            QVector<DayLink>& leapLinks = myData->config.leapDays[k].uniqueToMeLinks;
+            for(int i = leapLinks.size() - 1; i >= 0; i--)
+            {
+                if(leapLinks[i].colorHex == link.colorHex &&
+                    leapLinks[i].displayLabel == link.displayLabel &&
+                    leapLinks[i].targetNoteId == link.targetNoteId)
+                {
+                    leapLinks.remove(i);
+                }
+            }
+        }
         SelectDay(selectedDay);
-        selectedDay->thisDaysLinks = myData->linksForDay(currentYear, currentMonth, selectedDay->dayNumber).count();
-        selectedDay->UpdateEventTracker();
+        for(int i = 0; i < ui->DayHolder->layout()->count(); ++i)
+        {
+            QLayoutItem *item = ui->DayHolder->layout()->itemAt(i);
+            if (item && item->widget()) {
+                DaySlot *slot = qobject_cast<DaySlot*>(item->widget());
+                if (slot) {
+                    slot->thisDaysLinks = myData->linksForDay(currentYear, currentMonth, slot->dayNumber, slot->leapDayDef).count();
+                    slot->UpdateEventTracker();
+                }
+            }
+        }
         emit Updated();
     }
 }
@@ -315,45 +394,95 @@ void CalendarEditor::on_PrevMonth_clicked()
         UpdateCalendar(currentYear, currentMonth-1);
     }
 }
-
 void CalendarEditor::on_SpecificLink_clicked()
 {
     if(selectedDay != nullptr)
     {
-        DayLink link = CreateDayLink();
+        LinkScope chosenScope;
+        DayLink link = CreateDayLink(chosenScope);
+
         if(link.targetNoteId.isEmpty())
             return;
-        myData->addSpecificLink(currentYear, currentMonth, selectedDay->dayNumber, link);
-        selectedDay->thisDaysLinks++;
+
+        if (chosenScope == ScopeYearly)
+        {
+            RecurringDateKey rk{currentMonth, selectedDay->dayNumber};
+            myData->recurringEvents[rk].append(link);
+        }
+        else if (chosenScope == ScopeLeapDay)
+        {
+            for(int k = 0; k < myData->config.leapDays.size(); k++)
+            {
+                if (&myData->config.leapDays[k] == selectedDay->leapDayDef)
+                {
+                    myData->config.leapDays[k].uniqueToMeLinks.append(link);
+                    break;
+                }
+            }
+        }
+        else
+        {
+            myData->addSpecificLink(currentYear, currentMonth, selectedDay->dayNumber, link);
+        }
+
         SelectDay(selectedDay);
-        selectedDay->UpdateEventTracker();
+        for(int i = 0; i < ui->DayHolder->layout()->count(); ++i)
+        {
+            QLayoutItem *item = ui->DayHolder->layout()->itemAt(i);
+            if (item && item->widget()) {
+                DaySlot *slot = qobject_cast<DaySlot*>(item->widget());
+                if (slot) {
+                    slot->thisDaysLinks = myData->linksForDay(currentYear, currentMonth, slot->dayNumber, slot->leapDayDef).count();
+                    slot->UpdateEventTracker();
+                }
+            }
+        }
         emit Updated();
     }
 }
 
-void CalendarEditor::on_YearlyLink_clicked()
-{
-    if(selectedDay != nullptr)
-    {
-        DayLink link = CreateDayLink();
-        if(link.targetNoteId.isEmpty())
-            return;
-        myData->addRecurringLink(currentMonth, selectedDay->dayNumber, link);
-        selectedDay->thisDaysLinks++;
-        SelectDay(selectedDay);
-        selectedDay->UpdateEventTracker();
-        emit Updated();
-    }
-}
-
-DayLink CalendarEditor::CreateDayLink()
+DayLink CalendarEditor::CreateDayLink(LinkScope &outScope)
 {
     QDialog dialog(this);
     dialog.setWindowTitle("Create New Link");
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
+    QString style =
+        "QRadioButton::indicator::unchecked {"
+        "  border: 2px solid black;"
+        "  border-radius: 6px;"
+        "  background-color: white;"
+        "  width: 12px;"
+        "  height: 12px;"
+        "}"
+        "QRadioButton::indicator::checked {"
+        "  border: 2px solid black;"
+        "  border-radius: 6px;"
+        "  width: 12px;"
+        "  height: 12px;"
+        "  background: black;"
+        "}";
+    QGroupBox *scopeGroup = new QGroupBox("Link Type", &dialog);
+    QVBoxLayout *scopeLayout = new QVBoxLayout(scopeGroup);
+    QRadioButton *rbSpecific = new QRadioButton("Specific Date Only", scopeGroup);
+    QRadioButton *rbYearly = new QRadioButton("Yearly (Recurring)", scopeGroup);
+    QRadioButton *rbLeap = nullptr;
+    rbSpecific->setStyleSheet(style);
+    rbYearly->setStyleSheet(style);
+
+    rbSpecific->setChecked(true);
+    scopeLayout->addWidget(rbSpecific);
+    scopeLayout->addWidget(rbYearly);
+    if (selectedDay != nullptr && selectedDay->leapDayDef != nullptr) {
+        rbLeap = new QRadioButton("Leap Day Only", scopeGroup);
+        rbLeap->setStyleSheet(style);
+        scopeLayout->addWidget(rbLeap);
+    }
+    layout->addWidget(scopeGroup);
+
     QLineEdit *descEdit = new QLineEdit(&dialog);
     layout->addWidget(new QLabel("Description:", &dialog));
     layout->addWidget(descEdit);
+
     QColor chosenColor("#5599DD");
     QPushButton *colorPick = new QPushButton(&dialog);
     colorPick->setStyleSheet("background-color: " + chosenColor.name() + ";");
@@ -393,11 +522,9 @@ DayLink CalendarEditor::CreateDayLink()
                         QListWidgetItem *item = new QListWidgetItem(entry.second);
                         item->setData(Qt::UserRole, entry.first.toString(QUuid::WithoutBraces));
                         resultsList->addItem(item);
-                        if (++count >= 10)
-                            break;
+                        if (++count >= 10) break;
                     }
                 }
-
                 resultsList->setVisible(count > 0);
             });
 
@@ -420,6 +547,10 @@ DayLink CalendarEditor::CreateDayLink()
     layout->addWidget(buttons);
 
     if (dialog.exec() == QDialog::Accepted) {
+        if (rbLeap && rbLeap->isChecked()) outScope = ScopeLeapDay;
+        else if (rbYearly->isChecked())    outScope = ScopeYearly;
+        else                               outScope = ScopeSpecific;
+
         DayLink link;
         link.displayLabel = descEdit->text();
         link.colorHex = chosenColor.name();
@@ -429,7 +560,6 @@ DayLink CalendarEditor::CreateDayLink()
 
     return DayLink();
 }
-
 void CalendarEditor::emitUuid(QString uuid)
 {
     emit uuidClicked(QUuid::fromString(uuid));

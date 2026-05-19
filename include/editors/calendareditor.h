@@ -12,6 +12,8 @@
 #include <QListWidget>
 #include <QFileInfo>
 #include <QMap>
+#include <QGroupBox>
+#include <QRadioButton>
 
 #include <include/noteTypes/calendardata.h>
 #include <include/calendarObjects/dayslot.h>
@@ -22,6 +24,12 @@ namespace Ui {
 class CalendarEditor;
 }
 
+enum LinkScope {
+    ScopeSpecific,
+    ScopeYearly,
+    ScopeLeapDay
+};
+
 class CalendarEditor : public QMainWindow
 {
     Q_OBJECT
@@ -31,7 +39,7 @@ public:
     ~CalendarEditor();
     void Initialize(CalendarData *data);
     void UpdateCalendar(int year, int month);
-    DayLink CreateDayLink();
+    DayLink CreateDayLink(LinkScope &outScope);
     CalendarData *myData;
     UuidRegistry *myRegistry;
     int currentYear;
@@ -53,8 +61,6 @@ public slots:
     void on_Date_clicked();
 
     void on_SpecificLink_clicked();
-
-    void on_YearlyLink_clicked();
 
     void emitUuid(QString uuid);
 signals:
